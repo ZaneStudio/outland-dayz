@@ -1,26 +1,75 @@
-import { NextRequest, NextResponse } from "next/server";
-import { encodeSteamSession, steamSessionCookie } from "@/lib/steam-auth";
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  try {
-    const received = new URLSearchParams(request.nextUrl.searchParams);
-    const claimedId = received.get("openid.claimed_id") || "";
-    const steamId = claimedId.match(/\/id\/(\d+)$/)?.[1];
-    if (!steamId) return NextResponse.redirect(new URL("/login?error=steam", request.url));
+  // Використовуємо суворо публічний домен для уникнення редіректів на localhost:10000
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://outland-dayz.onrender.com';
+  const { searchParams } = new URL(request.url);
 
-    received.set("openid.mode", "check_authentication");
-    const verified = await fetch("https://steamcommunity.com/openid/login", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: received.toString(), cache: "no-store" });
-    if (!verified.ok || !(await verified.text()).includes("is_valid:true")) return NextResponse.redirect(new URL("/login?error=verification", request.url));
+  // Отримуємо OpenID claimed_id від Steam
+  const claimedId = searchParams.get('openid.claimed_id');
 
-    let name = `Steam #${steamId.slice(-6)}`, avatar = "";
-    if (process.env.STEAM_API_KEY) {
-      const profile = await fetch(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${process.env.STEAM_API_KEY}&steamids=${steamId}`, { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null);
-      const player = profile?.response?.players?.[0];
-      if (player) { name = player.personaname || name; avatar = player.avatarfull || ""; }
+  if (!claimedId) {
+    return NextResponse.redirect(`${baseUrl}/login?error=MissingClaimedId`);
+  }
+
+  // Витягуємо 64-бітний Steam ID з посилання (наприклад: https://steamcommunity.com/openid/id/76561198XXXXXXXXX)
+  const steamIdMatches = claimedId.match(/\/id\/(\d+)/);
+  const steamId = steamIdMatches ? steamIdMatches[1] : null;
+
+  if (!steamId) {
+    return NextResponse.redirect(`${baseUrl}/login?error=InvalidSteamId`);
+  }
+
+  // Отримуємо дані профілю з Steam Web API
+  const apiKey = process.env.STEAM_API_KEY;
+  let userData = {
+    steamId,
+    name: `User ${steamId.slice(-4)}`,
+    avatar: '',
+  };
+
+  if (apiKey) {
+    try {
+      const res = await fetch(
+        `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${steamId}`,
+        { cache: 'no-store' }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        const player = data?.response?.players?.[0];
+        if (player) {
+          userData = {
+            steamId: player.steamid,
+            name: player.personaname,
+            avatar: player.avatarfull || player.avatarmedium || player.avatar,
+          };
+        }
+      }
+    } catch (error) {
+      console.error('Steam API Fetch Error:', error);
     }
+  }
 
-    const response = NextResponse.redirect(new URL("/profile", request.url));
-    response.cookies.set(steamSessionCookie, encodeSteamSession({ steamId, name, avatar }), { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 });
-    return response;
-  } catch { return NextResponse.redirect(new URL("/login?error=connection", request.url)); }
+  // Формуємо редірект на сторінку /profile
+  const response = NextResponse.redirect(`${baseUrl}/profile`);
+
+  // Встановлюємо Cookie сесії
+  response.cookies.set('steam_session', JSON.stringify(userData), {
+    path: '/',
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7, // 7 днів
+  });
+
+  response.cookies.set('steamId', steamId, {
+    path: '/',
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7,
+  });
+
+  return response;
 }
