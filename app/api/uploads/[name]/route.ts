@@ -1,0 +1,3 @@
+import { NextRequest, NextResponse } from "next/server"; import { promises as fs } from "fs"; import path from "path";
+const types:Record<string,string>={jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",gif:"image/gif"};
+export async function GET(_:NextRequest,{params}:{params:Promise<{name:string}>}){const {name}=await params;const safe=path.basename(name);if(safe!==name)return new NextResponse(null,{status:400});try{const data=await fs.readFile(path.join(process.cwd(),"public","uploads",safe));const ext=safe.split('.').pop()?.toLowerCase()||"";return new NextResponse(data,{headers:{"Content-Type":types[ext]||"application/octet-stream","Cache-Control":"public, max-age=31536000, immutable"}})}catch{return new NextResponse(null,{status:404})}}
