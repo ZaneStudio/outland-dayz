@@ -1,3 +1,3 @@
 import type { Metadata } from "next"; import "./globals.css"; import { Header } from "@/components/header"; import { Footer } from "@/components/footer"; import { CartProvider } from "@/components/cart";
-export const metadata: Metadata = { title:{default:"UKRAINE DAYZ — Український сервер",template:"%s | UKRAINE DAYZ"},description:"Атмосферний український DayZ сервер: виживай, шукай, борись.",openGraph:{title:"UKRAINE DAYZ",description:"Український сервер DayZ"} };
+export const metadata: Metadata = { title:{default:"OutLand DayZ",template:"%s | OutLand DayZ"},description:"Атмосферний український DayZ сервер: виживай, шукай, борись.",openGraph:{title:"OutLand DayZ",description:"Український сервер DayZ"} };
 export default function Layout({children}:{children:React.ReactNode}) { return <html lang="uk"><body><CartProvider><Header/><div className="page-enter">{children}</div><Footer/></CartProvider></body></html> }
