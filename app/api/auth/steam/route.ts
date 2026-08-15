@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://outland-dayz.onrender.com';
+  const baseUrl = (process.env.NEXTAUTH_URL || 'https://outland-dayz.onrender.com').replace(/\/$/, '');
   const redirectUri = `${baseUrl}/api/auth/steam/callback`;
 
   const params = new URLSearchParams({
