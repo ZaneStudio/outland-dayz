@@ -1,0 +1,1 @@
+import type {MetadataRoute} from "next"; export default function sitemap():MetadataRoute.Sitemap{return ['','/shop','/vip','/items','/forum','/news','/rules','/team'].map(url=>({url:`https://ukraine-dayz.com${url}`,lastModified:new Date(),changeFrequency:'weekly',priority:url===''?1:.7}))}

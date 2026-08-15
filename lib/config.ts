@@ -1,0 +1,1 @@
+export const siteConfig = { name: "OUTLAND DAYZ", tagline: "Український сервер DayZ", ip: "play.outland-dayz.com", port: "2302", discord: process.env.NEXT_PUBLIC_DISCORD_URL || "https://discord.gg/outland-dayz" };

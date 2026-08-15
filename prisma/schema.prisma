@@ -1,0 +1,18 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql"; url = env("DATABASE_URL") }
+enum Role { USER VIP MODERATOR ADMIN OWNER }
+enum OrderStatus { PENDING PAID CANCELLED }
+model User { id String @id @default(cuid()) email String @unique username String @unique passwordHash String role Role @default(USER) balance Int @default(0) image String? createdAt DateTime @default(now()) updatedAt DateTime @updatedAt accounts Account[] sessions Session[] orders Order[] vip Vip? threads ForumThread[] posts ForumPost[] reactions Reaction[] bans Ban[] }
+model Account { id String @id @default(cuid()) userId String type String provider String providerAccountId String user User @relation(fields:[userId],references:[id],onDelete:Cascade) @@unique([provider,providerAccountId]) }
+model Session { id String @id @default(cuid()) sessionToken String @unique userId String expires DateTime user User @relation(fields:[userId],references:[id],onDelete:Cascade) }
+model Category { id String @id @default(cuid()) name String @unique slug String @unique products Product[] }
+model Product { id String @id @default(cuid()) name String description String price Int image String categoryId String category Category @relation(fields:[categoryId],references:[id]) active Boolean @default(true) createdAt DateTime @default(now()) orderItems OrderItem[] }
+model Order { id String @id @default(cuid()) userId String user User @relation(fields:[userId],references:[id]) status OrderStatus @default(PENDING) total Int provider String @default("mock") createdAt DateTime @default(now()) items OrderItem[] }
+model OrderItem { id String @id @default(cuid()) orderId String productId String quantity Int @default(1) price Int order Order @relation(fields:[orderId],references:[id],onDelete:Cascade) product Product @relation(fields:[productId],references:[id]) }
+model Vip { id String @id @default(cuid()) userId String @unique expiresAt DateTime? tier String user User @relation(fields:[userId],references:[id],onDelete:Cascade) }
+model ForumCategory { id String @id @default(cuid()) name String @unique slug String @unique threads ForumThread[] }
+model ForumThread { id String @id @default(cuid()) title String categoryId String authorId String views Int @default(0) createdAt DateTime @default(now()) updatedAt DateTime @updatedAt category ForumCategory @relation(fields:[categoryId],references:[id]) author User @relation(fields:[authorId],references:[id]) posts ForumPost[] }
+model ForumPost { id String @id @default(cuid()) content String threadId String authorId String createdAt DateTime @default(now()) updatedAt DateTime @updatedAt thread ForumThread @relation(fields:[threadId],references:[id],onDelete:Cascade) author User @relation(fields:[authorId],references:[id]) reactions Reaction[] }
+model Reaction { id String @id @default(cuid()) type String @default("LIKE") postId String userId String post ForumPost @relation(fields:[postId],references:[id],onDelete:Cascade) user User @relation(fields:[userId],references:[id],onDelete:Cascade) @@unique([postId,userId,type]) }
+model News { id String @id @default(cuid()) title String slug String @unique content String published Boolean @default(true) createdAt DateTime @default(now()) }
+model Ban { id String @id @default(cuid()) userId String reason String expiresAt DateTime? createdAt DateTime @default(now()) user User @relation(fields:[userId],references:[id],onDelete:Cascade) }

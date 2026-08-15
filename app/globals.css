@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --line: rgba(217,226,195,.13); --accent:#b6c87b; --deep:#080a08; }
+* { box-sizing: border-box; }
+html { background:#090b09; scroll-behavior:smooth; }
+body { margin:0; min-width:320px; background:#090b09; color:#ecefe7; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; }
+body:before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.08; z-index:50; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E"); }
+a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection { background:#84955a; color:#081008; }
+.shell { max-width:1240px; margin:auto; padding:0 24px; } .eyebrow { letter-spacing:.19em; font-size:11px; font-weight:700; color:#aeba7c; }
+.panel { border:1px solid var(--line); background:rgba(20,24,18,.8); } .cut { clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px)); }
+.heading { font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif; letter-spacing:.055em; text-transform:uppercase; line-height:.9; text-wrap:balance; }
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:46px; padding:0 20px; text-transform:uppercase; font-size:12px; font-weight:bold; letter-spacing:.1em; transition:.2s; border:1px solid #94a467; background:#94a467; color:#10150d; cursor:pointer; }
+.btn:hover { transform:translateY(-2px); background:#b2c57a; box-shadow:0 10px 24px rgba(160,187,101,.18); } .btn-outline { background:rgba(8,11,8,.5); color:#e8eee1; border-color:#71804e; } .btn-outline:hover { background:#26301c; }
+.grid-lines { background-image:linear-gradient(rgba(185,206,135,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(185,206,135,.04) 1px,transparent 1px); background-size:45px 45px; }
+.hero-image { background-image:linear-gradient(90deg,rgba(4,6,4,.94) 0%,rgba(4,6,4,.64) 36%,rgba(4,6,4,.15) 72%,rgba(4,6,4,.72) 100%),linear-gradient(0deg,rgba(5,7,5,.88) 0%,transparent 45%),url('/images/outland-hero.png'); background-position:center; background-size:cover; }
+.hero-vignette { background:radial-gradient(ellipse at 53% 39%,transparent 0%,rgba(2,3,2,.17) 46%,rgba(2,3,2,.76) 100%); }
+.animate-enter { animation:enter .8s cubic-bezier(.2,.8,.2,1) both; } .delay-1 { animation-delay:.12s; } .delay-2 { animation-delay:.24s; } .delay-3 { animation-delay:.36s; }
+.float { animation:float 5s ease-in-out infinite; } .pulse-dot { animation:pulseDot 2.1s ease-in-out infinite; }
+.nav-link { position:relative; transition:color .2s ease; } .nav-link:after { content:""; position:absolute; right:0; bottom:-7px; left:0; height:1px; transform:scaleX(0); transform-origin:right; background:#b6c87b; transition:transform .25s ease; } .nav-link:hover:after { transform:scaleX(1); transform-origin:left; }
+.menu-reveal { transform-origin:top; animation:menuReveal .26s cubic-bezier(.2,.8,.2,1) both; } .menu-reveal a { animation:menuLink .32s ease both; } .menu-reveal a:nth-child(2){animation-delay:.03s}.menu-reveal a:nth-child(3){animation-delay:.06s}.menu-reveal a:nth-child(4){animation-delay:.09s}.menu-reveal a:nth-child(5){animation-delay:.12s}.menu-reveal a:nth-child(6){animation-delay:.15s}.menu-reveal a:nth-child(7){animation-delay:.18s}
+.route-curtain { position:fixed; z-index:80; inset:0; pointer-events:none; display:grid; place-items:center; background:linear-gradient(115deg,#090b09,#182014,#090b09); transform:translateX(-105%); transition:transform .34s cubic-bezier(.76,0,.24,1); } .route-curtain:after { content:"OUTLAND DAYZ"; color:#dce8b3; font-family:Impact,Haettenschweiler,sans-serif; font-size:clamp(2rem,7vw,7rem); letter-spacing:.08em; opacity:.22; } .route-curtain.is-active { transform:translateX(0); } .page-enter { animation:pageEnter .5s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes menuReveal { from { opacity:0; transform:scaleY(.86) } to { opacity:1; transform:scaleY(1) } } @keyframes menuLink { from { opacity:0; transform:translateX(-10px) } to { opacity:1; transform:translateX(0) } } @keyframes pageEnter { from { opacity:.2; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+@keyframes enter { from { opacity:0; transform:translateY(22px) } to { opacity:1; transform:translateY(0) } }
+@keyframes float { 50% { transform:translateY(-7px) } }
+@keyframes pulseDot { 50% { opacity:.45; box-shadow:0 0 2px #a9e65c } }
+@media (prefers-reduced-motion:reduce) { *,*:before,*:after { animation-duration:.01ms!important; animation-iteration-count:1!important; scroll-behavior:auto!important; } }
