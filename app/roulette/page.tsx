@@ -6,7 +6,7 @@ import { CircleDollarSign, Clock3, Crown, Gift, LockKeyhole, Package, Sparkles, 
 import type { RoulettePrize } from "@/lib/roulette-store";
 
 const requiredMinutes = 300;
-const rouletteAdminSteamIds = new Set(["76561198988049214"]);
+const rouletteAdminSteamIds = new Set(["76561198988049214", "76561199170253798"]);
 const icons = { crown: Crown, coins: CircleDollarSign, gift: Gift, package: Package, trophy: Trophy, sparkles: Sparkles };
 type SteamUser = { steamId: string; name: string; avatar: string };
 const formatTime = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}:00`;
