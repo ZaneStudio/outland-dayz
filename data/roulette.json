@@ -1,0 +1,10 @@
+[
+  {"id":"vip-3","label":"VIP 3 дні","icon":"crown"},
+  {"id":"coins-50","label":"50 000 монет","icon":"coins"},
+  {"id":"skin","label":"Скін «Виживальник»","icon":"gift"},
+  {"id":"builder","label":"Будівельний набір","icon":"package"},
+  {"id":"coins-100","label":"100 000 монет","icon":"coins"},
+  {"id":"vip-7","label":"VIP 7 днів","icon":"crown"},
+  {"id":"rpk","label":"Зброя RPK-16","icon":"trophy"},
+  {"id":"avatar","label":"Custom AVATAR","icon":"sparkles"}
+]
