@@ -29,3 +29,6 @@ a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection 
 
 /* Do not expose administrative implementation details on the access-denied screen. */
 .panel p:has(code) { display:none; }
+
+/* The landing hero has one primary action only. */
+.animate-enter.delay-3.mt-8 > a.btn-outline { display:none; }
