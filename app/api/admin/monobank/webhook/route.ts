@@ -1,0 +1,4 @@
+import { NextRequest, NextResponse } from "next/server";
+import { currentAdmin } from "@/lib/admin";
+
+export async function POST(request:NextRequest){const admin=await currentAdmin();if(!admin)return NextResponse.json({error:"Недостатньо прав"},{status:403});const token=process.env.PAYMENT_MONOBANK_TOKEN,secret=process.env.MONOBANK_WEBHOOK_SECRET,base=process.env.NEXT_PUBLIC_SITE_URL||request.nextUrl.origin;if(!token||!secret)return NextResponse.json({error:"Не задано Mono token або webhook secret"},{status:400});const webHookUrl=`${base.replace(/\/$/,"")}/api/monobank/webhook/${secret}`;const response=await fetch("https://api.monobank.ua/personal/webhook",{method:"POST",headers:{"X-Token":token,"Content-Type":"application/json"},body:JSON.stringify({webHookUrl})});if(!response.ok)return NextResponse.json({error:"Mono відхилив webhook"},{status:502});return NextResponse.json({ok:true,webHookUrl});}
