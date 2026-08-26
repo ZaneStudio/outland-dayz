@@ -2,11 +2,13 @@ services:
   - type: web
     name: outland-dayz
     runtime: node
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && npm run db:deploy && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_VERSION
         value: 24
+      - key: DATABASE_URL
+        sync: false
       - key: STEAM_API_KEY
         sync: false
       - key: STEAM_SESSION_SECRET

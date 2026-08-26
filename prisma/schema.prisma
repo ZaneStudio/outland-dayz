@@ -169,3 +169,70 @@ model Ban {
   createdAt DateTime  @default(now())
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model SteamAccount {
+  steamId      String               @id
+  balance      Int                  @default(0)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  transactions BalanceTransaction[]
+  promoUses    PromoUse[]
+}
+
+model BalanceTransaction {
+  id        String       @id
+  steamId   String
+  amount    Int
+  reason    String
+  createdAt DateTime     @default(now())
+  account   SteamAccount @relation(fields: [steamId], references: [steamId], onDelete: Cascade)
+}
+
+model ManagedProduct {
+  id          String   @id
+  name        String
+  description String
+  price       Int
+  category    String
+  image       String
+  popular     Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model ManagedNews {
+  id        String   @id
+  slug      String   @unique
+  title     String
+  text      String
+  date      String
+  createdAt DateTime @default(now())
+}
+
+model ManagedRoulettePrize {
+  id    String @id
+  label String
+  icon  String
+  image String?
+}
+
+model ManagedPromoCode {
+  id             String     @id
+  code           String     @unique
+  amount         Int
+  maxActivations Int
+  activations    Int        @default(0)
+  expiresAt      String
+  createdAt      DateTime   @default(now())
+  uses           PromoUse[]
+}
+
+model PromoUse {
+  id        String           @id @default(cuid())
+  promoId   String
+  steamId   String
+  createdAt DateTime         @default(now())
+  promo     ManagedPromoCode @relation(fields: [promoId], references: [id], onDelete: Cascade)
+  account   SteamAccount     @relation(fields: [steamId], references: [steamId], onDelete: Cascade)
+
+  @@unique([promoId, steamId])
+}
