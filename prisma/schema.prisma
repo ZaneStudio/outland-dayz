@@ -173,6 +173,8 @@ model Ban {
 model SteamAccount {
   steamId      String               @id
   balance      Int                  @default(0)
+  playtimeMinutes Int                @default(0)
+  rouletteSpins Int                  @default(0)
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
   transactions BalanceTransaction[]
