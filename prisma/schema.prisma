@@ -179,6 +179,7 @@ model SteamAccount {
   updatedAt    DateTime             @updatedAt
   transactions BalanceTransaction[]
   promoUses    PromoUse[]
+  vip          SteamVip?
 }
 
 model BalanceTransaction {
@@ -237,4 +238,26 @@ model PromoUse {
   account   SteamAccount     @relation(fields: [steamId], references: [steamId], onDelete: Cascade)
 
   @@unique([promoId, steamId])
+}
+
+model VipPlan {
+  id           String     @id
+  name         String
+  price        Int
+  durationDays Int?
+  features     String[]
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  memberships  SteamVip[]
+}
+
+model SteamVip {
+  steamId   String       @id
+  planId    String
+  expiresAt DateTime?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  account   SteamAccount @relation(fields: [steamId], references: [steamId], onDelete: Cascade)
+  plan      VipPlan      @relation(fields: [planId], references: [id])
 }
