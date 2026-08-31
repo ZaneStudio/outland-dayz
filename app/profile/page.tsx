@@ -10,13 +10,22 @@ export default async function Profile() {
   const user = await getSteamSession();
   
   if (!user) redirect("/login");
+
+  let account = { balance: 0 };
+  let vip = null;
+
+  try {
+    const results = await Promise.all([
+      getBalance(user.steamId).catch(() => ({ balance: 0 })),
+      getSteamVip(user.steamId).catch(() => null)
+    ]);
+    account = results[0] || { balance: 0 };
+    vip = results[1];
+  } catch (error) {
+    console.error("Error loading profile data:", error);
+  }
   
-  const [account, vip] = await Promise.all([
-    getBalance(user.steamId), 
-    getSteamVip(user.steamId)
-  ]);
-  
-  const initial = user.name.slice(0, 1).toUpperCase();
+  const initial = user.name ? user.name.slice(0, 1).toUpperCase() : "U";
   
   const activeVip = vip && (!vip.expiresAt || new Date(vip.expiresAt) > new Date()) ? vip : null;
   const vipLabel = activeVip 
@@ -62,7 +71,7 @@ export default async function Profile() {
       
       <div className="animate-enter delay-2 mt-6 grid gap-4 sm:grid-cols-3">
         {[
-          ["Баланс", `${account.balance} ₴`], 
+          ["Баланс", `${account?.balance ?? 0} ₴`], 
           ["VIP статус", vipLabel], 
           ["Повідомлень", "0"]
         ].map(([label, value]) => (
