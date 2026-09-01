@@ -32,6 +32,6 @@ export default function VipPage() {
     <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-3">
       {plans.map((plan) => <article key={plan.id} className="panel cut flex flex-col p-6 transition hover:-translate-y-1 hover:border-[#b5ca78]"><div className="flex items-start justify-between gap-3"><h2 className="heading text-3xl">{plan.name}</h2><Crown className="shrink-0 text-[#d9ca72]" /></div><p className="mt-4 text-3xl font-bold text-[#d7e69d]">{plan.price} ₴</p><p className="mt-2 text-sm text-stone-400">{plan.durationDays === null ? "Безстроковий статус" : `${plan.durationDays} днів VIP`}</p><ul className="my-7 space-y-3 text-sm text-stone-300">{plan.features.map((feature) => <li key={feature} className="flex gap-2"><Check size={17} className="shrink-0 text-[#adbe70]" />{feature}</li>)}</ul><button onClick={() => buy(plan.id)} disabled={loading !== null} className="btn mt-auto disabled:cursor-wait disabled:opacity-60">{loading === plan.id ? <><LoaderCircle className="animate-spin" size={17} />Оформлюємо</> : "Придбати з балансу"}</button></article>)}
     </div>
-    {!plans.length && <div className="panel mx-auto mt-10 max-w-5xl p-10 text-center text-stone-400">VIP-пакетів ще немає. Адміністратор може додати їх у панелі керування.</div>}
+    {!plans.length && <div className="panel mx-auto mt-10 max-w-5xl p-10 text-center text-stone-400">VIP-пакети з'являться зовсім скоро. Слідкуйте за оновленнями!</div>}
   </main>;
 }
