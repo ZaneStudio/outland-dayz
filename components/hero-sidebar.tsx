@@ -1,51 +1,62 @@
+"use client";
+
 import Link from "next/link";
+import { ArrowRight, Newspaper, RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
 
 type NewsItem = {
+  id?: string;
   title: string;
-  description: string;
-  time: string;
-  image: string;
+  text: string;
+  date: string;
 };
 
-const news: NewsItem[] = [
-  {
-    title: "ВАЙП СЕРВЕРА",
-    description: "Новий вайп уже на сервері! Готуйтеся до нового початку.",
-    time: "2 ДН. ТОМУ",
-    image: "/news/wipe.jpg",
-  },
-  {
-    title: "ОНОВЛЕННЯ 1.24",
-    description: "Додано нові предмети, виправлено помилки та покращено продуктивність.",
-    time: "5 ДН. ТОМУ",
-    image: "/news/update.jpg",
-  },
-  {
-    title: "EVENT: HELICRASH",
-    description: "На карті впав вертоліт з цінним лутом. Шукай та виживай!",
-    time: "1 ТИЖ. ТОМУ",
-    image: "/news/helicrash.jpg",
-  },
-  {
-    title: "AIRDROP АКТИВНО",
-    description: "На карту було скинуто вантаж з цінним спорядженням.",
-    time: "2 ТИЖ. ТОМУ",
-    image: "/news/airdrop.jpg",
-  },
-];
-
 export function HeroSidebar() {
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadNews = async () => {
+    try {
+      setLoading(true);
+
+      const response = await fetch("/api/news", {
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error("Не вдалося завантажити новини");
+      }
+
+      const data = await response.json();
+
+      setNews(Array.isArray(data) ? data.slice(0, 5) : []);
+    } catch (error) {
+      console.error("News loading error:", error);
+      setNews([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadNews();
+
+    // Оновлюємо новини кожні 30 секунд
+    const interval = setInterval(loadNews, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <aside
       className="
         absolute
-        right-0
+        right-8
         top-1/2
         z-20
-        w-[420px]
-        -translate-y-1/2
-        pr-8
         hidden
+        w-[460px]
+        -translate-y-1/2
         xl:block
       "
     >
@@ -54,166 +65,177 @@ export function HeroSidebar() {
           overflow-hidden
           border
           border-white/10
-          bg-black/55
-          backdrop-blur-md
+          bg-[#090c09]/90
           shadow-2xl
+          backdrop-blur-xl
         "
       >
         {/* HEADER */}
-        <div
-          className="
-            flex
-            items-center
-            justify-between
-            border-b
-            border-white/10
-            px-6
-            py-5
-          "
-        >
-          <div>
-            <span
-              className="
-                text-[11px]
-                font-bold
-                uppercase
-                tracking-[0.25em]
-                text-[#b6c980]
-              "
-            >
-              ОСТАННІ НОВИНИ
-            </span>
+        <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div className="grid h-9 w-9 place-items-center border border-[#8b9f5c]/30 bg-[#1c2414]">
+              <Newspaper size={17} className="text-[#b7c77d]" />
+            </div>
+
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#b7c77d]">
+                Останні новини
+              </p>
+
+              <p className="mt-1 text-[10px] uppercase tracking-wider text-stone-500">
+                Події сервера
+              </p>
+            </div>
           </div>
 
           <Link
             href="/news"
             className="
+              flex
+              items-center
+              gap-1.5
               text-[10px]
               font-bold
               uppercase
-              tracking-widest
-              text-[#b6c980]
+              tracking-wider
+              text-stone-400
               transition
-              hover:text-white
+              hover:text-[#c4da83]
             "
           >
-            УСІ НОВИНИ →
+            Усі новини
+            <ArrowRight size={13} />
           </Link>
         </div>
 
-        {/* NEWS */}
-        <div className="divide-y divide-white/10">
-          {news.map((item, index) => (
-            <Link
-              href="/news"
-              key={index}
-              className="
-                group
-                flex
-                gap-4
-                px-6
-                py-4
-                transition
-                duration-300
-                hover:bg-white/5
-              "
-            >
-              {/* IMAGE */}
-              <div
-                className="
-                  h-[76px]
-                  w-[100px]
-                  shrink-0
-                  overflow-hidden
-                  rounded-sm
-                  border
-                  border-white/10
-                  bg-black
-                "
-              >
-                <img
-                  src={item.image}
-                  alt={item.title}
+        {/* CONTENT */}
+        <div className="px-5">
+          {loading ? (
+            <div className="flex items-center justify-center gap-3 py-12 text-sm text-stone-500">
+              <RefreshCw size={16} className="animate-spin" />
+              Завантаження новин...
+            </div>
+          ) : news.length === 0 ? (
+            <div className="py-12 text-center">
+              <Newspaper
+                size={28}
+                className="mx-auto text-stone-600"
+              />
+
+              <p className="mt-4 text-sm text-stone-500">
+                Новин поки немає
+              </p>
+            </div>
+          ) : (
+            <div>
+              {news.map((item, index) => (
+                <article
+                  key={item.id ?? `${item.title}-${index}`}
                   className="
-                    h-full
-                    w-full
-                    object-cover
-                    opacity-80
-                    transition
-                    duration-500
-                    group-hover:scale-105
-                    group-hover:opacity-100
-                  "
-                />
-              </div>
-
-              {/* CONTENT */}
-              <div className="min-w-0 flex-1">
-                <div className="mb-1 flex items-start justify-between gap-2">
-                  <h3
-                    className="
-                      truncate
-                      text-[12px]
-                      font-bold
-                      uppercase
-                      tracking-wide
-                      text-[#b6c980]
-                    "
-                  >
-                    {item.title}
-                  </h3>
-
-                  <span
-                    className="
-                      shrink-0
-                      text-[9px]
-                      font-medium
-                      uppercase
-                      text-stone-500
-                    "
-                  >
-                    {item.time}
-                  </span>
-                </div>
-
-                <p
-                  className="
-                    line-clamp-2
-                    text-[11px]
-                    leading-relaxed
-                    text-stone-400
+                    group
+                    border-b
+                    border-white/[0.08]
+                    py-5
+                    last:border-b-0
                   "
                 >
-                  {item.description}
-                </p>
-              </div>
-            </Link>
-          ))}
+                  <div className="flex gap-4">
+                    {/* Номер */}
+                    <div
+                      className="
+                        flex
+                        h-14
+                        w-14
+                        shrink-0
+                        items-center
+                        justify-center
+                        border
+                        border-white/10
+                        bg-black/50
+                        text-[11px]
+                        font-bold
+                        tracking-wider
+                        text-stone-600
+                        transition
+                        group-hover:border-[#84955a]/40
+                        group-hover:text-[#b7c77d]
+                      "
+                    >
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+
+                    {/* Текст */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <h3
+                          className="
+                            line-clamp-1
+                            text-sm
+                            font-bold
+                            uppercase
+                            tracking-wide
+                            text-[#c4da83]
+                            transition
+                            group-hover:text-[#e0edb1]
+                          "
+                        >
+                          {item.title}
+                        </h3>
+
+                        <time
+                          className="
+                            shrink-0
+                            text-[9px]
+                            uppercase
+                            tracking-wider
+                            text-stone-600
+                          "
+                        >
+                          {item.date}
+                        </time>
+                      </div>
+
+                      <p
+                        className="
+                          mt-2
+                          line-clamp-2
+                          text-xs
+                          leading-relaxed
+                          text-stone-400
+                        "
+                      >
+                        {item.text}
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* FOOTER */}
-        <Link
-          href="/news"
-          className="
-            flex
-            items-center
-            justify-center
-            border-t
-            border-white/10
-            px-6
-            py-4
-            text-[10px]
-            font-bold
-            uppercase
-            tracking-[0.2em]
-            text-stone-400
-            transition
-            hover:bg-[#b6c980]/10
-            hover:text-[#b6c980]
-          "
-        >
-          ПЕРЕГЛЯНУТИ ВСІ НОВИНИ →
-        </Link>
+        <div className="border-t border-white/10 bg-black/20 px-6 py-4">
+          <Link
+            href="/news"
+            className="
+              flex
+              items-center
+              justify-center
+              gap-2
+              text-[10px]
+              font-bold
+              uppercase
+              tracking-[0.2em]
+              text-stone-400
+              transition
+              hover:text-[#c4da83]
+            "
+          >
+            Переглянути всі новини
+            <ArrowRight size={13} />
+          </Link>
+        </div>
       </div>
     </aside>
   );
