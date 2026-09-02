@@ -13,7 +13,7 @@ export default function AdminNews() {
   const [items, setItems] = useState<ManagedNews[]>([]);
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [form, setForm] = useState(blank);
-  const [file, setFile] = useState<File | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
@@ -28,25 +28,42 @@ export default function AdminNews() {
     load();
   }, []);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setImageBase64(null);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImageBase64(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("title", form.title);
-    formData.append("text", form.text);
-    formData.append("date", form.date);
-    if (file) {
-      formData.append("image", file);
+    
+    const bodyData: any = {
+      title: form.title,
+      text: form.text,
+      date: form.date,
+    };
+
+    if (imageBase64 !== null) {
+      bodyData.image = imageBase64;
     }
 
     const res = await fetch(editing ? `/api/news/${editing}` : '/api/news', {
       method: editing ? 'PATCH' : 'POST',
-      body: formData
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bodyData)
     });
 
     if (res.ok) {
       setMessage(editing ? 'Новину оновлено.' : 'Новину опубліковано.');
       setForm(blank);
-      setFile(null);
+      setImageBase64(null);
       setEditing(null);
       load();
     } else {
@@ -57,7 +74,7 @@ export default function AdminNews() {
   const edit = (item: any) => {
     setEditing(item.id);
     setForm({ title: item.title, text: item.text, date: item.date });
-    setFile(null);
+    setImageBase64(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -95,9 +112,10 @@ export default function AdminNews() {
             <input 
               type="file" 
               accept="image/*"
-              onChange={e => setFile(e.target.files?.[0] || null)} 
+              onChange={handleFileChange} 
               className="bg-black/30 p-3 rounded border border-white/10 text-white text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-[#829258] file:text-black hover:file:bg-[#96ac65] cursor-pointer"
             />
+            {imageBase64 && <span className="text-xs text-[#c4da83]">Зображення успішно підготовлено до завантаження</span>}
           </div>
 
           <input 
@@ -119,7 +137,7 @@ export default function AdminNews() {
           <div className="flex gap-3">
             <button className="btn"><Save size={16}/>{editing ? 'Зберегти зміни' : 'Опублікувати'}</button>
             {editing && (
-              <button type="button" onClick={() => { setEditing(null); setForm(blank); setFile(null); }} className="btn btn-outline">
+              <button type="button" onClick={() => { setEditing(null); setForm(blank); setImageBase64(null); }} className="btn btn-outline">
                 Скасувати
               </button>
             )}
