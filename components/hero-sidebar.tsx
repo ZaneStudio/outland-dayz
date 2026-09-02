@@ -9,6 +9,7 @@ type NewsItem = {
   title: string;
   text: string;
   date: string;
+  image?: string | null;
 };
 
 export function HeroSidebar() {
@@ -140,15 +141,17 @@ export function HeroSidebar() {
                   "
                 >
                   <div className="flex gap-4">
-                    {/* Номер */}
+                    {/* Зображення або номер */}
                     <div
                       className="
+                        relative
                         flex
                         h-14
                         w-14
                         shrink-0
                         items-center
                         justify-center
+                        overflow-hidden
                         border
                         border-white/10
                         bg-black/50
@@ -161,7 +164,15 @@ export function HeroSidebar() {
                         group-hover:text-[#b7c77d]
                       "
                     >
-                      {String(index + 1).padStart(2, "0")}
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        String(index + 1).padStart(2, "0")
+                      )}
                     </div>
 
                     {/* Текст */}
