@@ -91,12 +91,12 @@ export default function AdminNews() {
           />
           
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-stone-400">Зображення для новини (з комп'ютера):</label>
+            <label className="text-xs text-stone-400">Фото для новини з комп'ютера:</label>
             <input 
               type="file" 
               accept="image/*"
               onChange={e => setFile(e.target.files?.[0] || null)} 
-              className="bg-black/30 p-2.5 rounded border border-white/10 text-white text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-[#829258] file:text-black hover:file:bg-[#96ac65]"
+              className="bg-black/30 p-3 rounded border border-white/10 text-white text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-[#829258] file:text-black hover:file:bg-[#96ac65] cursor-pointer"
             />
           </div>
 
