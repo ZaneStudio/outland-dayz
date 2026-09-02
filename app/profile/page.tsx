@@ -83,7 +83,7 @@ export default async function Profile() {
       </div>
       
       <div className="animate-enter delay-3">
-        <ProfileDashboard steamId={user.steamId} />
+        <ProfileDashboard steamId={user.steamId} vipLabel={vipLabel} />
       </div>
     </main>
   );
