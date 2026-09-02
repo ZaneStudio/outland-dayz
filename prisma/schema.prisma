@@ -130,14 +130,14 @@ model ForumThread {
 }
 
 model ForumPost {
-  id        String      @id @default(cuid())
+  id        String     @id @default(cuid())
   content   String
   threadId  String
   authorId  String
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   thread    ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  author    User        @relation(fields: [authorId], references: [id])
+  author    User       @relation(fields: [authorId], references: [id])
   reactions Reaction[]
 }
 
@@ -171,15 +171,15 @@ model Ban {
 }
 
 model SteamAccount {
-  steamId      String               @id
-  balance      Int                  @default(0)
-  playtimeMinutes Int                @default(0)
-  rouletteSpins Int                  @default(0)
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
-  transactions BalanceTransaction[]
-  promoUses    PromoUse[]
-  vip          SteamVip?
+  steamId         String               @id
+  balance         Int                  @default(0)
+  playtimeMinutes Int                  @default(0)
+  rouletteSpins   Int                  @default(0)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  transactions    BalanceTransaction[]
+  promoUses       PromoUse[]
+  vip             SteamVip?
 }
 
 model BalanceTransaction {
@@ -208,6 +208,7 @@ model ManagedNews {
   title     String
   text      String
   date      String
+  image     String?
   createdAt DateTime @default(now())
 }
 
