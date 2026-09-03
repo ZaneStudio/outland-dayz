@@ -28,19 +28,21 @@ export default function Checkout() {
   };
 
   const handleCheckout = () => {
-    // 1. Отримуємо поточний баланс користувача з localStorage (за замовчуванням 50 грн, якщо не було змін)
-    const currentBalance = Number(localStorage.getItem("outland_user_balance") || "50");
+    // Читаємо баланс з усіх можливих ключів localStorage, щоб уникнути розсинхронізації
+    const currentBalanceStr = localStorage.getItem("outland_user_balance") || localStorage.getItem("balance") || "50";
+    const currentBalance = Number(currentBalanceStr);
 
     if (currentBalance < total) {
-      alert("Недостатньо коштів на балансі! Будь ласка, поповніть рахунок.");
+      alert(`Недостатньо коштів! Ваш баланс: ${currentBalance} ₴, а сума замовлення: ${total} ₴`);
       return;
     }
 
-    // 2. Списусємо кошти з балансу та оновлюємо їх у сховищі
+    // Списусємо кошти та оновлюємо всі ключі балансу
     const newBalance = currentBalance - total;
     localStorage.setItem("outland_user_balance", newBalance.toString());
+    localStorage.setItem("balance", newBalance.toString());
 
-    // 3. Генеруємо дані замовлення
+    // Генеруємо дані замовлення
     const orderId = `UDZ-${Date.now().toString().slice(-6)}`;
     const redeemCode = generateDayZCode();
     
@@ -52,11 +54,11 @@ export default function Checkout() {
       total: total,
     };
 
-    // 4. Зберігаємо замовлення в загальний список
-    const existingOrders = JSON.parse(localStorage.getItem("outland_orders") || "[]");
-    localStorage.setItem("outland_orders", JSON.stringify([newOrder, ...existingOrders]));
+    // Зберігаємо замовлення у ВСІ можливі сховища історії, щоб профіль їх 100% побачив
+    const existingGeneral = JSON.parse(localStorage.getItem("outland_orders") || "[]");
+    localStorage.setItem("outland_orders", JSON.stringify([newOrder, ...existingGeneral]));
 
-    // 5. Також дублюємо в персональну історію замовлень поточного гравця за його SteamID
+    // Зберігаємо також під SteamID користувача, якщо він є
     const sessionUser = JSON.parse(localStorage.getItem("outland_user") || "{}");
     if (sessionUser.steamId) {
       const userOrdersKey = `outland_orders_${sessionUser.steamId}`;
@@ -86,7 +88,7 @@ export default function Checkout() {
             <p className="eyebrow">Оплату підтверджено</p>
             <h1 className="heading mt-3 text-4xl text-[#f2f5e9]">Замовлення прийнято</h1>
             <p className="mt-4 text-sm text-stone-300">Номер вашого замовлення: <b className="text-white font-mono">{order}</b></p>
-            <p className="mt-2 text-xs text-[#b6c980]">Кошти списано з балансу, а унікальний код видачі з'явився у вашому профілі!</p>
+            <p className="mt-2 text-xs text-[#b6c980]">Кошти успішно списано, а код видачі вже у вашому профілі!</p>
             <div className="mt-8">
               <a href="/profile" className="btn inline-flex items-center gap-2 rounded-xl px-6">
                 До профілю <ArrowRight size={16} />
