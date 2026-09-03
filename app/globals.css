@@ -11,8 +11,13 @@ a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection 
 .shell { max-width:1240px; margin:auto; padding:0 24px; } .eyebrow { letter-spacing:.19em; font-size:11px; font-weight:700; color:#aeba7c; }
 .panel { border:1px solid var(--line); background:rgba(20,24,18,.8); } .cut { clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px)); }
 .heading { font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif; letter-spacing:.055em; text-transform:uppercase; line-height:.9; text-wrap:balance; }
-.btn { display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:46px; padding:0 20px; text-transform:uppercase; font-size:12px; font-weight:bold; letter-spacing:.1em; transition:.2s; border:1px solid #94a467; background:#94a467; color:#10150d; cursor:pointer; }
-.btn:hover { transform:translateY(-2px); background:#b2c57a; box-shadow:0 10px 24px rgba(160,187,101,.18); } .btn-outline { background:rgba(8,11,8,.5); color:#e8eee1; border-color:#71804e; } .btn-outline:hover { background:#26301c; }
+
+/* Оновлений оливково-мілітарі стиль кнопок з м'яким світінням */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:46px; padding:0 20px; text-transform:uppercase; font-size:12px; font-weight:bold; letter-spacing:.1em; transition:.3s; border:1px solid #8a9e5b; background:linear-gradient(135deg, #8a9e5b, #6f8243); color:#0d120a; cursor:pointer; border-radius:12px; box-shadow:0 4px 15px rgba(111,130,67,0.25); }
+.btn:hover { transform:translateY(-2px); background:linear-gradient(135deg, #9ab366, #7d934c); box-shadow:0 8px 22px rgba(138,158,91,0.35); } 
+.btn-outline { background:rgba(8,11,8,.5); color:#e8eee1; border-color:#71804e; } 
+.btn-outline:hover { background:#26301c; }
+
 .grid-lines { background-image:linear-gradient(rgba(185,206,135,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(185,206,135,.04) 1px,transparent 1px); background-size:45px 45px; }
 .hero-image { background-image:linear-gradient(90deg,rgba(4,6,4,.94) 0%,rgba(4,6,4,.64) 36%,rgba(4,6,4,.15) 72%,rgba(4,6,4,.72) 100%),linear-gradient(0deg,rgba(5,7,5,.88) 0%,transparent 45%),url('/images/outland-hero.png'); background-position:center; background-size:cover; }
 .hero-vignette { background:radial-gradient(ellipse at 53% 39%,transparent 0%,rgba(2,3,2,.17) 46%,rgba(2,3,2,.76) 100%); }

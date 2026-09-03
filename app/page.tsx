@@ -2,8 +2,6 @@ import Link from "next/link";
 import { Shield, Users } from "lucide-react";
 
 import { ConnectModal } from "@/components/connect-modal";
-import { NewsPreview } from "@/components/news-preview";
-import { ServerStatus } from "@/components/server-status";
 import { HeroSidebar } from "@/components/hero-sidebar";
 import { siteConfig } from "@/lib/config";
 
@@ -20,8 +18,8 @@ export default function Home() {
           />
         </div>
 
-        {/* Затемнення */}
-        <div className="absolute inset-0 -z-10 bg-black/50" />
+        {/* Легке загальне затемнення */}
+        <div className="absolute inset-0 -z-10 bg-black/20" />
 
         {/* Vignette */}
         <div className="hero-vignette absolute inset-0 -z-10" />
@@ -30,10 +28,10 @@ export default function Home() {
         <div className="grid-lines absolute inset-0 -z-10 opacity-60" />
 
         {/* Основний контент */}
-        <div className="shell relative z-10 flex min-h-[700px] flex-col justify-end py-12 sm:min-h-[760px] sm:justify-center sm:py-24">
+        <div className="shell relative z-10 flex min-h-[700px] flex-col justify-center py-12 sm:min-h-[760px] sm:py-24">
           
-          {/* Ліва частина */}
-          <div className="max-w-2xl xl:max-w-[650px]">
+          {/* Ліва частина без плашки статусу сервера внизу */}
+          <div className="max-w-2xl xl:max-w-[650px] rounded-2xl bg-black/50 p-6 sm:p-8 backdrop-blur-md border border-white/10 shadow-2xl -ml-16 sm:-ml-32 lg:-ml-44 xl:-ml-52">
             <p className="eyebrow animate-enter">
               Зона виживання · Україна
             </p>
@@ -51,14 +49,9 @@ export default function Home() {
               де закінчується цивілізація.
             </p>
 
-            <div className="animate-enter delay-3 mt-8">
+            <div className="animate-enter delay-3 mt-8 flex flex-wrap items-center gap-4">
               <ConnectModal />
             </div>
-          </div>
-
-          {/* Статус сервера */}
-          <div className="animate-enter delay-3 mt-10 w-full max-w-3xl sm:mt-14">
-            <ServerStatus />
           </div>
         </div>
 
@@ -67,36 +60,10 @@ export default function Home() {
       </section>
 
       {/* =====================================================
-          НОВИНИ
-      ===================================================== */}
-      <section className="shell py-20 sm:py-24">
-        <div className="flex items-end justify-between gap-6">
-          <div>
-            <p className="eyebrow">
-              Останнє з зони
-            </p>
-
-            <h2 className="heading mt-2 text-4xl">
-              Новини сервера
-            </h2>
-          </div>
-
-          <Link
-            href="/news"
-            className="text-sm text-[#b7c77d] transition hover:text-[#dfe7cf]"
-          >
-            Усі новини →
-          </Link>
-        </div>
-
-        <NewsPreview />
-      </section>
-
-      {/* =====================================================
           СПІЛЬНОТА
       ===================================================== */}
-      <section className="border-y border-white/10 bg-[#11150e]">
-        <div className="shell grid gap-10 py-20 sm:py-24 md:grid-cols-[1fr_auto]">
+      <section className="relative overflow-hidden border-y border-white/10 bg-black/40 backdrop-blur-md">
+        <div className="shell grid gap-10 py-16 sm:py-20 md:grid-cols-[1fr_auto]">
           <div>
             <p className="eyebrow">
               Наша спільнота
@@ -106,14 +73,14 @@ export default function Home() {
               Не виживай наодинці
             </h2>
 
-            <p className="mt-5 max-w-2xl leading-relaxed text-stone-400">
+            <p className="mt-5 max-w-2xl leading-relaxed text-stone-300">
               Приєднуйся до української DayZ спільноти.
               Збирай загін, ділись історіями та будь в курсі подій.
             </p>
           </div>
 
           <a
-            className="btn self-center"
+            className="btn rounded-xl self-center"
             href={siteConfig.discord}
             target="_blank"
             rel="noopener noreferrer"
@@ -128,7 +95,7 @@ export default function Home() {
           ПЕРЕВАГИ
       ===================================================== */}
       <section className="shell grid gap-5 py-20 sm:py-24 md:grid-cols-2">
-        <div className="panel p-7 transition duration-300 hover:-translate-y-2 hover:border-[#84955a]">
+        <div className="rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 p-7 transition duration-300 hover:-translate-y-2 hover:border-[#84955a]">
           <Shield className="text-[#b6c980]" />
 
           <h3 className="mt-5 font-bold">
@@ -140,7 +107,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="panel p-7 transition duration-300 hover:-translate-y-2 hover:border-[#84955a]">
+        <div className="rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 p-7 transition duration-300 hover:-translate-y-2 hover:border-[#84955a]">
           <Users className="text-[#b6c980]" />
 
           <h3 className="mt-5 font-bold">

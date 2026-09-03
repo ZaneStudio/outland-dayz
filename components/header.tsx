@@ -48,76 +48,92 @@ export function Header() {
   return (
     <>
       <div className={`route-curtain ${transitioning ? 'is-active' : ''}`} />
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0a0c09]/95 backdrop-blur">
-        <div className="shell flex h-16 items-center justify-between gap-3">
-          <Link onClick={go('/')} href="/" className="heading shrink-0 text-xl text-[#dce5bd] sm:text-2xl">
-            {siteConfig.name}
-          </Link>
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-black/50 backdrop-blur-md shadow-lg">
+        <div className="shell relative flex h-16 items-center justify-between gap-4">
+          
+          {/* Пустий блок зліва для збереження симетрії сітки */}
+          <div className="w-24 hidden xl:block" />
 
-          <nav className="hidden items-center gap-4 text-[10px] font-bold uppercase tracking-wider text-stone-300 xl:flex">
-            {links.map(([x, h]) => (
-              <Link onClick={go(h)} className="nav-link hover:text-[#adbd75]" href={h} key={h}>
-                {x}
-              </Link>
-            ))}
+          {/* Навігація чітко по центру */}
+          <nav className="hidden absolute left-1/2 -translate-x-1/2 items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-300 xl:flex">
+            {links.map(([x, h]) => {
+              const active = path === h;
+              return (
+                <Link 
+                  onClick={go(h)} 
+                  className={`px-4 py-2 rounded-xl transition duration-300 border ${
+                    active 
+                      ? 'bg-white/10 border-white/20 text-[#dce5bd] shadow-md' 
+                      : 'bg-transparent border-transparent text-stone-400 hover:bg-white/5 hover:border-white/10 hover:text-white'
+                  }`} 
+                  href={h} 
+                  key={h}
+                >
+                  {x}
+                </Link>
+              );
+            })}
           </nav>
 
-          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
-            {user ? (
-              <Link
-                onClick={go('/profile')}
-                href="/profile"
-                className="hidden max-w-40 items-center gap-2 text-sm text-[#dce5bd] transition hover:text-[#b8ca7d] md:flex"
-              >
-                {user.avatar ? (
-                  <img src={user.avatar} alt="Steam avatar" className="h-7 w-7 rounded-full border border-[#82945b]" />
-                ) : (
-                  <span className="grid h-7 w-7 place-items-center rounded-full bg-[#82945b] text-xs font-bold text-black">
-                    {user.name ? user.name[0] : 'U'}
-                  </span>
-                )}
-                <span className="truncate">{user.name || user.steamId}</span>
-              </Link>
-            ) : (
-              <Link onClick={go('/login')} className="hidden text-sm text-stone-300 hover:text-white md:block" href="/login">
-                Увійти
-              </Link>
-            )}
-
-            <Link onClick={go(user ? '/profile' : '/login')} className="btn hidden !min-h-9 !px-3 sm:inline-flex" href={user ? '/profile' : '/login'}>
-              {user ? 'Профіль' : 'Steam Вхід'}
-            </Link>
-
-            <Link onClick={go('/checkout')} aria-label="Кошик" className="relative p-2 text-[#d9e6b3]" href="/checkout">
-              <ShoppingCart size={20} />
-              {items.length > 0 && (
-                <b className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-ember text-[9px] text-white">
-                  {items.length}
-                </b>
-              )}
-            </Link>
-
-            <button aria-label="Меню" className="p-2 transition hover:rotate-6 xl:hidden" onClick={() => setOpen(!open)}>
-              {open ? <X /> : <Menu />}
+          {/* Кнопки справа */}
+          <div className="flex w-full xl:w-auto justify-between xl:justify-end shrink-0 items-center gap-2 sm:gap-3">
+            <button aria-label="Меню" className="p-2.5 rounded-xl border border-white/10 bg-black/30 text-stone-300 transition hover:bg-white/5 hover:text-white xl:hidden" onClick={() => setOpen(!open)}>
+              {open ? <X size={18} /> : <Menu size={18} />}
             </button>
+
+            <div className="flex items-center gap-2 sm:gap-3 ml-auto xl:ml-0">
+              {user ? (
+                <Link
+                  onClick={go('/profile')}
+                  href="/profile"
+                  className="hidden max-w-40 items-center gap-2 text-sm text-[#dce5bd] transition hover:text-[#b8ca7d] md:flex"
+                >
+                  {user.avatar ? (
+                    <img src={user.avatar} alt="Steam avatar" className="h-7 w-7 rounded-full border border-[#82945b]" />
+                  ) : (
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-[#82945b] text-xs font-bold text-black">
+                      {user.name ? user.name[0] : 'U'}
+                    </span>
+                  )}
+                  <span className="truncate">{user.name || user.steamId}</span>
+                </Link>
+              ) : (
+                <Link onClick={go('/login')} className="hidden text-sm text-stone-300 hover:text-white md:block px-3 py-2 rounded-xl transition hover:bg-white/5" href="/login">
+                  Увійти
+                </Link>
+              )}
+
+              <Link onClick={go(user ? '/profile' : '/login')} className="btn rounded-xl hidden !min-h-10 !px-4 text-xs sm:inline-flex" href={user ? '/profile' : '/login'}>
+                {user ? 'Профіль' : 'Steam Вхід'}
+              </Link>
+
+              <Link onClick={go('/checkout')} aria-label="Кошик" className="relative p-2.5 rounded-xl border border-white/10 bg-black/30 text-[#d9e6b3] transition hover:border-[#84955a] hover:bg-white/5 hover:text-white" href="/checkout">
+                <ShoppingCart size={18} />
+                {items.length > 0 && (
+                  <b className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-ember text-[9px] text-white">
+                    {items.length}
+                  </b>
+                )}
+              </Link>
+            </div>
           </div>
         </div>
 
         {open && (
-          <nav className="menu-reveal shell grid border-t border-white/10 py-3 xl:hidden">
+          <nav className="menu-reveal shell grid border-t border-white/10 bg-black/90 backdrop-blur-md py-4 gap-2 xl:hidden">
             {user ? (
-              <Link href="/profile" onClick={go('/profile')} className="flex items-center gap-2 border-b border-white/5 py-3 font-bold text-[#b6c87b]">
+              <Link href="/profile" onClick={go('/profile')} className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 font-bold text-[#b6c87b]">
                 {user.avatar && <img src={user.avatar} alt="Avatar" className="h-6 w-6 rounded-full" />}
                 <span>{user.name || 'Профіль'}</span>
               </Link>
             ) : (
-              <Link href="/login" onClick={go('/login')} className="border-b border-white/5 py-3 font-bold text-[#b6c87b]">
+              <Link href="/login" onClick={go('/login')} className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 font-bold text-[#b6c87b]">
                 Увійти через Steam
               </Link>
             )}
 
             {links.map(([x, h]) => (
-              <Link onClick={go(h)} className="border-b border-white/5 py-3 text-sm font-bold uppercase" href={h} key={h}>
+              <Link onClick={go(h)} className="px-4 py-3 rounded-xl border border-white/5 bg-black/30 text-sm font-bold uppercase transition hover:border-white/10 hover:bg-white/5" href={h} key={h}>
                 {x}
               </Link>
             ))}

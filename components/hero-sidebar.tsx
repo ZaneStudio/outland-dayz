@@ -1,250 +1,63 @@
-"use client";
-
 import Link from "next/link";
-import { ArrowRight, Newspaper, RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Newspaper, ArrowRight } from "lucide-react";
+import { getManagedNews } from "@/lib/news-store";
 
-type NewsItem = {
-  id?: string;
-  title: string;
-  text: string;
-  date: string;
-  image?: string | null;
-};
-
-export function HeroSidebar() {
-  const [news, setNews] = useState<NewsItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const loadNews = async () => {
-    try {
-      setLoading(true);
-
-      const response = await fetch("/api/news", {
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        throw new Error("Не вдалося завантажити новини");
-      }
-
-      const data = await response.json();
-
-      setNews(Array.isArray(data) ? data.slice(0, 5) : []);
-    } catch (error) {
-      console.error("News loading error:", error);
-      setNews([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadNews();
-
-    // Оновлюємо новини кожні 30 секунд
-    const interval = setInterval(loadNews, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
+export async function HeroSidebar() {
+  const allNews = await getManagedNews();
+  const news = allNews.slice(0, 2); // Беремо останні 2 новини
 
   return (
-    <aside
-      className="
-        absolute
-        right-8
-        top-1/2
-        z-20
-        hidden
-        w-[460px]
-        -translate-y-1/2
-        xl:block
-      "
-    >
-      <div
-        className="
-          overflow-hidden
-          border
-          border-white/10
-          bg-[#090c09]/90
-          shadow-2xl
-          backdrop-blur-xl
-        "
-      >
-        {/* HEADER */}
-        <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
-          <div className="flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center border border-[#8b9f5c]/30 bg-[#1c2414]">
-              <Newspaper size={17} className="text-[#b7c77d]" />
-            </div>
-
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#b7c77d]">
-                Останні новини
-              </p>
-
-              <p className="mt-1 text-[10px] uppercase tracking-wider text-stone-500">
-                Події сервера
-              </p>
-            </div>
+    <aside className="absolute right-8 top-1/2 hidden -translate-y-1/2 w-80 lg:w-96 xl:w-[420px] lg:block z-20">
+      <div className="rounded-2xl bg-black/50 p-6 backdrop-blur-md border border-white/10 shadow-2xl">
+        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+          <div className="flex items-center gap-2.5">
+            <Newspaper className="text-[#b6c980]" size={18} />
+            <h2 className="text-xs font-bold uppercase tracking-widest text-stone-200">Останні новини</h2>
           </div>
-
-          <Link
-            href="/news"
-            className="
-              flex
-              items-center
-              gap-1.5
-              text-[10px]
-              font-bold
-              uppercase
-              tracking-wider
-              text-stone-400
-              transition
-              hover:text-[#c4da83]
-            "
+          <Link 
+            href="/news" 
+            className="flex items-center gap-1 text-xs font-semibold text-[#b6c980] transition hover:text-white"
           >
-            Усі новини
-            <ArrowRight size={13} />
+            Усі новини <ArrowRight size={14} />
           </Link>
         </div>
 
-        {/* CONTENT */}
-        <div className="px-5">
-          {loading ? (
-            <div className="flex items-center justify-center gap-3 py-12 text-sm text-stone-500">
-              <RefreshCw size={16} className="animate-spin" />
-              Завантаження новин...
-            </div>
-          ) : news.length === 0 ? (
-            <div className="py-12 text-center">
-              <Newspaper
-                size={28}
-                className="mx-auto text-stone-600"
-              />
-
-              <p className="mt-4 text-sm text-stone-500">
-                Новин поки немає
-              </p>
-            </div>
+        <div className="mt-4 space-y-3">
+          {news.length === 0 ? (
+            <p className="text-xs text-stone-400 py-4 text-center">Новин поки немає</p>
           ) : (
-            <div>
-              {news.map((item, index) => (
-                <article
-                  key={item.id ?? `${item.title}-${index}`}
-                  className="
-                    group
-                    border-b
-                    border-white/[0.08]
-                    py-5
-                    last:border-b-0
-                  "
-                >
-                  <div className="flex gap-4">
-                    {/* Зображення або номер */}
-                    <div
-                      className="
-                        relative
-                        flex
-                        h-14
-                        w-14
-                        shrink-0
-                        items-center
-                        justify-center
-                        overflow-hidden
-                        border
-                        border-white/10
-                        bg-black/50
-                        text-[11px]
-                        font-bold
-                        tracking-wider
-                        text-stone-600
-                        transition
-                        group-hover:border-[#84955a]/40
-                        group-hover:text-[#b7c77d]
-                      "
-                    >
-                      {item.image ? (
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        String(index + 1).padStart(2, "0")
-                      )}
-                    </div>
-
-                    {/* Текст */}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-3">
-                        <h3
-                          className="
-                            line-clamp-1
-                            text-sm
-                            font-bold
-                            uppercase
-                            tracking-wide
-                            text-[#c4da83]
-                            transition
-                            group-hover:text-[#e0edb1]
-                          "
-                        >
-                          {item.title}
-                        </h3>
-
-                        <time
-                          className="
-                            shrink-0
-                            text-[9px]
-                            uppercase
-                            tracking-wider
-                            text-stone-600
-                          "
-                        >
-                          {item.date}
-                        </time>
-                      </div>
-
-                      <p
-                        className="
-                          mt-2
-                          line-clamp-2
-                          text-xs
-                          leading-relaxed
-                          text-stone-400
-                        "
-                      >
-                        {item.text}
-                      </p>
-                    </div>
+            news.map((item, index) => (
+              <article key={item.id} className="group relative flex gap-4 rounded-xl bg-black/30 p-3.5 border border-white/5 transition hover:border-[#84955a]/50">
+                {item.image && (
+                  <img 
+                    src={item.image} 
+                    alt={item.title} 
+                    className="h-16 w-20 flex-shrink-0 rounded-lg object-cover border border-white/10" 
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-mono text-stone-500">0{index + 1}</span>
+                    <span className="text-[10px] text-[#b6c980]">{item.date}</span>
                   </div>
-                </article>
-              ))}
-            </div>
+                  <h3 className="mt-1 truncate text-xs font-bold text-white group-hover:text-[#b6c980] transition">
+                    {item.title}
+                  </h3>
+                  <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-stone-400">
+                    {item.text}
+                  </p>
+                </div>
+              </article>
+            ))
           )}
         </div>
 
-        {/* FOOTER */}
-        <div className="border-t border-white/10 bg-black/20 px-6 py-4">
-          <Link
-            href="/news"
-            className="
-              flex
-              items-center
-              justify-center
-              gap-2
-              text-[10px]
-              font-bold
-              uppercase
-              tracking-[0.2em]
-              text-stone-400
-              transition
-              hover:text-[#c4da83]
-            "
+        <div className="mt-4 pt-3 border-t border-white/10 text-center">
+          <Link 
+            href="/news" 
+            className="text-xs font-medium text-stone-400 hover:text-white transition"
           >
-            Переглянути всі новини
-            <ArrowRight size={13} />
+            ПЕРЕГЛЯНУТИ ВСІ НОВИНИ →
           </Link>
         </div>
       </div>
