@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingCart, X, Check, Coins, AlertCircle } from "lucide-react";
+import { ShoppingCart, X, Check, Coins } from "lucide-react";
 import { useCart } from "@/components/cart";
 
 type Product = {
@@ -14,7 +14,7 @@ type Product = {
 };
 
 export function ProductCard({ product }: { product: Product }) {
-  const { addItem } = useCart() as { addItem: (product: Product) => void };
+  const cart = useCart() as any; // Безпечний доступ до будь-яких методів кошика
   const [isOpen, setIsOpen] = useState(false);
   const [visible, setVisible] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -33,7 +33,17 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   const handleAddToCart = () => {
-    addItem(product);
+    // Підтримуємо різні варіанти методів кошика (addItem, add, або через items)
+    if (typeof cart.addItem === "function") {
+      cart.addItem(product);
+    } else if (typeof cart.add === "function") {
+      cart.add(product);
+    } else if (Array.isArray(cart.items)) {
+      // Якщо кошик зберігає через збереження масиву в localStorage
+      const updated = [...cart.items, product];
+      localStorage.setItem("outland_cart", JSON.stringify(updated));
+    }
+
     setSuccess(true);
     setTimeout(() => {
       setSuccess(false);
@@ -73,7 +83,7 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
       </div>
 
-      {/* Спливаюче вікно підтвердження в нашому стилі */}
+      {/* Спливаюче вікно підтвердження */}
       {isOpen && (
         <div 
           role="dialog"
@@ -87,7 +97,6 @@ export function ProductCard({ product }: { product: Product }) {
             visible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4"
           }`}>
             
-            {/* Кнопка закриття */}
             <button
               onClick={closeModal}
               aria-label="Закрити"
