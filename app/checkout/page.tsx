@@ -15,6 +15,24 @@ export default function Checkout() {
   const [order, setOrder] = useState<string>();
   const total = items.reduce((s, p) => s + p.price, 0);
 
+  const handleCheckout = () => {
+    const orderId = `UDZ-${Date.now().toString().slice(-6)}`;
+    
+    // Зберігаємо історію замовлень у localStorage для сторінки профілю
+    const newOrder = {
+      id: orderId,
+      date: new Date().toLocaleDateString("uk-UA", { day: "numeric", month: "long", year: "numeric" }),
+      items: items,
+      total: total,
+    };
+
+    const existingOrders = JSON.parse(localStorage.getItem("outland_orders") || "[]");
+    localStorage.setItem("outland_orders", JSON.stringify([newOrder, ...existingOrders]));
+
+    clear();
+    setOrder(orderId);
+  };
+
   if (order) {
     return (
       <main className="relative isolate min-h-[700px] overflow-hidden border-b border-white/10 sm:min-h-[760px]">
@@ -56,8 +74,6 @@ export default function Checkout() {
 
       <div className="shell relative z-10 flex min-h-[700px] flex-col justify-center py-12 sm:min-h-[760px] sm:py-24 max-w-5xl">
         
-        {/* Напис прибрано звідси */}
-
         <div className="animate-enter w-full">
           {items.length > 0 ? (
             <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
@@ -109,18 +125,11 @@ export default function Checkout() {
                 </div>
 
                 <button
-                  onClick={() => {
-                    clear();
-                    setOrder(`UDZ-${Date.now().toString().slice(-6)}`);
-                  }}
+                  onClick={handleCheckout}
                   className="btn w-full rounded-xl flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  Оплатити (mock) <ArrowRight size={16} />
+                  Оплатити <ArrowRight size={16} />
                 </button>
-
-                <p className="mt-4 text-[11px] text-stone-400 leading-relaxed border-t border-white/10 pt-4">
-                  Безпечна тестова оплата. Платіжні адаптери підключаються через змінні середовища.
-                </p>
               </div>
 
             </div>

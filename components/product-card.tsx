@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingCart, X, Check, Coins } from "lucide-react";
+import { ArrowRight, ShoppingCart, X, Check, Coins } from "lucide-react";
 import { useCart } from "@/components/cart";
 
 type Product = {
@@ -14,7 +14,7 @@ type Product = {
 };
 
 export function ProductCard({ product }: { product: Product }) {
-  const cart = useCart() as any; // Безпечний доступ до будь-яких методів кошика
+  const cart = useCart() as any;
   const [isOpen, setIsOpen] = useState(false);
   const [visible, setVisible] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -33,13 +33,11 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   const handleAddToCart = () => {
-    // Підтримуємо різні варіанти методів кошика (addItem, add, або через items)
     if (typeof cart.addItem === "function") {
       cart.addItem(product);
     } else if (typeof cart.add === "function") {
       cart.add(product);
     } else if (Array.isArray(cart.items)) {
-      // Якщо кошик зберігає через збереження масиву в localStorage
       const updated = [...cart.items, product];
       localStorage.setItem("outland_cart", JSON.stringify(updated));
     }
@@ -53,37 +51,44 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <>
-      {/* Картка товару у магазині */}
-      <div className="rounded-2xl bg-black/50 p-5 backdrop-blur-md border border-white/10 shadow-2xl transition hover:border-[#84955a] flex flex-col justify-between">
+      {/* Компактна картка товару */}
+      <div 
+        onClick={openModal}
+        className="group rounded-2xl bg-[#12160f]/95 p-3.5 border border-white/15 backdrop-blur-md shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#b6c980] cursor-pointer flex flex-col justify-between"
+      >
         <div>
-          {product.category && (
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#b6c980]">
-              {product.category}
-            </span>
-          )}
-          <div className="mt-3 h-32 w-full rounded-xl bg-black/40 border border-white/10 grid place-items-center overflow-hidden">
+          {/* Зображення товару (зменшена висота) */}
+          <div className="relative h-36 w-full rounded-xl bg-black/40 border border-white/5 overflow-hidden grid place-items-center">
             {product.image ? (
-              <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+              <img src={product.image} alt={product.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
             ) : (
-              <ShoppingCart className="text-stone-500" size={32} />
+              <ShoppingCart className="text-stone-600" size={28} />
+            )}
+            {product.category && (
+              <span className="absolute top-2.5 left-2.5 rounded-lg bg-black/60 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-[#b6c980] backdrop-blur-md border border-white/10">
+                {product.category}
+              </span>
             )}
           </div>
-          <h3 className="mt-4 font-bold text-lg text-white">{product.name}</h3>
-          <p className="mt-1 text-xs text-stone-400 line-clamp-2">{product.description || "Якісний ігровий предмет для виживання."}</p>
+
+          {/* Назва товару */}
+          <h3 className="mt-3 font-bold text-base text-white tracking-wide truncate">
+            {product.name}
+          </h3>
         </div>
 
-        <div className="mt-6 flex items-center justify-between gap-4 pt-4 border-t border-white/10">
-          <span className="font-mono text-lg font-bold text-[#b6c980]">{product.price} ₴</span>
-          <button
-            onClick={openModal}
-            className="btn !min-h-10 rounded-xl px-4 text-xs uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer"
-          >
-            <ShoppingCart size={14} /> Придбати
-          </button>
+        {/* Ціна та компактна кругла кнопка зі стрілкою */}
+        <div className="mt-4 flex items-center justify-between pt-2.5 border-t border-white/10">
+          <span className="font-mono text-sm font-bold text-[#b6c980]">
+            {product.price} ₴
+          </span>
+          <div className="grid h-8 w-8 place-items-center rounded-xl bg-[#2a351b] text-[#b6c980] border border-white/10 transition-all duration-200 group-hover:bg-[#b6c980] group-hover:text-black group-hover:scale-105 shadow-md">
+            <ArrowRight size={14} />
+          </div>
         </div>
       </div>
 
-      {/* Спливаюче вікно підтвердження */}
+      {/* Модальне вікно */}
       {isOpen && (
         <div 
           role="dialog"
@@ -93,7 +98,7 @@ export function ProductCard({ product }: { product: Product }) {
           }`}
           onMouseDown={e => { if (e.target === e.currentTarget) closeModal(); }}
         >
-          <section className={`relative w-full max-w-lg rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 p-8 sm:p-10 shadow-2xl transition-all duration-300 ease-out ${
+          <section className={`relative w-full max-w-lg rounded-2xl bg-[#12160f]/95 backdrop-blur-2xl border border-white/15 p-8 sm:p-10 shadow-2xl transition-all duration-300 ease-out ${
             visible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4"
           }`}>
             
