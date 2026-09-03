@@ -28,20 +28,41 @@ export default function Checkout() {
   };
 
   const handleCheckout = () => {
+    // 1. Отримуємо поточний баланс користувача з localStorage (за замовчуванням 50 грн, якщо не було змін)
+    const currentBalance = Number(localStorage.getItem("outland_user_balance") || "50");
+
+    if (currentBalance < total) {
+      alert("Недостатньо коштів на балансі! Будь ласка, поповніть рахунок.");
+      return;
+    }
+
+    // 2. Списусємо кошти з балансу та оновлюємо їх у сховищі
+    const newBalance = currentBalance - total;
+    localStorage.setItem("outland_user_balance", newBalance.toString());
+
+    // 3. Генеруємо дані замовлення
     const orderId = `UDZ-${Date.now().toString().slice(-6)}`;
-    const redeemCode = generateDayZCode(); // Генеруємо унікальний код для видачі в грі
+    const redeemCode = generateDayZCode();
     
-    // Зберігаємо історію замовлень у localStorage для сторінки профілю
     const newOrder = {
       id: orderId,
-      code: redeemCode, // <--- Додано унікальний код видачі
+      code: redeemCode,
       date: new Date().toLocaleDateString("uk-UA", { day: "numeric", month: "long", year: "numeric" }),
       items: items,
       total: total,
     };
 
+    // 4. Зберігаємо замовлення в загальний список
     const existingOrders = JSON.parse(localStorage.getItem("outland_orders") || "[]");
     localStorage.setItem("outland_orders", JSON.stringify([newOrder, ...existingOrders]));
+
+    // 5. Також дублюємо в персональну історію замовлень поточного гравця за його SteamID
+    const sessionUser = JSON.parse(localStorage.getItem("outland_user") || "{}");
+    if (sessionUser.steamId) {
+      const userOrdersKey = `outland_orders_${sessionUser.steamId}`;
+      const userOrders = JSON.parse(localStorage.getItem(userOrdersKey) || "[]");
+      localStorage.setItem(userOrdersKey, JSON.stringify([newOrder, ...userOrders]));
+    }
 
     clear();
     setOrder(orderId);
@@ -65,7 +86,7 @@ export default function Checkout() {
             <p className="eyebrow">Оплату підтверджено</p>
             <h1 className="heading mt-3 text-4xl text-[#f2f5e9]">Замовлення прийнято</h1>
             <p className="mt-4 text-sm text-stone-300">Номер вашого замовлення: <b className="text-white font-mono">{order}</b></p>
-            <p className="mt-2 text-xs text-[#b6c980]">Унікальний код видачі з'явився у вашому профілі в історії покупок!</p>
+            <p className="mt-2 text-xs text-[#b6c980]">Кошти списано з балансу, а унікальний код видачі з'явився у вашому профілі!</p>
             <div className="mt-8">
               <a href="/profile" className="btn inline-flex items-center gap-2 rounded-xl px-6">
                 До профілю <ArrowRight size={16} />
