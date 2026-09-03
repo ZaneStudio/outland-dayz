@@ -15,12 +15,26 @@ export default function Checkout() {
   const [order, setOrder] = useState<string>();
   const total = items.reduce((s, p) => s + p.price, 0);
 
+  // Функція генерації унікального коду для мода DayZ
+  const generateDayZCode = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let part1 = "";
+    let part2 = "";
+    for (let i = 0; i < 4; i++) {
+      part1 += chars.charAt(Math.floor(Math.random() * chars.length));
+      part2 += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `OUT-${part1}-${part2}`;
+  };
+
   const handleCheckout = () => {
     const orderId = `UDZ-${Date.now().toString().slice(-6)}`;
+    const redeemCode = generateDayZCode(); // Генеруємо унікальний код для видачі в грі
     
     // Зберігаємо історію замовлень у localStorage для сторінки профілю
     const newOrder = {
       id: orderId,
+      code: redeemCode, // <--- Додано унікальний код видачі
       date: new Date().toLocaleDateString("uk-UA", { day: "numeric", month: "long", year: "numeric" }),
       items: items,
       total: total,
@@ -51,6 +65,7 @@ export default function Checkout() {
             <p className="eyebrow">Оплату підтверджено</p>
             <h1 className="heading mt-3 text-4xl text-[#f2f5e9]">Замовлення прийнято</h1>
             <p className="mt-4 text-sm text-stone-300">Номер вашого замовлення: <b className="text-white font-mono">{order}</b></p>
+            <p className="mt-2 text-xs text-[#b6c980]">Унікальний код видачі з'явився у вашому профілі в історії покупок!</p>
             <div className="mt-8">
               <a href="/profile" className="btn inline-flex items-center gap-2 rounded-xl px-6">
                 До профілю <ArrowRight size={16} />

@@ -3,40 +3,87 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Coins, Crown, Bell, LogOut, Settings, ShoppingBag, Calendar, CheckCircle2, Ticket, CreditCard, Copy, ShieldCheck } from "lucide-react";
+import { Coins, Crown, Bell, LogOut, Settings, ShoppingBag, Calendar, CheckCircle2, Ticket, CreditCard, Copy, ShieldCheck, Terminal } from "lucide-react";
 
 type Order = {
   id: string;
+  code?: string;
   date: string;
   items: Array<{ id: string; name: string; price: number; image?: string }>;
   total: number;
 };
 
+type SteamUser = {
+  steamId: string;
+  name: string;
+  avatar: string;
+};
+
 export default function ProfilePage() {
+  const [user, setUser] = useState<SteamUser | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [promo, setPromo] = useState("");
   const [amount, setAmount] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
+  // 1. Отримуємо дані реального користувача через сесію Steam
   useEffect(() => {
-    const savedOrders = JSON.parse(localStorage.getItem("outland_orders") || "[]");
-    setOrders(savedOrders);
+    fetch('/api/auth/session', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.user) {
+          setUser(data.user);
+          // 2. Завантажуємо замовлення конкретно для цього Steam ID
+          const savedOrders = JSON.parse(localStorage.getItem(`outland_orders_${data.user.steamId}`) || "[]");
+          setOrders(savedOrders);
+        } else {
+          // Якщо не залогінений — можна перенаправити на логін або показати заглушку
+          setUser(null);
+        }
+      })
+      .catch(() => setUser(null));
   }, []);
-
-  const user = {
-    steamId: "76561198999999999",
-    name: "Zane",
-    avatar: "",
-  };
 
   const balance = 50;
   const vipLabel = "Неактивний";
 
   const handleCopySteamId = () => {
+    if (!user) return;
     navigator.clipboard.writeText(user.steamId);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedCode("steam");
+    setTimeout(() => setCopiedCode(null), 2000);
   };
+
+  const handleCopyCode = (code: string) => {
+    navigator.clipboard.writeText(`!code - ${code}`);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    setUser(null);
+    window.location.href = "/";
+  };
+
+  if (!user) {
+    return (
+      <main className="min-h-screen pb-28 relative isolate overflow-hidden grid place-items-center">
+        <div className="absolute inset-0 -z-20 pointer-events-none">
+          <img src="/images/hero-bg.jpg" alt="Background" className="h-full w-full scale-105 object-cover blur-[4px] brightness-90" />
+        </div>
+        <div className="absolute inset-0 -z-10 bg-black/70 pointer-events-none" />
+        
+        <div className="rounded-3xl bg-black/80 backdrop-blur-xl border border-white/15 p-10 text-center space-y-4 max-w-md mx-auto shadow-2xl">
+          <h2 className="heading text-2xl text-white">Потрібна авторизація</h2>
+          <p className="text-xs text-stone-400">Увійдіть через Steam, щоб переглянути свій особистий профіль та історію покупок.</p>
+          <Link href="/login" className="btn inline-flex items-center justify-center w-full !min-h-12 rounded-xl text-xs uppercase tracking-widest shadow-lg">
+            Увійти через Steam
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen pb-28 relative isolate overflow-hidden">
@@ -45,8 +92,6 @@ export default function ProfilePage() {
         <img src="/images/hero-bg.jpg" alt="Outland DayZ Background" className="h-full w-full scale-105 object-cover blur-[4px] brightness-90" />
       </div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/40 to-black/80 pointer-events-none" />
-      
-      {/* Дифузне світлове сяйво на задньому плані */}
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-[#b6c980]/10 blur-[140px] rounded-full pointer-events-none -z-10" />
       
       <div className="hero-vignette absolute inset-0 -z-10 pointer-events-none" />
@@ -54,7 +99,7 @@ export default function ProfilePage() {
 
       <div className="shell mt-10 sm:mt-14 max-w-5xl space-y-6">
         
-        {/* 1. Преміальна шапка профілю */}
+        {/* 1. Преміальна шапка профілю (динамічна з реальними даними Steam) */}
         <div className="relative rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 shadow-2xl shadow-[#b6c980]/5 animate-enter flex flex-wrap items-center justify-between gap-6 overflow-hidden group">
           <div className="absolute -right-24 -top-24 w-64 h-64 bg-[#b6c980]/5 blur-3xl rounded-full pointer-events-none group-hover:bg-[#b6c980]/10 transition duration-700" />
           
@@ -65,11 +110,12 @@ export default function ProfilePage() {
                 width={76} 
                 height={76} 
                 alt="Steam avatar" 
+                unoptimized
                 className="h-19 w-19 shrink-0 rounded-2xl border border-[#b6c980]/40 object-cover shadow-xl shadow-[#b6c980]/10" 
               />
             ) : (
               <div className="grid h-19 w-19 shrink-0 place-items-center rounded-2xl bg-[#1c2413] text-2xl font-bold text-[#b6c980] border border-[#b6c980]/40 shadow-xl shadow-[#b6c980]/10">
-                {user.name.slice(0, 1)}
+                {user.name ? user.name.slice(0, 1) : "U"}
               </div>
             )}
             <div className="min-w-0">
@@ -90,7 +136,7 @@ export default function ProfilePage() {
               <Settings size={15} /> Налаштування
             </Link>
             <button 
-              onClick={() => alert("Вихід з акаунту...")}
+              onClick={handleLogout}
               className="btn border-red-500/30 bg-transparent text-[#f0b3aa] hover:bg-red-500/20 !min-h-11 px-5 rounded-xl text-xs uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer transition shadow-lg"
             >
               <LogOut size={15} /> Вийти
@@ -165,7 +211,7 @@ export default function ProfilePage() {
                 onClick={handleCopySteamId}
                 className="inline-flex items-center gap-1.5 text-[#b6c980] hover:text-white transition cursor-pointer font-medium"
               >
-                <Copy size={13} /> {copied ? "Скопійовано!" : "Копіювати"}
+                <Copy size={13} /> {copiedCode === "steam" ? "Скопійовано!" : "Копіювати"}
               </button>
             </div>
           </div>
@@ -179,7 +225,6 @@ export default function ProfilePage() {
               <p className="text-xs text-stone-400 mb-5 leading-relaxed">Миттєве поповнення ігрового балансу через захищений шлюз Monobank.</p>
               
               <div className="flex gap-2.5">
-                {/* Інпут без стандартних стрілочок */}
                 <input
                   type="number"
                   placeholder="Сума, ₴"
@@ -203,7 +248,7 @@ export default function ProfilePage() {
 
         </div>
 
-        {/* 4. Історія покупок та замовлень */}
+        {/* 4. Історія покупок та персональні коди видачі для конкретного користувача */}
         <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 shadow-2xl animate-enter delay-3 transition duration-300 hover:border-white/30">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -217,33 +262,57 @@ export default function ProfilePage() {
 
           {orders.length > 0 ? (
             <div className="space-y-4">
-              {orders.map((order) => (
-                <div key={order.id} className="rounded-xl bg-black/50 border border-white/10 p-5 space-y-4 shadow-inner transition hover:border-[#b6c980]/40">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="text-[#b6c980]" size={16} />
-                      <span className="font-mono text-sm font-bold text-white">{order.id}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-stone-400">
-                      <Calendar size={14} /> {order.date}
-                    </div>
-                  </div>
+              {orders.map((order) => {
+                const displayCode = order.code || "OUT-7492-X9M1";
+                const fullCommand = `!code - ${displayCode}`;
 
-                  <div className="grid gap-2">
-                    {order.items.map((item, idx) => (
-                      <div key={idx} className="flex items-center justify-between text-sm">
-                        <span className="text-stone-300">{item.name}</span>
-                        <span className="font-mono text-[#b6c980] font-bold">{item.price} ₴</span>
+                return (
+                  <div key={order.id} className="rounded-xl bg-black/50 border border-white/10 p-5 space-y-4 shadow-inner transition hover:border-[#b6c980]/40">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="text-[#b6c980]" size={16} />
+                        <span className="font-mono text-sm font-bold text-white">{order.id}</span>
                       </div>
-                    ))}
-                  </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-white/10 text-sm font-bold">
-                    <span className="text-stone-400 uppercase tracking-wider text-xs">Загальна сума:</span>
-                    <span className="font-mono text-base text-[#b6c980]">{order.total} ₴</span>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <div className="bg-[#1c2413] px-3 py-1.5 rounded-xl border border-[#b6c980]/30 flex items-center gap-2 shadow-sm">
+                          <Terminal size={14} className="text-[#b6c980]" />
+                          <span className="font-mono text-xs font-bold text-[#b6c980]">{fullCommand}</span>
+                          <button
+                            onClick={() => handleCopyCode(displayCode)}
+                            className="ml-2 text-[10px] uppercase bg-[#2b381c] hover:bg-[#384925] text-[#b6c980] px-2 py-0.5 rounded transition cursor-pointer font-bold"
+                          >
+                            {copiedCode === displayCode ? "Скопійовано!" : "Копіювати"}
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 text-xs text-stone-400">
+                          <Calendar size={14} /> {order.date}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white/5 rounded-lg p-2.5 border border-white/5 text-[11px] text-stone-400 flex items-center gap-2">
+                      <span className="text-[#b6c980] font-bold">💡 Підказка:</span> 
+                      <span>Скопіюйте цю команду та введіть її у загальний або ігровий чат на сервері Outland DayZ, щоб отримати придбані предмети.</span>
+                    </div>
+
+                    <div className="grid gap-2 pt-1">
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-sm">
+                          <span className="text-stone-300">{item.name}</span>
+                          <span className="font-mono text-[#b6c980] font-bold">{item.price} ₴</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-white/10 text-sm font-bold">
+                      <span className="text-stone-400 uppercase tracking-wider text-xs">Загальна сума:</span>
+                      <span className="font-mono text-base text-[#b6c980]">{order.total} ₴</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="rounded-xl bg-black/50 border border-white/10 p-10 text-center text-stone-400 text-sm shadow-inner flex flex-col items-center justify-center gap-3">

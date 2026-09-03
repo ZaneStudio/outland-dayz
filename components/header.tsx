@@ -11,7 +11,7 @@ const links = [
   ["Головна", "/"],
   ["Магазин", "/shop"],
   ["VIP", "/vip"],
-  ["Рулетка", "/roulette"],
+  ["Кейси", "/roulette"],
 ];
 
 type SteamUser = { steamId: string; name: string; avatar: string };
