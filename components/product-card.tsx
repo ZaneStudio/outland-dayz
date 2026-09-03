@@ -2,7 +2,7 @@
 
 import type { Product } from "@/lib/data";
 import { useCart } from "@/components/cart";
-import { ShoppingCart } from "lucide-react";
+import { Package, ShoppingCart } from "lucide-react";
 
 export function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
@@ -10,17 +10,25 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <div className="rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 p-5 flex flex-col justify-between transition duration-300 hover:-translate-y-1 hover:border-[#84955a] shadow-xl">
       <div>
-        {/* Картинка / Зображення товару */}
+        {/* Картинка товару з обробкою помилки завантаження */}
         <div className="h-44 rounded-xl bg-black/40 border border-white/5 overflow-hidden mb-4 relative grid place-items-center">
           {product.image ? (
             <img 
               src={product.image} 
               alt={product.name} 
-              className="h-full w-full object-cover" 
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                // Якщо картинка не знайшлась, ховаємо її і показуємо іконку
+                (e.target as HTMLElement).style.display = 'none';
+              }}
             />
-          ) : (
-            <span className="text-stone-600 text-xs">[ Зображення ]</span>
-          )}
+          ) : null}
+          
+          {/* Заглушка, якщо картинки нема або вона не завантажилась */}
+          <div className="absolute inset-0 -z-10 grid place-items-center text-stone-600">
+            <Package size={32} />
+          </div>
+
           {product.category && (
             <span className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-bold uppercase tracking-wider text-[#b6c980]">
               {product.category}

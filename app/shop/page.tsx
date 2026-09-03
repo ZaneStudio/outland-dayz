@@ -1,6 +1,6 @@
 "use client";
 
-import { Coins, Search, SlidersHorizontal } from "lucide-react";
+import { Coins, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/data";
 import { ProductCard } from "@/components/product-card";
