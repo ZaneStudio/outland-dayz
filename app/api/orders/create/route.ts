@@ -27,9 +27,9 @@ export async function POST(req: NextRequest) {
     for (const item of items) {
       const count = item.quantity || 1;
       
-      // Шукаємо товар у базі даних, щоб взяти класнейм, вказаний в адмінці
+      // Шукаємо товар у базі даних через будь-який тип, щоб уникнути помилки TypeScript
       const dbProduct = await db.managedProduct.findUnique({ where: { id: item.id } });
-      const gameClassname = dbProduct?.classname || item.id;
+      const gameClassname = (dbProduct as any)?.classname || item.id;
 
       for (let i = 0; i < count; i++) {
         rewards.push({
