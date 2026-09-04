@@ -52,20 +52,36 @@ export default function Admin() {
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const payload = { ...form, price: Number(form.price) };
-    const r = await fetch(editing ? `/api/products/${editing}` : '/api/products', {
-      method: editing ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (r.ok) {
-      setForm(blank);
-      setEditing(null);
-      setMessage(editing ? 'Товар оновлено.' : 'Товар додано.');
-      load();
-    } else {
-      const d = await r.json();
-      setMessage(d.error || 'Помилка');
+    const payload = { 
+      name: form.name,
+      description: form.description,
+      category: form.category,
+      price: Number(form.price),
+      image: form.image,
+      classname: form.classname
+    };
+    
+    try {
+      const r = await fetch(editing ? `/api/products/${editing}` : '/api/products', {
+        method: editing ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      const text = await r.text();
+      const d = text ? JSON.parse(text) : {};
+
+      if (r.ok) {
+        setForm(blank);
+        setEditing(null);
+        setMessage(editing ? 'Товар оновлено.' : 'Товар додано.');
+        load();
+      } else {
+        setMessage(d.error || `Помилка сервера (${r.status})`);
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage('Помилка мережі при збереженні товару');
     }
   };
 
@@ -131,7 +147,6 @@ export default function Admin() {
               />
             </div>
 
-            {/* Нове поле для ігрового класнейму DayZ */}
             <div>
               <label className="block text-xs uppercase tracking-wider text-stone-400 mb-1.5">Ігровий Classname (для выдачі модом)</label>
               <input 
@@ -196,14 +211,14 @@ export default function Admin() {
             )}
 
             <div className="flex gap-3 pt-2">
-              <button className="btn flex-1 justify-center">
+              <button className="btn flex-1 justify-center cursor-pointer">
                 <Save size={16} />{editing ? 'Зберегти зміни' : 'Додати товар'}
               </button>
               {editing && (
                 <button 
                   type="button" 
                   onClick={() => { setEditing(null); setForm(blank); }} 
-                  className="btn btn-outline"
+                  className="btn btn-outline cursor-pointer"
                 >
                   Скасувати
                 </button>
@@ -267,8 +282,8 @@ export default function Admin() {
                     {p.classname && <> · Клас: <span className="font-mono text-white">{p.classname}</span></>}
                   </p>
                   <div className="mt-3 flex gap-2">
-                    <button onClick={() => edit(p)} className="btn !min-h-8 !px-3 text-xs"><Pencil size={13} />Редагувати</button>
-                    <button onClick={() => remove(p.id)} className="btn btn-outline !min-h-8 !px-3 !border-red-500/30 !text-red-300 text-xs"><Trash2 size={13} />Видалити</button>
+                    <button onClick={() => edit(p)} className="btn !min-h-8 !px-3 text-xs cursor-pointer"><Pencil size={13} />Редагувати</button>
+                    <button onClick={() => remove(p.id)} className="btn btn-outline !min-h-8 !px-3 !border-red-500/30 !text-red-300 text-xs cursor-pointer"><Trash2 size={13} />Видалити</button>
                   </div>
                 </div>
               </article>
