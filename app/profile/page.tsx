@@ -27,7 +27,7 @@ export default function ProfilePage() {
   const [amount, setAmount] = useState("");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  // Отримуємо дані користувача та синхронізуємо реальний баланс з localStorage
+  // Отримуємо дані користувача та синхронізуємо баланс і історію
   useEffect(() => {
     fetch('/api/auth/session', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
@@ -35,7 +35,6 @@ export default function ProfilePage() {
         if (data?.user) {
           setUser(data.user);
           
-          // Єдине джерело правди для балансу
           const currentBal = localStorage.getItem("outland_user_balance");
           if (currentBal === null) {
             localStorage.setItem("outland_user_balance", "50");
@@ -44,7 +43,6 @@ export default function ProfilePage() {
             setBalance(Number(currentBal));
           }
 
-          // Завантажуємо історію замовлень
           const savedOrders = JSON.parse(localStorage.getItem(`outland_orders_${data.user.steamId}`) || localStorage.getItem("outland_orders") || "[]");
           setOrders(savedOrders);
         } else {
@@ -75,20 +73,21 @@ export default function ProfilePage() {
     window.location.href = "/";
   };
 
-  // Робоче поповнення балансу з миттєвим оновленням
+  // Перенаправлення на Monobank банку з передачею суми та Steam ID
   const handleTopUp = () => {
     const addAmount = Number(amount);
     if (!addAmount || addAmount <= 0) {
-      alert("Будь ласка, введіть коректну суму для поповнення!");
+      alert("Будь ласка, введіть суму для поповнення!");
       return;
     }
 
-    const newBalance = balance + addAmount;
-    setBalance(newBalance);
-    localStorage.setItem("outland_user_balance", newBalance.toString());
+    if (!user?.steamId) {
+      alert("Помилка: не знайдено Steam ID. Перезайдіть в аккаунт.");
+      return;
+    }
 
-    setAmount("");
-    alert(`Баланс успішно поповнено на ${addAmount} ₴! Новий баланс: ${newBalance} ₴`);
+    const monobankJarUrl = `https://send.monobank.ua/jar/3UQUKK7EN8?a=${addAmount}&t=Outland DayZ | ${user.steamId}`;
+    window.open(monobankJarUrl, "_blank");
   };
 
   if (!user) {
@@ -201,7 +200,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Поповнення та промокод */}
+        {/* Промокод та Поповнення через Monobank */}
         <div className="grid gap-6 md:grid-cols-2 animate-enter delay-2">
           
           <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-7 shadow-2xl flex flex-col justify-between transition duration-300 hover:border-white/30">
@@ -246,7 +245,7 @@ export default function ProfilePage() {
                 <CreditCard size={22} />
                 <h3 className="font-bold text-white text-base tracking-wide">Поповнити баланс (Monobank)</h3>
               </div>
-              <p className="text-xs text-stone-400 mb-5 leading-relaxed">Миттєве поповнення ігрового балансу через захищений шлюз Monobank.</p>
+              <p className="text-xs text-stone-400 mb-5 leading-relaxed">Перехід на захищену сторінку оплати Monobank для поповнення рахунку.</p>
               
               <div className="flex gap-2.5">
                 <input
@@ -266,7 +265,7 @@ export default function ProfilePage() {
             </div>
 
             <p className="mt-5 text-[11px] text-stone-500 leading-relaxed pt-3 border-t border-white/10">
-              <b className="text-stone-300">Важливо:</b> у коментарі до платежу вкажіть ваш Steam ID. Без нього платіж не зможе бути зарахований автоматично.
+              <b className="text-stone-300">Важливо:</b> коментар з вашим Steam ID підтягнеться автоматично при переході в банку Монобанку.
             </p>
           </div>
 
