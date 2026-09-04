@@ -7,7 +7,7 @@ import { ShoppingBag, Trash2, ArrowRight, Coins, ShoppingCart, Check } from "luc
 
 export default function Checkout() {
   const { items, clear, removeItem } = useCart() as { 
-    items: Array<{ id: string; name: string; price: number; image?: string }>; 
+    items: Array<{ id: string; name: string; price: number; image?: string; quantity?: number }>; 
     clear: () => void; 
     removeItem?: (id: string) => void;
   };
@@ -41,7 +41,6 @@ export default function Checkout() {
     }
 
     try {
-      // 1. Списуємо кошти на сервері
       const balanceRes = await fetch('/api/balance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -63,7 +62,6 @@ export default function Checkout() {
       const orderId = `UDZ-${Date.now().toString().slice(-6)}`;
       const redeemCode = generateDayZCode();
 
-      // 2. Запит на створення файлу на хостингу
       const orderRes = await fetch('/api/orders/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
