@@ -3,7 +3,7 @@ import { ImagePlus, Pencil, Plus, Save, ShieldAlert, Trash2, Upload, Image as Im
 import { FormEvent, useEffect, useState } from "react"; 
 import type { ManagedProduct } from "@/lib/product-store";
 
-const blank = { name: "", description: "", category: "Інше", price: "", image: "" };
+const blank = { name: "", description: "", category: "Інше", price: "", image: "", classname: "" };
 
 export default function Admin() {
   const [products, setProducts] = useState<ManagedProduct[]>([]);
@@ -76,7 +76,8 @@ export default function Admin() {
       description: p.description,
       category: p.category,
       price: String(p.price),
-      image: p.image
+      image: p.image,
+      classname: p.classname || ""
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -108,7 +109,6 @@ export default function Admin() {
       <p className="eyebrow">Обмежений доступ · Steam Admin</p>
       <h1 className="heading mt-2 text-5xl">Керування магазином</h1>
 
-      {/* Головна секція: форма керування зліва + живий шаблон картки справа */}
       <section className="panel cut mt-8 p-6 lg:p-8">
         <div className="flex items-center gap-3">
           <span className="grid h-10 w-10 place-items-center rounded-full bg-[#29351d]">
@@ -119,7 +119,6 @@ export default function Admin() {
 
         <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_320px] items-start">
           
-          {/* Ліва частина: Форма */}
           <form onSubmit={submit} className="grid gap-4">
             <div>
               <label className="block text-xs uppercase tracking-wider text-stone-400 mb-1.5">Назва товару</label>
@@ -129,6 +128,18 @@ export default function Admin() {
                 onChange={e => change('name', e.target.value)} 
                 className="w-full bg-black/30 p-3 rounded-xl border border-white/10 text-white text-xs focus:border-[#c4da83] focus:outline-none" 
                 placeholder="Наприклад: Пачка гвоздей" 
+              />
+            </div>
+
+            {/* Нове поле для ігрового класнейму DayZ */}
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-stone-400 mb-1.5">Ігровий Classname (для выдачі модом)</label>
+              <input 
+                required 
+                value={form.classname} 
+                onChange={e => change('classname', e.target.value)} 
+                className="w-full bg-black/30 p-3 rounded-xl border border-white/10 text-white text-xs font-mono focus:border-[#c4da83] focus:outline-none" 
+                placeholder="Наприклад: NailBox або M4A1" 
               />
             </div>
 
@@ -200,7 +211,6 @@ export default function Admin() {
             </div>
           </form>
 
-          {/* Права частина: Живий шаблон (Прев'ю картки) */}
           <div className="bg-black/50 border border-white/15 rounded-2xl p-4 sticky top-6 space-y-3 shadow-xl">
             <p className="eyebrow text-[#c4da83] text-center tracking-widest text-[10px]">Живий шаблон картки</p>
             
@@ -241,7 +251,6 @@ export default function Admin() {
         {message && <p className="mt-4 text-sm text-[#c4da83]">{message}</p>}
       </section>
 
-      {/* Секція існуючих товарів */}
       <section className="mt-10">
         <h2 className="heading text-3xl">Товари ({products.length})</h2>
         {!products.length ? (
@@ -253,7 +262,10 @@ export default function Admin() {
                 <img src={p.image} alt="" className="h-20 w-24 rounded object-cover border border-white/10" />
                 <div className="min-w-0 flex-1">
                   <p className="font-bold text-white">{p.name}</p>
-                  <p className="mt-0.5 text-xs text-stone-400">{p.category} · <span className="text-[#c4da83] font-mono">{p.price} ₴</span></p>
+                  <p className="mt-0.5 text-xs text-stone-400">
+                    {p.category} · <span className="text-[#c4da83] font-mono">{p.price} ₴</span>
+                    {p.classname && <> · Клас: <span className="font-mono text-white">{p.classname}</span></>}
+                  </p>
                   <div className="mt-3 flex gap-2">
                     <button onClick={() => edit(p)} className="btn !min-h-8 !px-3 text-xs"><Pencil size={13} />Редагувати</button>
                     <button onClick={() => remove(p.id)} className="btn btn-outline !min-h-8 !px-3 !border-red-500/30 !text-red-300 text-xs"><Trash2 size={13} />Видалити</button>
