@@ -9,28 +9,23 @@ export async function POST(req: NextRequest) {
 
   try {
     const { orderId, code, items } = await req.json();
-    if (!code || !items) {
-      return NextResponse.json({ error: "Невірні дані замовлення" }, { status: 400 });
-    }
+    console.log("--> Створення замовлення:", orderId, code);
 
     const apiKey = process.env.PTERODACTYL_API_KEY;
     const serverId = process.env.PTERODACTYL_SERVER_ID;
 
     if (!apiKey || !serverId) {
-      console.error("Pterodactyl credentials are missing");
-      return NextResponse.json({ success: true, warning: "Замовлення оформлено, але хостинг не налаштовано" });
+      console.error("--> ПОМИЛКА: Не задано PTERODACTYL_API_KEY або PTERODACTYL_SERVER_ID у змінних середовища Render!");
+      return NextResponse.json({ success: true, warning: "Хостинг не налаштовано" });
     }
 
-    // Формуємо нагороди у форматі, який вимагає твій мод (як на твоєму прикладі)
     const rewards = items.flatMap((item: any) => {
-      // Кількість предметів у замовленні (якщо є quantity або за замовчуванням 1)
       const count = item.quantity || 1;
       const rewardList = [];
-
       for (let i = 0; i < count; i++) {
         rewardList.push({
           isVehicle: 0,
-          Classname: item.id, // Тут іде унікальний клас предмета в DayZ (наприклад, "WoodenLog", "Бочка" тощо — важливо щоб item.id відповідав класнейму)
+          Classname: item.id,
           QuantityPercent: -1,
           HealthPercent: -1,
           Attachments: []
@@ -49,7 +44,7 @@ export async function POST(req: NextRequest) {
     const fileName = `${code}.json`;
     const directory = "/profiles/FT_Mods/Promocodes_Free/Codes";
 
-    // Отримуємо URL для завантаження через Pterodactyl API
+    console.log("--> Запит на отримання upload URL від Pterodactyl...");
     const uploadUrlRes = await fetch(`https://console.uahost.eu/api/client/servers/${serverId}/files/upload`, {
       method: "GET",
       headers: {
@@ -58,26 +53,42 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    if (uploadUrlRes.ok) {
-      const uploadData = await uploadUrlRes.json();
-      const signedUrl = uploadData.attributes.url;
+    console.log("--> Статус відповіді upload URL:", uploadUrlRes.status);
 
-      const formData = new FormData();
-      const blob = new Blob([fileContent], { type: "application/json" });
-      formData.append("files", blob, fileName);
-
-      await fetch(`${signedUrl}&directory=${encodeURIComponent(directory)}`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: formData
-      });
+    if (!uploadUrlRes.ok) {
+      const errText = await uploadUrlRes.text();
+      console.error("--> ПОМИЛКА Pterodactyl Upload URL:", errText);
+      return NextResponse.json({ error: "Помилка зв'язку з хостингом" }, { status: 500 });
     }
 
+    const uploadData = await uploadUrlRes.json();
+    const signedUrl = uploadData.attributes.url;
+
+    const formData = new FormData();
+    const blob = new Blob([fileContent], { type: "application/json" });
+    formData.append("files", blob, fileName);
+
+    console.log("--> Відправка файлу на хостинг...");
+    const uploadRes = await fetch(`${signedUrl}&directory=${encodeURIComponent(directory)}`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: formData
+    });
+
+    console.log("--> Статус завантаження файлу:", uploadRes.status);
+
+    if (!uploadRes.ok) {
+      const errText = await uploadRes.text();
+      console.error("--> ПОМИЛКА завантаження файлу на хостинг:", errText);
+      return NextResponse.json({ error: "Помилка збереження файлу" }, { status: 500 });
+    }
+
+    console.log("--> Файл успішно створено на ігровому сервері!");
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Order creation API error:", error);
-    return NextResponse.json({ error: "Помилка створення замовлення" }, { status: 500 });
+    console.error("--> КРИТИЧНА ПОМИЛКА в API створення замовлення:", error);
+    return NextResponse.json({ error: "Помилка сервера" }, { status: 500 });
   }
 }
