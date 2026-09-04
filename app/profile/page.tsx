@@ -73,7 +73,7 @@ export default function ProfilePage() {
     window.location.href = "/";
   };
 
-  // Перенаправлення на Monobank банку з передачею суми та Steam ID
+  // Перенаправлення на Monobank банку з передачею суми та ВИКЛЮЧНО чистого Steam ID в коментарі
   const handleTopUp = () => {
     const addAmount = Number(amount);
     if (!addAmount || addAmount <= 0) {
@@ -86,7 +86,7 @@ export default function ProfilePage() {
       return;
     }
 
-    const monobankJarUrl = `https://send.monobank.ua/jar/3UQUKK7EN8?a=${addAmount}&t=Outland DayZ | ${user.steamId}`;
+    const monobankJarUrl = `https://send.monobank.ua/jar/3UQUKK7EN8?a=${addAmount}&t=${user.steamId}`;
     window.open(monobankJarUrl, "_blank");
   };
 
@@ -265,7 +265,7 @@ export default function ProfilePage() {
             </div>
 
             <p className="mt-5 text-[11px] text-stone-500 leading-relaxed pt-3 border-t border-white/10">
-              <b className="text-stone-300">Важливо:</b> коментар з вашим Steam ID підтягнеться автоматично при переході в банку Монобанку.
+              <b className="text-stone-300">Важливо:</b> у коментарі до платежу автоматично підтягнеться ваш Steam ID для зарахування коштів.
             </p>
           </div>
 
