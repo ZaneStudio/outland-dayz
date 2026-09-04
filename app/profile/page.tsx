@@ -22,29 +22,38 @@ type SteamUser = {
 export default function ProfilePage() {
   const [user, setUser] = useState<SteamUser | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [balance, setBalance] = useState<number>(50);
   const [promo, setPromo] = useState("");
   const [amount, setAmount] = useState("");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  // 1. Отримуємо дані реального користувача через сесію Steam
+  // Отримуємо дані користувача та синхронізуємо реальний баланс з localStorage
   useEffect(() => {
     fetch('/api/auth/session', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data?.user) {
           setUser(data.user);
-          // 2. Завантажуємо замовлення конкретно для цього Steam ID
-          const savedOrders = JSON.parse(localStorage.getItem(`outland_orders_${data.user.steamId}`) || "[]");
+          
+          // Єдине джерело правди для балансу
+          const currentBal = localStorage.getItem("outland_user_balance");
+          if (currentBal === null) {
+            localStorage.setItem("outland_user_balance", "50");
+            setBalance(50);
+          } else {
+            setBalance(Number(currentBal));
+          }
+
+          // Завантажуємо історію замовлень
+          const savedOrders = JSON.parse(localStorage.getItem(`outland_orders_${data.user.steamId}`) || localStorage.getItem("outland_orders") || "[]");
           setOrders(savedOrders);
         } else {
-          // Якщо не залогінений — можна перенаправити на логін або показати заглушку
           setUser(null);
         }
       })
       .catch(() => setUser(null));
   }, []);
 
-  const balance = 50;
   const vipLabel = "Неактивний";
 
   const handleCopySteamId = () => {
@@ -64,6 +73,22 @@ export default function ProfilePage() {
     await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
     setUser(null);
     window.location.href = "/";
+  };
+
+  // Робоче поповнення балансу з миттєвим оновленням
+  const handleTopUp = () => {
+    const addAmount = Number(amount);
+    if (!addAmount || addAmount <= 0) {
+      alert("Будь ласка, введіть коректну суму для поповнення!");
+      return;
+    }
+
+    const newBalance = balance + addAmount;
+    setBalance(newBalance);
+    localStorage.setItem("outland_user_balance", newBalance.toString());
+
+    setAmount("");
+    alert(`Баланс успішно поповнено на ${addAmount} ₴! Новий баланс: ${newBalance} ₴`);
   };
 
   if (!user) {
@@ -87,7 +112,6 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen pb-28 relative isolate overflow-hidden">
-      {/* Преміальний розмитий фон із глибиною */}
       <div className="absolute inset-0 -z-20 pointer-events-none">
         <img src="/images/hero-bg.jpg" alt="Outland DayZ Background" className="h-full w-full scale-105 object-cover blur-[4px] brightness-90" />
       </div>
@@ -99,7 +123,7 @@ export default function ProfilePage() {
 
       <div className="shell mt-10 sm:mt-14 max-w-5xl space-y-6">
         
-        {/* 1. Преміальна шапка профілю (динамічна з реальними даними Steam) */}
+        {/* Шапка профілю */}
         <div className="relative rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 shadow-2xl shadow-[#b6c980]/5 animate-enter flex flex-wrap items-center justify-between gap-6 overflow-hidden group">
           <div className="absolute -right-24 -top-24 w-64 h-64 bg-[#b6c980]/5 blur-3xl rounded-full pointer-events-none group-hover:bg-[#b6c980]/10 transition duration-700" />
           
@@ -144,7 +168,7 @@ export default function ProfilePage() {
           </div>
         </div>
         
-        {/* 2. Картки статистики */}
+        {/* Статистика */}
         <div className="grid gap-6 sm:grid-cols-3 animate-enter delay-1">
           <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-5 shadow-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#b6c980] hover:shadow-[#b6c980]/15 group">
             <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30 shadow-lg group-hover:scale-110 transition duration-300">
@@ -177,7 +201,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* 3. Промокоди та Поповнення балансу */}
+        {/* Поповнення та промокод */}
         <div className="grid gap-6 md:grid-cols-2 animate-enter delay-2">
           
           <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-7 shadow-2xl flex flex-col justify-between transition duration-300 hover:border-white/30">
@@ -233,7 +257,7 @@ export default function ProfilePage() {
                   className="w-full rounded-xl bg-black/50 border border-white/15 px-4 py-3.5 text-xs text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition font-mono shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
                 <button 
-                  onClick={() => alert("Перехід до оплати Monobank...")}
+                  onClick={handleTopUp}
                   className="btn rounded-xl px-6 text-xs uppercase tracking-widest shrink-0 cursor-pointer shadow-lg shadow-[#b6c980]/10 hover:scale-[1.02] transition"
                 >
                   Поповнити
@@ -248,7 +272,7 @@ export default function ProfilePage() {
 
         </div>
 
-        {/* 4. Історія покупок та персональні коди видачі для конкретного користувача */}
+        {/* Історія покупок */}
         <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 shadow-2xl animate-enter delay-3 transition duration-300 hover:border-white/30">
           <div className="flex items-center justify-between mb-6">
             <div>
