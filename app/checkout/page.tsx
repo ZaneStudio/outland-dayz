@@ -16,7 +16,6 @@ export default function Checkout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const total = items.reduce((s, p) => s + p.price, 0);
 
-  // Функція генерації унікального коду для мода DayZ
   const generateDayZCode = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let part1 = "";
@@ -42,25 +41,42 @@ export default function Checkout() {
     }
 
     try {
-      // 1. ВІДПРАВЛЯЄМО ЗАПИТ НА СЕРВЕР ДЛЯ РЕАЛЬНОГО СПИСАННЯ З БАЗИ ДАНИХ
-      await fetch('/api/balance', {
+      // 1. Списуємо кошти на сервері
+      const balanceRes = await fetch('/api/balance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'spend', amount: total })
-      }).catch(err => console.error("Помилка запиту до сервера:", err));
+      });
 
-      // 2. Оновлюємо локальний баланс
-      const newBalance = currentBalance - total;
+      const balanceData = await balanceRes.json();
+      if (!balanceRes.ok) {
+        alert(balanceData.error || "Помилка при списанні коштів");
+        setIsProcessing(false);
+        return;
+      }
+
+      const newBalance = balanceData.balance;
       localStorage.setItem("outland_user_balance", newBalance.toString());
       localStorage.setItem("balance", newBalance.toString());
-      
-      // Примусово змушуємо шапку, магазин і профіль миттєво оновити цифри
       window.dispatchEvent(new Event("storage"));
 
-      // 3. Генеруємо дані замовлення
       const orderId = `UDZ-${Date.now().toString().slice(-6)}`;
       const redeemCode = generateDayZCode();
-      
+
+      // 2. Запит на створення файлу на хостингу
+      const orderRes = await fetch('/api/orders/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId,
+          code: redeemCode,
+          items
+        })
+      });
+
+      const orderResData = await orderRes.json();
+      console.log("Результат створення замовлення:", orderResData);
+
       const newOrder = {
         id: orderId,
         code: redeemCode,
@@ -69,7 +85,6 @@ export default function Checkout() {
         total: total,
       };
 
-      // Зберігаємо замовлення в історію
       const existingGeneral = JSON.parse(localStorage.getItem("outland_orders") || "[]");
       localStorage.setItem("outland_orders", JSON.stringify([newOrder, ...existingGeneral]));
 
@@ -108,7 +123,7 @@ export default function Checkout() {
             <p className="eyebrow">Оплату підтверджено</p>
             <h1 className="heading mt-3 text-4xl text-[#f2f5e9]">Замовлення прийнято</h1>
             <p className="mt-4 text-sm text-stone-300">Номер вашого замовлення: <b className="text-white font-mono">{order}</b></p>
-            <p className="mt-2 text-xs text-[#b6c980]">Кошти успішно списано, а код видачі вже у вашому профілі!</p>
+            <p className="mt-2 text-xs text-[#b6c980]">Файл успішно створено на ігровому сервері!</p>
             <div className="mt-8">
               <a href="/profile" className="btn inline-flex items-center gap-2 rounded-xl px-6">
                 До профілю <ArrowRight size={16} />
@@ -130,11 +145,9 @@ export default function Checkout() {
       <div className="grid-lines absolute inset-0 -z-10 opacity-60" />
 
       <div className="shell relative z-10 flex min-h-[700px] flex-col justify-center py-12 sm:min-h-[760px] sm:py-24 max-w-5xl">
-        
         <div className="animate-enter w-full">
           {items.length > 0 ? (
             <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-              
               <div className="space-y-4">
                 {items.map((p, i) => (
                   <div key={`${p.id}-${i}`} className="rounded-2xl bg-black/50 p-5 backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-between gap-4">
@@ -187,7 +200,6 @@ export default function Checkout() {
                   {isProcessing ? 'Обробка...' : 'Оплатити'} {isProcessing ? null : <ArrowRight size={16} />}
                 </button>
               </div>
-
             </div>
           ) : (
             <div className="rounded-2xl bg-black/50 p-10 sm:p-14 backdrop-blur-md border border-white/10 shadow-2xl text-center">
@@ -199,17 +211,13 @@ export default function Checkout() {
                 Оберіть необхідне спорядження в магазині, щоб продовжити виживання.
               </p>
               <div className="mt-8">
-                <Link
-                  href="/shop"
-                  className="btn inline-flex items-center gap-2 rounded-xl px-6"
-                >
+                <Link href="/shop" className="btn inline-flex items-center gap-2 rounded-xl px-6">
                   <ShoppingCart size={16} /> Перейти в магазин <ArrowRight size={16} />
                 </Link>
               </div>
             </div>
           )}
         </div>
-
       </div>
     </main>
   );
