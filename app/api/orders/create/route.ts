@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     for (const item of items) {
       const count = item.quantity || 1;
       
-      // Шукаємо товар у базі даних через будь-який тип, щоб уникнути помилки TypeScript
+      // Шукаємо товар у базі даних, щоб взяти класнейм з адмінки
       const dbProduct = await db.managedProduct.findUnique({ where: { id: item.id } });
       const gameClassname = (dbProduct as any)?.classname || item.id;
 
@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
       rewards: rewards
     }, null, 2);
 
+    // Беремо EXACT той самий код, що передав клієнт, і прибираємо з нього дефіси для назви файлу
     const cleanCode = code.replace(/-/g, "");
     const fileName = `${cleanCode}.json`;
     const directory = "/profiles/FT_Mods/Promocodes_Free/Codes";
