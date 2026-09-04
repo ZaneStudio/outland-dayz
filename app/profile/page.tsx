@@ -27,27 +27,29 @@ export default function ProfilePage() {
   const [amount, setAmount] = useState("");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
+  // Синхронізуємо баланс із єдиним глобальним ключем 'outland_user_balance'
   useEffect(() => {
+    const updateBalanceFromStorage = () => {
+      const savedBalance = localStorage.getItem("outland_user_balance");
+      if (savedBalance !== null) {
+        setBalance(Number(savedBalance));
+      } else {
+        localStorage.setItem("outland_user_balance", "50");
+        setBalance(50);
+      }
+    };
+
+    updateBalanceFromStorage();
+
+    // Слухаємо зміни балансу в інших вкладках/компонентах
+    window.addEventListener("storage", updateBalanceFromStorage);
+    const interval = setInterval(updateBalanceFromStorage, 1000); // додаткова перевірка в реальному часі
+
     fetch('/api/auth/session', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data?.user) {
           setUser(data.user);
-          
-          // Головне виправлення: прив'язуємо ключ балансу суворо до Steam ID користувача
-          const userBalanceKey = `balance_${data.user.steamId}`;
-          const savedBalance = localStorage.getItem(userBalanceKey);
-          
-          if (savedBalance === null) {
-            localStorage.setItem(userBalanceKey, "50");
-            setBalance(50);
-          } else {
-            setBalance(Number(savedBalance));
-          }
-
-          // Також синхронізуємо із загальним ключем для сумісності з магазином
-          localStorage.setItem("outland_user_balance", savedBalance || "50");
-
           const savedOrders = JSON.parse(localStorage.getItem(`outland_orders_${data.user.steamId}`) || localStorage.getItem("outland_orders") || "[]");
           setOrders(savedOrders);
         } else {
@@ -55,6 +57,11 @@ export default function ProfilePage() {
         }
       })
       .catch(() => setUser(null));
+
+    return () => {
+      window.removeEventListener("storage", updateBalanceFromStorage);
+      clearInterval(interval);
+    };
   }, []);
 
   const vipLabel = "Неактивний";
@@ -90,7 +97,6 @@ export default function ProfilePage() {
       return;
     }
 
-    // Передаємо чистий Steam ID в коментар баночки Монобанку
     const monobankJarUrl = `https://send.monobank.ua/jar/3UQUKK7EN8?a=${addAmount}&t=${user.steamId}`;
     window.open(monobankJarUrl, "_blank");
   };
