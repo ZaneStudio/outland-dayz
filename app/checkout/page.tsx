@@ -16,6 +16,7 @@ export default function Checkout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const total = items.reduce((s, p) => s + p.price, 0);
 
+  // Функція для генерації повністю рандомного коду у форматі OUT-XXXX-XXXX
   const generateDayZCode = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let part1 = "";
@@ -60,7 +61,7 @@ export default function Checkout() {
       window.dispatchEvent(new Event("storage"));
 
       const orderId = `UDZ-${Date.now().toString().slice(-6)}`;
-      const redeemCode = generateDayZCode();
+      const redeemCode = generateDayZCode(); // Генеруємо унікальний рандомний код
 
       const orderRes = await fetch('/api/orders/create', {
         method: 'POST',

@@ -27,7 +27,6 @@ export async function POST(req: NextRequest) {
     for (const item of items) {
       const count = item.quantity || 1;
       
-      // Шукаємо товар у базі даних, щоб взяти класнейм з адмінки
       const dbProduct = await db.managedProduct.findUnique({ where: { id: item.id } });
       const gameClassname = (dbProduct as any)?.classname || item.id;
 
@@ -49,9 +48,8 @@ export async function POST(req: NextRequest) {
       rewards: rewards
     }, null, 2);
 
-    // Беремо EXACT той самий код, що передав клієнт, і прибираємо з нього дефіси для назви файлу
-    const cleanCode = code.replace(/-/g, "");
-    const fileName = `${cleanCode}.json`;
+    // Зберігаємо назву файлу З ДЕФІСАМИ (наприклад: OUT-AMWC-2935.json)
+    const fileName = `${code}.json`;
     const directory = "/profiles/FT_Mods/Promocodes_Free/Codes";
 
     const uploadUrlRes = await fetch(`https://console.uahost.eu/api/client/servers/${serverId}/files/upload`, {
