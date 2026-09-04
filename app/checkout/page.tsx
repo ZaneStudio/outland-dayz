@@ -13,6 +13,7 @@ export default function Checkout() {
   };
   
   const [order, setOrder] = useState<string>();
+  const [isProcessing, setIsProcessing] = useState(false);
   const total = items.reduce((s, p) => s + p.price, 0);
 
   // Функція генерації унікального коду для мода DayZ
@@ -27,47 +28,66 @@ export default function Checkout() {
     return `OUT-${part1}-${part2}`;
   };
 
-  const handleCheckout = () => {
-    // Читаємо баланс з усіх можливих ключів localStorage, щоб уникнути розсинхронізації
-    const currentBalanceStr = localStorage.getItem("outland_user_balance") || localStorage.getItem("balance") || "50";
+  const handleCheckout = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
+    const currentBalanceStr = localStorage.getItem("outland_user_balance") || "0";
     const currentBalance = Number(currentBalanceStr);
 
     if (currentBalance < total) {
       alert(`Недостатньо коштів! Ваш баланс: ${currentBalance} ₴, а сума замовлення: ${total} ₴`);
+      setIsProcessing(false);
       return;
     }
 
-    // Списусємо кошти та оновлюємо всі ключі балансу
-    const newBalance = currentBalance - total;
-    localStorage.setItem("outland_user_balance", newBalance.toString());
-    localStorage.setItem("balance", newBalance.toString());
+    try {
+      // 1. ВІДПРАВЛЯЄМО ЗАПИТ НА СЕРВЕР ДЛЯ РЕАЛЬНОГО СПИСАННЯ З БАЗИ ДАНИХ
+      await fetch('/api/balance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'spend', amount: total })
+      }).catch(err => console.error("Помилка запиту до сервера:", err));
 
-    // Генеруємо дані замовлення
-    const orderId = `UDZ-${Date.now().toString().slice(-6)}`;
-    const redeemCode = generateDayZCode();
-    
-    const newOrder = {
-      id: orderId,
-      code: redeemCode,
-      date: new Date().toLocaleDateString("uk-UA", { day: "numeric", month: "long", year: "numeric" }),
-      items: items,
-      total: total,
-    };
+      // 2. Оновлюємо локальний баланс
+      const newBalance = currentBalance - total;
+      localStorage.setItem("outland_user_balance", newBalance.toString());
+      localStorage.setItem("balance", newBalance.toString());
+      
+      // Примусово змушуємо шапку, магазин і профіль миттєво оновити цифри
+      window.dispatchEvent(new Event("storage"));
 
-    // Зберігаємо замовлення у ВСІ можливі сховища історії, щоб профіль їх 100% побачив
-    const existingGeneral = JSON.parse(localStorage.getItem("outland_orders") || "[]");
-    localStorage.setItem("outland_orders", JSON.stringify([newOrder, ...existingGeneral]));
+      // 3. Генеруємо дані замовлення
+      const orderId = `UDZ-${Date.now().toString().slice(-6)}`;
+      const redeemCode = generateDayZCode();
+      
+      const newOrder = {
+        id: orderId,
+        code: redeemCode,
+        date: new Date().toLocaleDateString("uk-UA", { day: "numeric", month: "long", year: "numeric" }),
+        items: items,
+        total: total,
+      };
 
-    // Зберігаємо також під SteamID користувача, якщо він є
-    const sessionUser = JSON.parse(localStorage.getItem("outland_user") || "{}");
-    if (sessionUser.steamId) {
-      const userOrdersKey = `outland_orders_${sessionUser.steamId}`;
-      const userOrders = JSON.parse(localStorage.getItem(userOrdersKey) || "[]");
-      localStorage.setItem(userOrdersKey, JSON.stringify([newOrder, ...userOrders]));
+      // Зберігаємо замовлення в історію
+      const existingGeneral = JSON.parse(localStorage.getItem("outland_orders") || "[]");
+      localStorage.setItem("outland_orders", JSON.stringify([newOrder, ...existingGeneral]));
+
+      const sessionUser = JSON.parse(localStorage.getItem("outland_user") || "{}");
+      if (sessionUser?.steamId) {
+        const userOrdersKey = `outland_orders_${sessionUser.steamId}`;
+        const userOrders = JSON.parse(localStorage.getItem(userOrdersKey) || "[]");
+        localStorage.setItem(userOrdersKey, JSON.stringify([newOrder, ...userOrders]));
+      }
+
+      clear();
+      setOrder(orderId);
+    } catch (error) {
+      console.error("Помилка при оформленні:", error);
+      alert("Виникла помилка при обробці замовлення.");
+    } finally {
+      setIsProcessing(false);
     }
-
-    clear();
-    setOrder(orderId);
   };
 
   if (order) {
@@ -102,7 +122,6 @@ export default function Checkout() {
 
   return (
     <main className="relative isolate min-h-[700px] overflow-hidden border-b border-white/10 sm:min-h-[760px]">
-      {/* Фонове зображення */}
       <div className="absolute inset-0 -z-20">
         <img src="/images/hero-bg.jpg" alt="Outland DayZ Background" className="h-full w-full scale-105 object-cover" />
       </div>
@@ -116,7 +135,6 @@ export default function Checkout() {
           {items.length > 0 ? (
             <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
               
-              {/* Список товарів */}
               <div className="space-y-4">
                 {items.map((p, i) => (
                   <div key={`${p.id}-${i}`} className="rounded-2xl bg-black/50 p-5 backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-between gap-4">
@@ -150,7 +168,6 @@ export default function Checkout() {
                 ))}
               </div>
 
-              {/* Блок підсумку */}
               <div className="rounded-2xl bg-black/50 p-6 sm:p-7 backdrop-blur-md border border-white/10 shadow-2xl h-fit">
                 <h3 className="font-bold text-white uppercase tracking-wider text-sm">Підсумок замовлення</h3>
                 <div className="my-4 h-[1px] w-full bg-white/10" />
@@ -164,9 +181,10 @@ export default function Checkout() {
 
                 <button
                   onClick={handleCheckout}
-                  className="btn w-full rounded-xl flex items-center justify-center gap-2 cursor-pointer"
+                  disabled={isProcessing}
+                  className={`btn w-full rounded-xl flex items-center justify-center gap-2 cursor-pointer ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  Оплатити <ArrowRight size={16} />
+                  {isProcessing ? 'Обробка...' : 'Оплатити'} {isProcessing ? null : <ArrowRight size={16} />}
                 </button>
               </div>
 
