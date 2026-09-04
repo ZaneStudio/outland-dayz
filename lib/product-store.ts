@@ -8,44 +8,64 @@ export type ManagedProduct = {
   price: number;
   category: string;
   image: string;
-  classname?: string; // Робимо поле необов'язковим, щоб старий код в адмінці не ламався
+  classname?: string;
   popular: number;
   createdAt: string;
 };
 
-const map = (p: {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  image: string;
-  classname: string | null;
-  popular: number;
-  createdAt: Date;
-}): ManagedProduct => ({
-  ...p,
-  classname: p.classname || "",
-  createdAt: p.createdAt.toISOString()
-});
-
-export async function getManagedProducts() {
-  return (await db.managedProduct.findMany({ orderBy: { createdAt: "desc" } })).map(map);
+export async function getManagedProducts(): Promise<ManagedProduct[]> {
+  const products = await db.managedProduct.findMany({ orderBy: { createdAt: "desc" } });
+  return products.map((p: any) => ({
+    id: p.id,
+    name: p.name,
+    description: p.description,
+    price: p.price,
+    category: p.category,
+    image: p.image,
+    classname: p.classname || "",
+    popular: p.popular || 0,
+    createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString()
+  }));
 }
 
-export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "popular" | "createdAt">) {
-  return map(await db.managedProduct.create({ 
+export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "popular" | "createdAt">): Promise<ManagedProduct> {
+  const created = await db.managedProduct.create({ 
     data: { 
       ...input, 
       id: randomUUID(),
-      classname: input.classname || "" 
+      classname: input.classname || "",
+      popular: 0
     } 
-  }));
+  });
+  const p: any = created;
+  return {
+    id: p.id,
+    name: p.name,
+    description: p.description,
+    price: p.price,
+    category: p.category,
+    image: p.image,
+    classname: p.classname || "",
+    popular: p.popular || 0,
+    createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString()
+  };
 }
 
 export async function updateManagedProduct(id: string, input: Partial<Omit<ManagedProduct, "id" | "createdAt">>) {
   try {
-    return map(await db.managedProduct.update({ where: { id }, data: input }));
+    const updated = await db.managedProduct.update({ where: { id }, data: input });
+    const p: any = updated;
+    return {
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      price: p.price,
+      category: p.category,
+      image: p.image,
+      classname: p.classname || "",
+      popular: p.popular || 0,
+      createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString()
+    };
   } catch {
     return null;
   }
