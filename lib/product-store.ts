@@ -29,14 +29,14 @@ export async function getManagedProducts(): Promise<ManagedProduct[]> {
 }
 
 export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "popular" | "createdAt">): Promise<ManagedProduct> {
-  const created = await db.managedProduct.create({ 
-    data: { 
-      ...input, 
-      id: randomUUID(),
-      classname: input.classname || "",
-      popular: 0
-    } 
-  });
+  const createData: any = {
+    ...input,
+    id: randomUUID(),
+    classname: input.classname || "",
+    popular: 0
+  };
+
+  const created = await db.managedProduct.create({ data: createData });
   const p: any = created;
   return {
     id: p.id,
@@ -53,7 +53,8 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
 
 export async function updateManagedProduct(id: string, input: Partial<Omit<ManagedProduct, "id" | "createdAt">>) {
   try {
-    const updated = await db.managedProduct.update({ where: { id }, data: input });
+    const updateData: any = { ...input };
+    const updated = await db.managedProduct.update({ where: { id }, data: updateData });
     const p: any = updated;
     return {
       id: p.id,
