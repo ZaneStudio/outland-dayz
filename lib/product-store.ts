@@ -8,7 +8,7 @@ export type ManagedProduct = {
   price: number;
   category: string;
   image: string;
-  classname: string;
+  classname?: string; // Робимо поле необов'язковим, щоб старий код в адмінці не ламався
   popular: number;
   createdAt: string;
 };
@@ -34,7 +34,13 @@ export async function getManagedProducts() {
 }
 
 export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "popular" | "createdAt">) {
-  return map(await db.managedProduct.create({ data: { ...input, id: randomUUID() } }));
+  return map(await db.managedProduct.create({ 
+    data: { 
+      ...input, 
+      id: randomUUID(),
+      classname: input.classname || "" 
+    } 
+  }));
 }
 
 export async function updateManagedProduct(id: string, input: Partial<Omit<ManagedProduct, "id" | "createdAt">>) {
