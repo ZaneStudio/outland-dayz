@@ -27,7 +27,6 @@ export default function ProfilePage() {
   const [amount, setAmount] = useState("");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  // Отримуємо дані користувача та синхронізуємо баланс і історію
   useEffect(() => {
     fetch('/api/auth/session', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
@@ -35,13 +34,19 @@ export default function ProfilePage() {
         if (data?.user) {
           setUser(data.user);
           
-          const currentBal = localStorage.getItem("outland_user_balance");
-          if (currentBal === null) {
-            localStorage.setItem("outland_user_balance", "50");
+          // Головне виправлення: прив'язуємо ключ балансу суворо до Steam ID користувача
+          const userBalanceKey = `balance_${data.user.steamId}`;
+          const savedBalance = localStorage.getItem(userBalanceKey);
+          
+          if (savedBalance === null) {
+            localStorage.setItem(userBalanceKey, "50");
             setBalance(50);
           } else {
-            setBalance(Number(currentBal));
+            setBalance(Number(savedBalance));
           }
+
+          // Також синхронізуємо із загальним ключем для сумісності з магазином
+          localStorage.setItem("outland_user_balance", savedBalance || "50");
 
           const savedOrders = JSON.parse(localStorage.getItem(`outland_orders_${data.user.steamId}`) || localStorage.getItem("outland_orders") || "[]");
           setOrders(savedOrders);
@@ -73,7 +78,6 @@ export default function ProfilePage() {
     window.location.href = "/";
   };
 
-  // Перенаправлення на Monobank банку з передачею суми та ВИКЛЮЧНО чистого Steam ID в коментарі
   const handleTopUp = () => {
     const addAmount = Number(amount);
     if (!addAmount || addAmount <= 0) {
@@ -86,6 +90,7 @@ export default function ProfilePage() {
       return;
     }
 
+    // Передаємо чистий Steam ID в коментар баночки Монобанку
     const monobankJarUrl = `https://send.monobank.ua/jar/3UQUKK7EN8?a=${addAmount}&t=${user.steamId}`;
     window.open(monobankJarUrl, "_blank");
   };
@@ -122,7 +127,6 @@ export default function ProfilePage() {
 
       <div className="shell mt-10 sm:mt-14 max-w-5xl space-y-6">
         
-        {/* Шапка профілю */}
         <div className="relative rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 shadow-2xl shadow-[#b6c980]/5 animate-enter flex flex-wrap items-center justify-between gap-6 overflow-hidden group">
           <div className="absolute -right-24 -top-24 w-64 h-64 bg-[#b6c980]/5 blur-3xl rounded-full pointer-events-none group-hover:bg-[#b6c980]/10 transition duration-700" />
           
@@ -167,7 +171,6 @@ export default function ProfilePage() {
           </div>
         </div>
         
-        {/* Статистика */}
         <div className="grid gap-6 sm:grid-cols-3 animate-enter delay-1">
           <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-5 shadow-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#b6c980] hover:shadow-[#b6c980]/15 group">
             <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30 shadow-lg group-hover:scale-110 transition duration-300">
@@ -200,7 +203,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Промокод та Поповнення через Monobank */}
         <div className="grid gap-6 md:grid-cols-2 animate-enter delay-2">
           
           <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-7 shadow-2xl flex flex-col justify-between transition duration-300 hover:border-white/30">
@@ -271,7 +273,6 @@ export default function ProfilePage() {
 
         </div>
 
-        {/* Історія покупок */}
         <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 shadow-2xl animate-enter delay-3 transition duration-300 hover:border-white/30">
           <div className="flex items-center justify-between mb-6">
             <div>
