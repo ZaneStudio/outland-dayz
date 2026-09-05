@@ -311,7 +311,7 @@ export default function ProfilePage() {
           </div>
 
           {orders.length > 0 ? (
-            <div className="space-y-4">
+            <div className="max-h-[520px] overflow-y-auto space-y-4 pr-2 custom-scrollbar">
               {orders.map((order) => {
                 const displayCode = order.code || "OUT-7492-X9M1";
                 const fullCommand = `!code ${displayCode}`;
