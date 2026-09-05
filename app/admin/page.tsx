@@ -3,7 +3,6 @@ import { ImagePlus, Pencil, Plus, Save, ShieldAlert, Trash2, Upload, Image as Im
 import { FormEvent, useEffect, useState, useRef } from "react"; 
 import type { ManagedProduct } from "@/lib/product-store";
 
-// Розширений тип товару з урахуванням налаштувань зображення
 type ExtendedProduct = ManagedProduct & {
   imgScale?: number;
   imgX?: number;
@@ -304,11 +303,16 @@ export default function Admin() {
             </div>
           </form>
 
-          {/* ЖИВИЙ ШАБЛОН */}
+          {/* ЖИВИЙ ШАБЛОН (ТОЧНА КОПІЯ КАРТКИ МАГАЗИНУ) */}
           <div className="bg-black/50 border border-white/15 rounded-2xl p-4 sticky top-6 space-y-3 shadow-xl">
             <p className="eyebrow text-[#c4da83] text-center tracking-widest text-[10px]">Живий шаблон картки</p>
             
-            <div className="rounded-xl bg-[#12160e] border border-[#c4da83]/30 p-3.5 space-y-2.5 shadow-2xl">
+            <div className="group relative w-full flex flex-col items-center justify-between rounded-3xl bg-[#12160e] border border-white/10 pt-36 pb-8 px-6 min-h-[380px] shadow-2xl">
+              
+              {/* Верхній кольоровий блок */}
+              <div className="absolute top-0 left-0 right-0 h-40 rounded-t-3xl bg-[#1c2413] border-b border-white/5" />
+
+              {/* Інтерактивна зона картинки, що вистрибує зверху */}
               <div 
                 ref={previewRef}
                 onMouseDown={handleMouseDown}
@@ -316,38 +320,49 @@ export default function Admin() {
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
                 onWheel={handleWheel}
-                className="relative h-32 w-full rounded-lg overflow-hidden bg-black/60 border border-white/10 flex items-center justify-center select-none cursor-grab active:cursor-grabbing"
+                className="absolute -top-12 z-10 flex w-full justify-center px-4 pointer-events-auto select-none cursor-grab active:cursor-grabbing"
+                title="Затисніть ліву кнопку миші, щоб перетягувати фото. Крутіть коліщатко для зміни масштабу."
               >
                 {form.image ? (
-                  <img 
-                    src={form.image} 
-                    alt="Preview" 
-                    draggable={false}
-                    style={{
-                      transform: `translate(${form.imgX}px, ${form.imgY}px) scale(${form.imgScale})`,
-                      transition: isDragging ? 'none' : 'transform 0.1s ease-out'
-                    }}
-                    className="max-h-full max-w-full object-contain pointer-events-none" 
-                  />
+                  <div className="h-36 w-36 flex items-center justify-center overflow-hidden">
+                    <img 
+                      src={form.image} 
+                      alt="Preview" 
+                      draggable={false}
+                      style={{
+                        transform: `translate(${form.imgX}px, ${form.imgY}px) scale(${form.imgScale})`,
+                        transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                      }}
+                      className="max-h-36 max-w-full object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] pointer-events-none" 
+                    />
+                  </div>
                 ) : (
-                  <ImageIcon size={28} className="text-stone-600" />
+                  <div className="flex h-32 w-32 items-center justify-center rounded-2xl bg-black/40 border border-white/10 text-stone-600">
+                    <ImageIcon size={36} />
+                  </div>
                 )}
-                <span className="absolute top-2 left-2 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded text-[9px] uppercase font-mono text-[#c4da83] border border-white/10 pointer-events-none">
-                  {form.category || "Категорія"}
-                </span>
               </div>
 
-              <div>
-                <h3 className="font-bold text-white text-sm truncate">{form.name || "Назва товару"}</h3>
-                <p className="text-[10px] text-stone-400 line-clamp-2 mt-0.5">
-                  {form.description || "Короткий опис товару..."}
-                </p>
-              </div>
+              {/* Текстовий блок шаблону */}
+              <div className="relative z-10 mt-4 flex w-full flex-col items-center text-center flex-1 justify-between">
+                <div className="w-full">
+                  <span className="mt-2 mb-3 inline-block text-[11px] font-mono uppercase tracking-widest text-[#b6c980]/80">
+                    {form.category || "Категорія"}
+                  </span>
+                  
+                  <h3 className="mb-3 text-lg font-bold text-white leading-tight truncate">
+                    {form.name || "Назва товару"}
+                  </h3>
+                  
+                  <p className="mb-8 text-xs text-stone-400 leading-relaxed px-1 line-clamp-2">
+                    {form.description || "Опис товару тимчасово відсутній."}
+                  </p>
+                </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                <span className="font-mono text-sm font-bold text-[#c4da83]">{form.price || "0"} ₴</span>
-                <div className="h-7 w-7 rounded-lg bg-[#c4da83] text-black font-bold grid place-items-center text-xs shadow-md">
-                  +
+                <div className="flex w-full items-center justify-center gap-3 rounded-full bg-[#b6c980] py-4 text-xs font-bold uppercase tracking-widest text-black shadow-lg shadow-[#b6c980]/10 mt-auto pointer-events-none">
+                  <span className="font-mono text-sm">{form.price || "0"} ₴</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-black/40" />
+                  <span>У кошик</span>
                 </div>
               </div>
             </div>
