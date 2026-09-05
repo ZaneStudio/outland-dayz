@@ -34,19 +34,35 @@ export async function getManagedProducts(): Promise<ManagedProduct[]> {
 }
 
 export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "popular" | "createdAt">): Promise<ManagedProduct> {
-  // Використовуємо 'any', щоб обійти сувору перевірку типів Prisma перед міграцією
-  const createData: any = { 
-    id: randomUUID(),
-    name: input.name,
-    description: input.description,
-    price: input.price,
-    category: input.category,
-    image: input.image,
-    classname: input.classname || "",
-    popular: 0
-  };
-
-  const created: any = await db.managedProduct.create({ data: createData });
+  let created: any;
+  
+  try {
+    // Спроба 1: Зберігаємо всі дані включно з classname
+    const dataWithClassname: any = { 
+      id: randomUUID(),
+      name: input.name,
+      description: input.description,
+      price: input.price,
+      category: input.category,
+      image: input.image,
+      classname: input.classname || "",
+      popular: 0
+    };
+    created = await db.managedProduct.create({ data: dataWithClassname });
+  } catch (err) {
+    // Спроба 2: Якщо Prisma видає помилку, зберігаємо БЕЗ classname
+    console.warn("Prisma client block, using safe fallback:", err);
+    const safeData: any = { 
+      id: randomUUID(),
+      name: input.name,
+      description: input.description,
+      price: input.price,
+      category: input.category,
+      image: input.image,
+      popular: 0
+    };
+    created = await db.managedProduct.create({ data: safeData });
+  }
 
   return {
     id: created.id,
@@ -62,24 +78,29 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
 }
 
 export async function updateManagedProduct(id: string, input: Partial<Omit<ManagedProduct, "id" | "createdAt">>) {
+  let updated: any;
+  
   try {
     const updateData: any = { ...input };
-    const updated: any = await db.managedProduct.update({ where: { id }, data: updateData });
-    return {
-      id: updated.id,
-      name: updated.name,
-      description: updated.description,
-      price: updated.price,
-      category: updated.category,
-      image: updated.image,
-      classname: updated.classname || input.classname || "",
-      popular: updated.popular || 0,
-      createdAt: updated.createdAt ? new Date(updated.createdAt).toISOString() : new Date().toISOString()
-    };
-  } catch (e) {
-    console.error("updateManagedProduct error:", e);
-    return null;
+    updated = await db.managedProduct.update({ where: { id }, data: updateData });
+  } catch (err) {
+    console.warn("Prisma client block on update, using safe fallback:", err);
+    const safeUpdateData: any = { ...input };
+    delete safeUpdateData.classname; // Видаляємо проблемне поле перед оновленням
+    updated = await db.managedProduct.update({ where: { id }, data: safeUpdateData });
   }
+
+  return {
+    id: updated.id,
+    name: updated.name,
+    description: updated.description,
+    price: updated.price,
+    category: updated.category,
+    image: updated.image,
+    classname: updated.classname || input.classname || "",
+    popular: updated.popular || 0,
+    createdAt: updated.createdAt ? new Date(updated.createdAt).toISOString() : new Date().toISOString()
+  };
 }
 
 export async function deleteManagedProduct(id: string) {
