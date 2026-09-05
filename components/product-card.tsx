@@ -17,15 +17,17 @@ export function ProductCard({ product }: { product: Product }) {
       {/* Верхній кольоровий блок (двоколірний Pantone стиль) */}
       <div className="absolute top-0 left-0 right-0 h-40 rounded-t-3xl bg-[#1c2413] border-b border-white/5 transition-colors duration-500 group-hover:bg-[#253018]" />
 
-      {/* Фотографія, що вистрибує (Popping Image) */}
+      {/* Фіксований контейнер для фотографії, щоб усі вони були однакового розміру */}
       <div className="absolute -top-12 z-10 flex w-full justify-center px-4 pointer-events-none">
         {product.image ? (
-          <img
-            src={product.image}
-            alt=""
-            title=""
-            className="h-36 w-36 object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500 group-hover:-translate-y-3 group-hover:scale-110 group-hover:rotate-[-3deg]"
-          />
+          <div className="h-32 w-32 flex items-center justify-center">
+            <img
+              src={product.image}
+              alt={product.name}
+              title={product.name}
+              className="max-h-32 max-w-full object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500 group-hover:-translate-y-3 group-hover:scale-110 group-hover:rotate-[-3deg]"
+            />
+          </div>
         ) : (
           <div className="flex h-32 w-32 items-center justify-center rounded-2xl bg-black/40 border border-white/10 text-stone-600">
             <ImageIcon size={36} />
