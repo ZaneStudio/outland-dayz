@@ -198,6 +198,7 @@ model ManagedProduct {
   price       Int
   category    String
   image       String
+  classname   String?
   popular     Int      @default(0)
   createdAt   DateTime @default(now())
 }
@@ -213,7 +214,7 @@ model ManagedNews {
 }
 
 model ManagedRoulettePrize {
-  id    String @id
+  id    String  @id
   label String
   icon  String
   image String?
