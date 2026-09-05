@@ -37,7 +37,6 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
   let created: any;
   
   try {
-    // Спроба 1: Зберігаємо всі дані включно з classname
     const dataWithClassname: any = { 
       id: randomUUID(),
       name: input.name,
@@ -50,8 +49,7 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
     };
     created = await db.managedProduct.create({ data: dataWithClassname });
   } catch (err) {
-    // Спроба 2: Якщо Prisma видає помилку, зберігаємо БЕЗ classname
-    console.warn("Prisma client block, using safe fallback:", err);
+    console.warn("Prisma create fallback:", err);
     const safeData: any = { 
       id: randomUUID(),
       name: input.name,
@@ -81,12 +79,25 @@ export async function updateManagedProduct(id: string, input: Partial<Omit<Manag
   let updated: any;
   
   try {
-    const updateData: any = { ...input };
-    updated = await db.managedProduct.update({ where: { id }, data: updateData });
+    // Явно вказуємо всі поля, включно з classname, щоб вони оновлювалися в базі
+    const updateData: any = {
+      ...(input.name !== undefined && { name: input.name }),
+      ...(input.description !== undefined && { description: input.description }),
+      ...(input.price !== undefined && { price: input.price }),
+      ...(input.category !== undefined && { category: input.category }),
+      ...(input.image !== undefined && { image: input.image }),
+      ...(input.classname !== undefined && { classname: input.classname }),
+    };
+
+    updated = await db.managedProduct.update({ 
+      where: { id }, 
+      data: updateData 
+    });
   } catch (err) {
-    console.warn("Prisma client block on update, using safe fallback:", err);
+    console.warn("Prisma update fallback error:", err);
+    // Якщо колонка ще десь блокується, оновлюємо без classname, але пропаде лише в крайньому випадку
     const safeUpdateData: any = { ...input };
-    delete safeUpdateData.classname; // Видаляємо проблемне поле перед оновленням
+    delete safeUpdateData.classname;
     updated = await db.managedProduct.update({ where: { id }, data: safeUpdateData });
   }
 
@@ -97,7 +108,7 @@ export async function updateManagedProduct(id: string, input: Partial<Omit<Manag
     price: updated.price,
     category: updated.category,
     image: updated.image,
-    classname: updated.classname || input.classname || "",
+    classname: updated.classname !== undefined ? updated.classname : (input.classname || ""),
     popular: updated.popular || 0,
     createdAt: updated.createdAt ? new Date(updated.createdAt).toISOString() : new Date().toISOString()
   };
