@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSteamSession } from "@/lib/steam-auth";
 import { getManagedProducts } from "@/lib/product-store";
+import { randomBytes } from "crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -9,30 +10,33 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Увійдіть через Steam" }, { status: 401 });
 
   try {
-    const { orderId, code, items } = await req.json();
-    if (!code || !items) {
+    const body = await req.json();
+    const items = body.items;
+    
+    if (!items) {
       return NextResponse.json({ error: "Невірні дані замовлення" }, { status: 400 });
     }
+
+    // Генеруємо код у точно такому ж форматі, як на хостингу: OUT-XXXX-XXXX
+    const part1 = randomBytes(2).toString("hex").toUpperCase();
+    const part2 = randomBytes(2).toString("hex").toUpperCase();
+    const code = body.code && body.code.startsWith("OUT-") ? body.code : `OUT-${part1}-${part2}`;
 
     const apiKey = process.env.PTERODACTYL_API_KEY;
     const serverId = process.env.PTERODACTYL_SERVER_ID;
 
     if (!apiKey || !serverId) {
       console.error("Pterodactyl credentials are missing");
-      return NextResponse.json({ success: true, warning: "Хостинг не налаштовано" });
+      return NextResponse.json({ success: true, warning: "Хостинг не налаштовано", code });
     }
 
-    // Отримуємо всі товари через нашу оновлену безпечну функцію
     const allProducts = await getManagedProducts();
     const rewards = [];
 
     for (const item of items) {
       const count = item.quantity || 1;
-      
-      // Шукаємо товар у базі
       const dbProduct = allProducts.find(p => p.id === item.id);
       
-      // Беремо classname. Якщо він з якоїсь причини порожній, беремо просто ім'я товару
       const gameClassname = (dbProduct && dbProduct.classname && dbProduct.classname.trim() !== "") 
         ? dbProduct.classname 
         : item.name;
@@ -83,7 +87,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, code });
   } catch (error) {
     console.error("Order creation API error:", error);
     return NextResponse.json({ error: "Помилка сервера" }, { status: 500 });
