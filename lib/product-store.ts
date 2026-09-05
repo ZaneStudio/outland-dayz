@@ -13,12 +13,11 @@ export type ManagedProduct = {
   createdAt: string;
 };
 
-// Автоматично створюємо колонку в базі, якщо її чомусь немає
 async function ensureColumnExists() {
   try {
     await db.$executeRawUnsafe(`ALTER TABLE "ManagedProduct" ADD COLUMN IF NOT EXISTS classname TEXT;`);
   } catch (e) {
-    // Ігноруємо, якщо колонка вже є або немає прав
+    console.error("ensureColumnExists warning:", e);
   }
 }
 
@@ -74,7 +73,6 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
 export async function updateManagedProduct(id: string, input: Partial<Omit<ManagedProduct, "id" | "createdAt">>) {
   await ensureColumnExists();
   try {
-    // Оновлюємо класнейм лише тоді, коли він переданий і не є пустим рядком
     if (input.classname !== undefined && input.classname.trim() !== "") {
       await db.$executeRaw`UPDATE "ManagedProduct" SET classname = ${input.classname} WHERE id = ${id}`;
     }
