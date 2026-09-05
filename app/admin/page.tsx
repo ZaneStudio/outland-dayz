@@ -303,16 +303,13 @@ export default function Admin() {
             </div>
           </form>
 
-          {/* ЖИВИЙ ШАБЛОН (ТОЧНА КОПІЯ КАРТКИ МАГАЗИНУ) */}
+          {/* ЖИВИЙ ШАБЛОН ІЗ ЗОБРАЖЕННЯМ ВСЕРЕДИНІ БЛОКУ ТА ОБРІЗКОЮ */}
           <div className="bg-black/50 border border-white/15 rounded-2xl p-4 sticky top-6 space-y-3 shadow-xl">
             <p className="eyebrow text-[#c4da83] text-center tracking-widest text-[10px]">Живий шаблон картки</p>
             
-            <div className="group relative w-full flex flex-col items-center justify-between rounded-3xl bg-[#12160e] border border-white/10 pt-36 pb-8 px-6 min-h-[380px] shadow-2xl">
+            <div className="w-full flex flex-col rounded-3xl bg-[#12160e] border border-white/10 overflow-hidden shadow-2xl">
               
-              {/* Верхній кольоровий блок */}
-              <div className="absolute top-0 left-0 right-0 h-40 rounded-t-3xl bg-[#1c2413] border-b border-white/5" />
-
-              {/* Інтерактивна зона картинки, що вистрибує зверху */}
+              {/* ВЕРХНІЙ БЛОК-КОНТЕЙНЕР (ОБРІЗКА / CROP BOX) */}
               <div 
                 ref={previewRef}
                 onMouseDown={handleMouseDown}
@@ -320,46 +317,42 @@ export default function Admin() {
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
                 onWheel={handleWheel}
-                className="absolute -top-12 z-10 flex w-full justify-center px-4 pointer-events-auto select-none cursor-grab active:cursor-grabbing"
+                className="relative h-44 w-full bg-[#1c2413] border-b border-white/5 overflow-hidden flex items-center justify-center select-none cursor-grab active:cursor-grabbing"
                 title="Затисніть ліву кнопку миші, щоб перетягувати фото. Крутіть коліщатко для зміни масштабу."
               >
+                <span className="absolute top-3 left-3 z-20 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded text-[9px] uppercase font-mono text-[#c4da83] border border-white/10 pointer-events-none">
+                  {form.category || "Категорія"}
+                </span>
+
                 {form.image ? (
-                  <div className="h-36 w-36 flex items-center justify-center overflow-hidden">
-                    <img 
-                      src={form.image} 
-                      alt="Preview" 
-                      draggable={false}
-                      style={{
-                        transform: `translate(${form.imgX}px, ${form.imgY}px) scale(${form.imgScale})`,
-                        transition: isDragging ? 'none' : 'transform 0.1s ease-out'
-                      }}
-                      className="max-h-36 max-w-full object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] pointer-events-none" 
-                    />
-                  </div>
+                  <img 
+                    src={form.image} 
+                    alt="Preview" 
+                    draggable={false}
+                    style={{
+                      transform: `translate(${form.imgX}px, ${form.imgY}px) scale(${form.imgScale})`,
+                      transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                    }}
+                    className="max-h-full max-w-full object-contain pointer-events-none drop-shadow-md" 
+                  />
                 ) : (
-                  <div className="flex h-32 w-32 items-center justify-center rounded-2xl bg-black/40 border border-white/10 text-stone-600">
-                    <ImageIcon size={36} />
-                  </div>
+                  <ImageIcon size={32} className="text-stone-600 pointer-events-none" />
                 )}
               </div>
 
-              {/* Текстовий блок шаблону */}
-              <div className="relative z-10 mt-4 flex w-full flex-col items-center text-center flex-1 justify-between">
+              {/* НИЖНІЙ ТЕКСТОВИЙ БЛОК */}
+              <div className="p-6 flex flex-col items-center text-center justify-between flex-1">
                 <div className="w-full">
-                  <span className="mt-2 mb-3 inline-block text-[11px] font-mono uppercase tracking-widest text-[#b6c980]/80">
-                    {form.category || "Категорія"}
-                  </span>
-                  
-                  <h3 className="mb-3 text-lg font-bold text-white leading-tight truncate">
+                  <h3 className="mb-2 text-lg font-bold text-white leading-tight truncate">
                     {form.name || "Назва товару"}
                   </h3>
                   
-                  <p className="mb-8 text-xs text-stone-400 leading-relaxed px-1 line-clamp-2">
+                  <p className="mb-6 text-xs text-stone-400 leading-relaxed px-1 line-clamp-2">
                     {form.description || "Опис товару тимчасово відсутній."}
                   </p>
                 </div>
 
-                <div className="flex w-full items-center justify-center gap-3 rounded-full bg-[#b6c980] py-4 text-xs font-bold uppercase tracking-widest text-black shadow-lg shadow-[#b6c980]/10 mt-auto pointer-events-none">
+                <div className="flex w-full items-center justify-center gap-3 rounded-full bg-[#b6c980] py-3.5 text-xs font-bold uppercase tracking-widest text-black shadow-lg shadow-[#b6c980]/10 pointer-events-none">
                   <span className="font-mono text-sm">{form.price || "0"} ₴</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-black/40" />
                   <span>У кошик</span>
@@ -385,7 +378,7 @@ export default function Admin() {
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             {products.map(p => (
               <article key={p.id} className="panel flex gap-4 p-4 items-center">
-                <div className="h-20 w-24 rounded bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                <div className="h-20 w-24 rounded bg-[#1c2413] border border-white/10 overflow-hidden flex items-center justify-center shrink-0 relative">
                   <img 
                     src={p.image} 
                     alt="" 
