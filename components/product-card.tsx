@@ -30,8 +30,32 @@ export function ProductCard({ product }: { product: Product }) {
         return;
       }
 
-      alert(`Успішно! Ваш код для отримання в грі: !code ${data.code}\nПеревірте профіль, щоб скопіювати його.`);
-      window.location.reload(); // Оновлюємо сторінку, щоб підтягнувся новий баланс
+      // Зберігаємо замовлення в localStorage, щоб воно відобразилось в профілі
+      const currentOrders = JSON.parse(localStorage.getItem("outland_orders") || "[]");
+      const newOrder = {
+        id: `ORD-${Date.now().toString().slice(-6)}`,
+        code: data.code,
+        date: new Date().toLocaleDateString("uk-UA", { day: "numeric", month: "long", year: "numeric" }) + " р.",
+        items: [
+          {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image
+          }
+        ],
+        total: product.price
+      };
+
+      localStorage.setItem("outland_orders", JSON.stringify([newOrder, ...currentOrders]));
+
+      // Спискуємо кошти з локального балансу
+      const currentBalance = Number(localStorage.getItem("outland_user_balance") || "50");
+      const newBalance = Math.max(0, currentBalance - product.price);
+      localStorage.setItem("outland_user_balance", newBalance.toString());
+
+      alert(`Успішно! Ваш код для отримання в грі: !code ${data.code}\nПерейдіть у профіль, щоб скопіювати його.`);
+      window.location.href = "/profile";
     } catch (err) {
       console.error(err);
       alert("Помилка мережі при оформленні покупки");
@@ -43,10 +67,10 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <div className="group relative w-full flex flex-col items-center justify-between rounded-3xl bg-[#12160e] border border-white/10 pt-36 pb-8 px-6 min-h-[380px] transition-all duration-500 hover:-translate-y-2 hover:border-[#b6c980]/40 hover:shadow-2xl hover:shadow-[#b6c980]/10">
       
-      {/* Верхній кольоровий блок (двоколірний Pantone стиль) */}
+      {/* Верхній кольоровий блок */}
       <div className="absolute top-0 left-0 right-0 h-40 rounded-t-3xl bg-[#1c2413] border-b border-white/5 transition-colors duration-500 group-hover:bg-[#253018]" />
 
-      {/* Фотографія, що вистрибує (Popping Image із pointer-events-none, щоб не перекривати кліки) */}
+      {/* Фотографія */}
       <div className="absolute -top-12 z-10 flex w-full justify-center px-4 pointer-events-none">
         {product.image ? (
           <img
@@ -62,26 +86,22 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       </div>
 
-      {/* Текстовий блок всередині картки */}
+      {/* Текстовий блок */}
       <div className="relative z-10 mt-4 flex w-full flex-col items-center text-center flex-1 justify-between">
         <div className="w-full">
-          {/* Категорія товару */}
           <span className="mt-2 mb-3 inline-block text-[11px] font-mono uppercase tracking-widest text-[#b6c980]/80">
             {product.category}
           </span>
           
-          {/* Назва товару всередині картки */}
           <h3 className="mb-3 text-lg font-bold text-white leading-tight truncate">
             {product.name}
           </h3>
           
-          {/* Опис товару */}
           <p className="mb-8 text-xs text-stone-400 leading-relaxed px-1">
             {product.description || "Опис товару тимчасово відсутній."}
           </p>
         </div>
 
-        {/* Кнопка-пігулка (Pill Button) з інтерактивним станом завантаження */}
         <button
           onClick={handleBuy}
           disabled={loading}

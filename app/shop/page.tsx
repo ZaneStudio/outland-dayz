@@ -16,7 +16,6 @@ export default function Shop() {
   const [products, setProducts] = useState<Product[] | null>(null);
 
   useEffect(() => {
-    // Синхронізація для читання балансу з пам'яті
     const syncBalance = () => {
       const savedBalance = localStorage.getItem("outland_user_balance");
       if (savedBalance !== null) {
@@ -27,7 +26,6 @@ export default function Shop() {
     window.addEventListener("storage", syncBalance);
     const interval = setInterval(syncBalance, 1000);
 
-    // Авторизація та отримання РЕАЛЬНОГО балансу з бази
     fetch('/api/auth/session')
       .then(r => (r.ok ? r.json() : null))
       .then(d => {
@@ -39,8 +37,6 @@ export default function Shop() {
             .then(x => {
               const realBalance = Number(x.balance) || 0;
               setBalance(realBalance);
-              
-              // ПРИМУСОВО ОНОВЛЮЄМО пам'ять для інших вкладок
               localStorage.setItem("outland_user_balance", realBalance.toString());
             })
             .catch(() => setBalance(0));
@@ -114,7 +110,7 @@ export default function Shop() {
             <input
               value={q}
               onChange={e => setQ(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-stone-500 outline-none focus:border-[#84955a] transition"
+              className="w-full bg-black/40 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-stone-500 outline-none focus:border-[#b6c980] transition"
               placeholder="Пошук предмету..."
             />
           </div>
@@ -122,7 +118,7 @@ export default function Shop() {
           <select
             value={cat}
             onChange={e => setCat(e.target.value)}
-            className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-stone-300 outline-none focus:border-[#84955a] transition cursor-pointer"
+            className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-stone-300 outline-none focus:border-[#b6c980] transition cursor-pointer"
           >
             {cats.map(x => (
               <option key={x} value={x} className="bg-neutral-900 text-white">
@@ -134,7 +130,7 @@ export default function Shop() {
           <select
             value={sort}
             onChange={e => setSort(e.target.value)}
-            className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-stone-300 outline-none focus:border-[#84955a] transition cursor-pointer"
+            className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-stone-300 outline-none focus:border-[#b6c980] transition cursor-pointer"
           >
             <option value="popular" className="bg-neutral-900 text-white">За популярністю</option>
             <option value="price" className="bg-neutral-900 text-white">Від дешевших</option>
@@ -151,7 +147,7 @@ export default function Shop() {
               Знайдено товарів: <span className="text-white font-bold">{view.length}</span>
             </p>
 
-            <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-6 grid gap-x-6 gap-y-16 pt-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {view.map(p => (
                 <ProductCard key={p.id} product={p} />
               ))}
