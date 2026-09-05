@@ -27,7 +27,10 @@ export async function POST(request: NextRequest){
     category: String(body.category),
     price: Number(body.price),
     image: String(body.image || "/images/outland-hero.png"),
-    classname: String(body.classname || "")
+    classname: String(body.classname || ""),
+    imgScale: Number(body.imgScale ?? 1),
+    imgX: Number(body.imgX ?? 0),
+    imgY: Number(body.imgY ?? 0)
   });
 
   return NextResponse.json(newProduct, { status: 201 });

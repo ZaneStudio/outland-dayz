@@ -17,6 +17,11 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   if (body.price !== undefined) updateData.price = Number(body.price);
   if (body.image !== undefined) updateData.image = String(body.image);
   if (body.classname !== undefined) updateData.classname = String(body.classname);
+  
+  // Додано збереження налаштувань позиціонування та масштабу фото
+  if (body.imgScale !== undefined) updateData.imgScale = Number(body.imgScale);
+  if (body.imgX !== undefined) updateData.imgX = Number(body.imgX);
+  if (body.imgY !== undefined) updateData.imgY = Number(body.imgY);
 
   const updatedProduct = await updateManagedProduct(id, updateData);
   
