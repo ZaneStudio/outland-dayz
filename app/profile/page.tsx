@@ -27,7 +27,6 @@ export default function ProfilePage() {
   const [amount, setAmount] = useState("");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  // Синхронізуємо баланс із єдиним глобальним ключем 'outland_user_balance'
   useEffect(() => {
     const updateBalanceFromStorage = () => {
       const savedBalance = localStorage.getItem("outland_user_balance");
@@ -41,9 +40,8 @@ export default function ProfilePage() {
 
     updateBalanceFromStorage();
 
-    // Слухаємо зміни балансу в інших вкладках/компонентах
     window.addEventListener("storage", updateBalanceFromStorage);
-    const interval = setInterval(updateBalanceFromStorage, 1000); // додаткова перевірка в реальному часі
+    const interval = setInterval(updateBalanceFromStorage, 1000);
 
     fetch('/api/auth/session', { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
@@ -228,7 +226,29 @@ export default function ProfilePage() {
                   className="w-full rounded-xl bg-black/50 border border-white/15 px-4 py-3.5 text-xs uppercase tracking-wider text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition shadow-inner"
                 />
                 <button 
-                  onClick={() => alert("Перевірка промокоду...")}
+                  onClick={async () => {
+                    if (!promo.trim()) {
+                      alert("Введіть промокод!");
+                      return;
+                    }
+                    try {
+                      const res = await fetch("/api/promocodes/activate", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ code: promo })
+                      });
+                      const data = await res.json();
+                      if (!res.ok) {
+                        alert(data.error || "Помилка активації промокоду");
+                        return;
+                      }
+                      alert(`Успішно! На ваш баланс зараховано ${data.amount} ₴`);
+                      setPromo("");
+                      window.location.reload();
+                    } catch (err) {
+                      alert("Помилка мережі");
+                    }
+                  }}
                   className="btn rounded-xl px-6 text-xs uppercase tracking-widest shrink-0 cursor-pointer shadow-lg shadow-[#b6c980]/10 hover:scale-[1.02] transition"
                 >
                   Активувати
