@@ -15,7 +15,9 @@ export type ManagedProduct = {
 
 export async function getManagedProducts(): Promise<ManagedProduct[]> {
   try {
-    const products = await db.managedProduct.findMany({ orderBy: { createdAt: "desc" } });
+    // Читаємо базу напряму через SQL. Це оминає всі тупі кеші Prisma Client!
+    const products: any[] = await db.$queryRaw`SELECT * FROM "ManagedProduct" ORDER BY "createdAt" DESC`;
+    
     return products.map((p: any) => ({
       id: p.id,
       name: p.name,
@@ -38,25 +40,12 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
   const classname = input.classname || "";
   
   try {
-    // Використовуємо прямий SQL, щоб класнейм гарантовано записався
     await db.$executeRaw`
       INSERT INTO "ManagedProduct" (id, name, description, price, category, image, classname, popular, "createdAt")
       VALUES (${id}, ${input.name}, ${input.description}, ${input.price}, ${input.category}, ${input.image}, ${classname}, 0, NOW())
     `;
-  } catch (err) {
-    console.warn("Raw SQL create fallback:", err);
-    // Запасний варіант через звичайний Prisma create без classname якщо таблиця ще стара
-    await db.managedProduct.create({
-      data: {
-        id,
-        name: input.name,
-        description: input.description,
-        price: Number(input.price),
-        category: input.category,
-        image: input.image,
-        popular: 0
-      }
-    });
+  } catch (e) {
+    console.error("Create error:", e);
   }
 
   return {
@@ -66,7 +55,7 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
     price: input.price,
     category: input.category,
     image: input.image,
-    classname: classname,
+    classname,
     popular: 0,
     createdAt: new Date().toISOString()
   };
@@ -74,65 +63,25 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
 
 export async function updateManagedProduct(id: string, input: Partial<Omit<ManagedProduct, "id" | "createdAt">>) {
   try {
-    // Збираємо дані для прямого оновлення через SQL
-    const name = input.name;
-    const description = input.description;
-    const price = input.price !== undefined ? Number(input.price) : undefined;
-    const category = input.category;
-    const image = input.image;
-    const classname = input.classname;
-
-    // Оновлюємо кожне передане поле через SQL, щоб гарантовано оновити classname
-    if (classname !== undefined) {
-      await db.$executeRaw`UPDATE "ManagedProduct" SET classname = ${classname} WHERE id = ${id}`;
-    }
-    if (name !== undefined) {
-      await db.$executeRaw`UPDATE "ManagedProduct" SET name = ${name} WHERE id = ${id}`;
-    }
-    if (description !== undefined) {
-      await db.$executeRaw`UPDATE "ManagedProduct" SET description = ${description} WHERE id = ${id}`;
-    }
-    if (price !== undefined) {
-      await db.$executeRaw`UPDATE "ManagedProduct" SET price = ${price} WHERE id = ${id}`;
-    }
-    if (category !== undefined) {
-      await db.$executeRaw`UPDATE "ManagedProduct" SET category = ${category} WHERE id = ${id}`;
-    }
-    if (image !== undefined) {
-      await db.$executeRaw`UPDATE "ManagedProduct" SET image = ${image} WHERE id = ${id}`;
-    }
-
-  } catch (err) {
-    console.warn("Raw SQL update error, falling back to standard prisma:", err);
-    try {
-      const updateData: any = { ...input };
-      delete updateData.classname;
-      await db.managedProduct.update({ where: { id }, data: updateData });
-    } catch (innerErr) {
-      console.error("Fallback update failed:", innerErr);
-    }
+    if (input.classname !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET classname = ${input.classname} WHERE id = ${id}`;
+    if (input.name !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET name = ${input.name} WHERE id = ${id}`;
+    if (input.description !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET description = ${input.description} WHERE id = ${id}`;
+    if (input.price !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET price = ${input.price} WHERE id = ${id}`;
+    if (input.category !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET category = ${input.category} WHERE id = ${id}`;
+    if (input.image !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET image = ${input.image} WHERE id = ${id}`;
+  } catch (e) {
+    console.error("Update error:", e);
   }
 
-  // Повертаємо оновлений товар із бази
   const updatedList = await getManagedProducts();
   const current = updatedList.find(p => p.id === id);
   
-  return current || {
-    id,
-    name: input.name || "",
-    description: input.description || "",
-    price: input.price || 0,
-    category: input.category || "",
-    image: input.image || "",
-    classname: input.classname || "",
-    popular: 0,
-    createdAt: new Date().toISOString()
-  };
+  return current || { id, ...input } as any;
 }
 
 export async function deleteManagedProduct(id: string) {
   try {
-    await db.managedProduct.delete({ where: { id } });
+    await db.$executeRaw`DELETE FROM "ManagedProduct" WHERE id = ${id}`;
     return true;
   } catch {
     return false;
