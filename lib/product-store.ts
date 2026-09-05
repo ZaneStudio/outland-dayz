@@ -9,6 +9,9 @@ export type ManagedProduct = {
   category: string;
   image: string;
   classname?: string;
+  imgScale?: number;
+  imgX?: number;
+  imgY?: number;
   popular: number;
   createdAt: string;
 };
@@ -16,6 +19,9 @@ export type ManagedProduct = {
 async function ensureColumnExists() {
   try {
     await db.$executeRawUnsafe(`ALTER TABLE "ManagedProduct" ADD COLUMN IF NOT EXISTS classname TEXT;`);
+    await db.$executeRawUnsafe(`ALTER TABLE "ManagedProduct" ADD COLUMN IF NOT EXISTS "imgScale" DOUBLE PRECISION DEFAULT 1;`);
+    await db.$executeRawUnsafe(`ALTER TABLE "ManagedProduct" ADD COLUMN IF NOT EXISTS "imgX" DOUBLE PRECISION DEFAULT 0;`);
+    await db.$executeRawUnsafe(`ALTER TABLE "ManagedProduct" ADD COLUMN IF NOT EXISTS "imgY" DOUBLE PRECISION DEFAULT 0;`);
   } catch (e) {
     console.error("ensureColumnExists warning:", e);
   }
@@ -34,6 +40,9 @@ export async function getManagedProducts(): Promise<ManagedProduct[]> {
       category: p.category,
       image: p.image,
       classname: p.classname || "",
+      imgScale: p.imgScale ?? 1,
+      imgX: p.imgX ?? 0,
+      imgY: p.imgY ?? 0,
       popular: p.popular || 0,
       createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString()
     }));
@@ -47,11 +56,14 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
   await ensureColumnExists();
   const id = randomUUID();
   const classname = input.classname || "";
+  const imgScale = input.imgScale ?? 1;
+  const imgX = input.imgX ?? 0;
+  const imgY = input.imgY ?? 0;
   
   try {
     await db.$executeRaw`
-      INSERT INTO "ManagedProduct" (id, name, description, price, category, image, classname, popular, "createdAt")
-      VALUES (${id}, ${input.name}, ${input.description}, ${input.price}, ${input.category}, ${input.image}, ${classname}, 0, NOW())
+      INSERT INTO "ManagedProduct" (id, name, description, price, category, image, classname, "imgScale", "imgX", "imgY", popular, "createdAt")
+      VALUES (${id}, ${input.name}, ${input.description}, ${input.price}, ${input.category}, ${input.image}, ${classname}, ${imgScale}, ${imgX}, ${imgY}, 0, NOW())
     `;
   } catch (e) {
     console.error("Create error:", e);
@@ -65,6 +77,9 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
     category: input.category,
     image: input.image,
     classname,
+    imgScale,
+    imgX,
+    imgY,
     popular: 0,
     createdAt: new Date().toISOString()
   };
@@ -73,7 +88,7 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
 export async function updateManagedProduct(id: string, input: Partial<Omit<ManagedProduct, "id" | "createdAt">>) {
   await ensureColumnExists();
   try {
-    if (input.classname !== undefined && input.classname.trim() !== "") {
+    if (input.classname !== undefined) {
       await db.$executeRaw`UPDATE "ManagedProduct" SET classname = ${input.classname} WHERE id = ${id}`;
     }
     if (input.name !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET name = ${input.name} WHERE id = ${id}`;
@@ -81,6 +96,9 @@ export async function updateManagedProduct(id: string, input: Partial<Omit<Manag
     if (input.price !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET price = ${input.price} WHERE id = ${id}`;
     if (input.category !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET category = ${input.category} WHERE id = ${id}`;
     if (input.image !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET image = ${input.image} WHERE id = ${id}`;
+    if (input.imgScale !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET "imgScale" = ${input.imgScale} WHERE id = ${id}`;
+    if (input.imgX !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET "imgX" = ${input.imgX} WHERE id = ${id}`;
+    if (input.imgY !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET "imgY" = ${input.imgY} WHERE id = ${id}`;
   } catch (e) {
     console.error("Update error:", e);
   }
