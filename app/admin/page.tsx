@@ -3,6 +3,13 @@ import { ImagePlus, Pencil, Plus, Save, ShieldAlert, Trash2, Upload, Image as Im
 import { FormEvent, useEffect, useState, useRef } from "react"; 
 import type { ManagedProduct } from "@/lib/product-store";
 
+// Розширений тип товару з урахуванням налаштувань зображення
+type ExtendedProduct = ManagedProduct & {
+  imgScale?: number;
+  imgX?: number;
+  imgY?: number;
+};
+
 const blank = { 
   name: "", 
   description: "", 
@@ -16,13 +23,12 @@ const blank = {
 };
 
 export default function Admin() {
-  const [products, setProducts] = useState<ManagedProduct[]>([]);
+  const [products, setProducts] = useState<ExtendedProduct[]>([]);
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [form, setForm] = useState(blank);
   const [editing, setEditing] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
-  // Стани для перетягування мишкою в живому шаблоні
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const previewRef = useRef<HTMLDivElement>(null);
@@ -65,7 +71,6 @@ export default function Admin() {
     }
   };
 
-  // Обробка перетягування зображення у шаблоні
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!form.image) return;
     setIsDragging(true);
@@ -83,7 +88,6 @@ export default function Admin() {
     setIsDragging(false);
   };
 
-  // Зум колесом миші над картинкою
   const handleWheel = (e: React.WheelEvent) => {
     if (!form.image) return;
     e.preventDefault();
@@ -132,7 +136,7 @@ export default function Admin() {
     }
   };
 
-  const edit = (p: ManagedProduct & { imgScale?: number; imgX?: number; imgY?: number }) => {
+  const edit = (p: ExtendedProduct) => {
     setEditing(p.id);
     setForm({
       name: p.name,
@@ -300,7 +304,7 @@ export default function Admin() {
             </div>
           </form>
 
-          {/* ЖИВИЙ ШАБЛОН З ІНТЕРАКТИВНИМ ПЕРЕТЯГУВАННЯМ ТА ЗУМОМ */}
+          {/* ЖИВИЙ ШАБЛОН */}
           <div className="bg-black/50 border border-white/15 rounded-2xl p-4 sticky top-6 space-y-3 shadow-xl">
             <p className="eyebrow text-[#c4da83] text-center tracking-widest text-[10px]">Живий шаблон картки</p>
             
@@ -313,7 +317,6 @@ export default function Admin() {
                 onMouseLeave={handleMouseUp}
                 onWheel={handleWheel}
                 className="relative h-32 w-full rounded-lg overflow-hidden bg-black/60 border border-white/10 flex items-center justify-center select-none cursor-grab active:cursor-grabbing"
-                title="Затисніть ліву кнопку миші, щоб перетягувати фото. Крутіть коліщатко для зміни масштабу."
               >
                 {form.image ? (
                   <img 
