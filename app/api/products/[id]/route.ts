@@ -4,12 +4,12 @@ import { currentAdmin } from "@/lib/admin";
 
 export const dynamic = "force-dynamic";
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   if (!await currentAdmin()) return NextResponse.json({ error: "Недостатньо прав" }, { status: 403 });
   
+  const { id } = await context.params;
   const body = await request.json();
   
-  // Збираємо дані для оновлення, включаючи classname
   const updateData: any = {};
   if (body.name !== undefined) updateData.name = String(body.name);
   if (body.description !== undefined) updateData.description = String(body.description);
@@ -18,14 +18,15 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   if (body.image !== undefined) updateData.image = String(body.image);
   if (body.classname !== undefined) updateData.classname = String(body.classname);
 
-  const updatedProduct = await updateManagedProduct(params.id, updateData);
+  const updatedProduct = await updateManagedProduct(id, updateData);
   
   return NextResponse.json(updatedProduct);
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   if (!await currentAdmin()) return NextResponse.json({ error: "Недостатньо прав" }, { status: 403 });
   
-  await deleteManagedProduct(params.id);
+  const { id } = await context.params;
+  await deleteManagedProduct(id);
   return NextResponse.json({ success: true });
 }
