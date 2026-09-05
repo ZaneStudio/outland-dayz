@@ -72,7 +72,7 @@ export default function ProfilePage() {
   };
 
   const handleCopyCode = (code: string) => {
-    navigator.clipboard.writeText(`!code - ${code}`);
+    navigator.clipboard.writeText(`!code ${code}`);
     setCopiedCode(code);
     setTimeout(() => setCopiedCode(null), 2000);
   };
