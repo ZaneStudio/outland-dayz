@@ -314,7 +314,7 @@ export default function ProfilePage() {
             <div className="space-y-4">
               {orders.map((order) => {
                 const displayCode = order.code || "OUT-7492-X9M1";
-                const fullCommand = `!code - ${displayCode}`;
+                const fullCommand = `!code ${displayCode}`;
 
                 return (
                   <div key={order.id} className="rounded-xl bg-black/50 border border-white/10 p-5 space-y-4 shadow-inner transition hover:border-[#b6c980]/40">
