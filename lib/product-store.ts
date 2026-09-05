@@ -13,9 +13,18 @@ export type ManagedProduct = {
   createdAt: string;
 };
 
+// Автоматично створюємо колонку в базі, якщо її чомусь немає
+async function ensureColumnExists() {
+  try {
+    await db.$executeRawUnsafe(`ALTER TABLE "ManagedProduct" ADD COLUMN IF NOT EXISTS classname TEXT;`);
+  } catch (e) {
+    // Ігноруємо, якщо колонка вже є або немає прав
+  }
+}
+
 export async function getManagedProducts(): Promise<ManagedProduct[]> {
   try {
-    // Читаємо базу напряму через SQL. Це оминає всі тупі кеші Prisma Client!
+    await ensureColumnExists();
     const products: any[] = await db.$queryRaw`SELECT * FROM "ManagedProduct" ORDER BY "createdAt" DESC`;
     
     return products.map((p: any) => ({
@@ -36,6 +45,7 @@ export async function getManagedProducts(): Promise<ManagedProduct[]> {
 }
 
 export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "popular" | "createdAt">): Promise<ManagedProduct> {
+  await ensureColumnExists();
   const id = randomUUID();
   const classname = input.classname || "";
   
@@ -62,6 +72,7 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
 }
 
 export async function updateManagedProduct(id: string, input: Partial<Omit<ManagedProduct, "id" | "createdAt">>) {
+  await ensureColumnExists();
   try {
     if (input.classname !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET classname = ${input.classname} WHERE id = ${id}`;
     if (input.name !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET name = ${input.name} WHERE id = ${id}`;
