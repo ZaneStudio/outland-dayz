@@ -34,83 +34,99 @@ export async function getManagedProducts(): Promise<ManagedProduct[]> {
 }
 
 export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "popular" | "createdAt">): Promise<ManagedProduct> {
-  let created: any;
+  const id = randomUUID();
+  const classname = input.classname || "";
   
   try {
-    const dataWithClassname: any = { 
-      id: randomUUID(),
-      name: input.name,
-      description: input.description,
-      price: input.price,
-      category: input.category,
-      image: input.image,
-      classname: input.classname || "",
-      popular: 0
-    };
-    created = await db.managedProduct.create({ data: dataWithClassname });
+    // Використовуємо прямий SQL, щоб класнейм гарантовано записався
+    await db.$executeRaw`
+      INSERT INTO "ManagedProduct" (id, name, description, price, category, image, classname, popular, "createdAt")
+      VALUES (${id}, ${input.name}, ${input.description}, ${input.price}, ${input.category}, ${input.image}, ${classname}, 0, NOW())
+    `;
   } catch (err) {
-    console.warn("Prisma create fallback:", err);
-    const safeData: any = { 
-      id: randomUUID(),
-      name: input.name,
-      description: input.description,
-      price: input.price,
-      category: input.category,
-      image: input.image,
-      popular: 0
-    };
-    created = await db.managedProduct.create({ data: safeData });
+    console.warn("Raw SQL create fallback:", err);
+    // Запасний варіант через звичайний Prisma create без classname якщо таблиця ще стара
+    await db.managedProduct.create({
+      data: {
+        id,
+        name: input.name,
+        description: input.description,
+        price: Number(input.price),
+        category: input.category,
+        image: input.image,
+        popular: 0
+      }
+    });
   }
 
   return {
-    id: created.id,
-    name: created.name,
-    description: created.description,
-    price: created.price,
-    category: created.category,
-    image: created.image,
-    classname: created.classname || input.classname || "",
-    popular: created.popular || 0,
-    createdAt: created.createdAt ? new Date(created.createdAt).toISOString() : new Date().toISOString()
+    id,
+    name: input.name,
+    description: input.description,
+    price: input.price,
+    category: input.category,
+    image: input.image,
+    classname: classname,
+    popular: 0,
+    createdAt: new Date().toISOString()
   };
 }
 
 export async function updateManagedProduct(id: string, input: Partial<Omit<ManagedProduct, "id" | "createdAt">>) {
-  let updated: any;
-  
   try {
-    // Явно вказуємо всі поля, включно з classname, щоб вони оновлювалися в базі
-    const updateData: any = {
-      ...(input.name !== undefined && { name: input.name }),
-      ...(input.description !== undefined && { description: input.description }),
-      ...(input.price !== undefined && { price: input.price }),
-      ...(input.category !== undefined && { category: input.category }),
-      ...(input.image !== undefined && { image: input.image }),
-      ...(input.classname !== undefined && { classname: input.classname }),
-    };
+    // Збираємо дані для прямого оновлення через SQL
+    const name = input.name;
+    const description = input.description;
+    const price = input.price !== undefined ? Number(input.price) : undefined;
+    const category = input.category;
+    const image = input.image;
+    const classname = input.classname;
 
-    updated = await db.managedProduct.update({ 
-      where: { id }, 
-      data: updateData 
-    });
+    // Оновлюємо кожне передане поле через SQL, щоб гарантовано оновити classname
+    if (classname !== undefined) {
+      await db.$executeRaw`UPDATE "ManagedProduct" SET classname = ${classname} WHERE id = ${id}`;
+    }
+    if (name !== undefined) {
+      await db.$executeRaw`UPDATE "ManagedProduct" SET name = ${name} WHERE id = ${id}`;
+    }
+    if (description !== undefined) {
+      await db.$executeRaw`UPDATE "ManagedProduct" SET description = ${description} WHERE id = ${id}`;
+    }
+    if (price !== undefined) {
+      await db.$executeRaw`UPDATE "ManagedProduct" SET price = ${price} WHERE id = ${id}`;
+    }
+    if (category !== undefined) {
+      await db.$executeRaw`UPDATE "ManagedProduct" SET category = ${category} WHERE id = ${id}`;
+    }
+    if (image !== undefined) {
+      await db.$executeRaw`UPDATE "ManagedProduct" SET image = ${image} WHERE id = ${id}`;
+    }
+
   } catch (err) {
-    console.warn("Prisma update fallback error:", err);
-    // Якщо колонка ще десь блокується, оновлюємо без classname, але пропаде лише в крайньому випадку
-    const safeUpdateData: any = { ...input };
-    delete safeUpdateData.classname;
-    updated = await db.managedProduct.update({ where: { id }, data: safeUpdateData });
+    console.warn("Raw SQL update error, falling back to standard prisma:", err);
+    try {
+      const updateData: any = { ...input };
+      delete updateData.classname;
+      await db.managedProduct.update({ where: { id }, data: updateData });
+    } catch (innerErr) {
+      console.error("Fallback update failed:", innerErr);
+    }
   }
 
-  return {
-    id: updated.id,
-    name: updated.name,
-    description: updated.description,
-    price: updated.price,
-    category: updated.category,
-    image: updated.image,
-    classname: updated.classname !== undefined ? updated.classname : (input.classname || ""),
-    popular: updated.popular || 0,
-    createdAt: updated.createdAt ? new Date(updated.createdAt).toISOString() : new Date().toISOString()
+  // Повертаємо оновлений товар із бази
+  const updatedList = await getManagedProducts();
+  const current = updatedList.find(p => p.id === id);
+  
+  return current || {
+    id,
+    name: input.name || "",
+    description: input.description || "",
+    price: input.price || 0,
+    category: input.category || "",
+    image: input.image || "",
+    classname: input.classname || "",
+    popular: 0,
+    createdAt: new Date().toISOString()
   };
 }
 
