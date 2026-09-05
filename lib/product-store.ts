@@ -74,7 +74,10 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
 export async function updateManagedProduct(id: string, input: Partial<Omit<ManagedProduct, "id" | "createdAt">>) {
   await ensureColumnExists();
   try {
-    if (input.classname !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET classname = ${input.classname} WHERE id = ${id}`;
+    // Оновлюємо класнейм лише тоді, коли він переданий і не є пустим рядком
+    if (input.classname !== undefined && input.classname.trim() !== "") {
+      await db.$executeRaw`UPDATE "ManagedProduct" SET classname = ${input.classname} WHERE id = ${id}`;
+    }
     if (input.name !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET name = ${input.name} WHERE id = ${id}`;
     if (input.description !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET description = ${input.description} WHERE id = ${id}`;
     if (input.price !== undefined) await db.$executeRaw`UPDATE "ManagedProduct" SET price = ${input.price} WHERE id = ${id}`;
