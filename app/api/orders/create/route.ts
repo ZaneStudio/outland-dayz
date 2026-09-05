@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSteamSession } from "@/lib/steam-auth";
-import { db } from "@/lib/db";
+import { getManagedProducts } from "@/lib/product-store";
 
 export const dynamic = "force-dynamic";
 
@@ -22,13 +22,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, warning: "Хостинг не налаштовано" });
     }
 
+    // Отримуємо всі товари через нашу оновлену безпечну функцію
+    const allProducts = await getManagedProducts();
     const rewards = [];
 
     for (const item of items) {
       const count = item.quantity || 1;
       
-      const dbProduct = await db.managedProduct.findUnique({ where: { id: item.id } });
-      const gameClassname = (dbProduct as any)?.classname || item.id;
+      // Шукаємо товар у базі
+      const dbProduct = allProducts.find(p => p.id === item.id);
+      
+      // Беремо classname. Якщо він з якоїсь причини порожній, беремо просто ім'я товару
+      const gameClassname = (dbProduct && dbProduct.classname && dbProduct.classname.trim() !== "") 
+        ? dbProduct.classname 
+        : item.name;
 
       for (let i = 0; i < count; i++) {
         rewards.push({
@@ -48,7 +55,6 @@ export async function POST(req: NextRequest) {
       rewards: rewards
     }, null, 2);
 
-    // Зберігаємо назву файлу З ДЕФІСАМИ (наприклад: OUT-AMWC-2935.json)
     const fileName = `${code}.json`;
     const directory = "/profiles/FT_Mods/Promocodes_Free/Codes";
 
