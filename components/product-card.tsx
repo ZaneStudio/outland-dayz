@@ -1,11 +1,43 @@
 "use client";
 
+import { useState } from "react";
 import { ImageIcon } from "lucide-react";
 import type { Product } from "@/lib/data";
 
 export function ProductCard({ product }: { product: Product }) {
-  const handleBuy = () => {
-    // Логіка покупки або додавання в кошик
+  const [loading, setLoading] = useState(false);
+
+  const handleBuy = async () => {
+    if (loading) return;
+    
+    if (!confirm(`Бажаєте придбати "${product.name}" за ${product.price} ₴?`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/shop/buy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product.id })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Помилка при покупці");
+        setLoading(false);
+        return;
+      }
+
+      alert(`Успішно! Ваш код для отримання в грі: !code ${data.code}\nПеревірте профіль, щоб скопіювати його.`);
+      window.location.reload(); // Оновлюємо сторінку, щоб підтягнувся новий баланс
+    } catch (err) {
+      console.error(err);
+      alert("Помилка мережі при оформленні покупки");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -14,7 +46,7 @@ export function ProductCard({ product }: { product: Product }) {
       {/* Верхній кольоровий блок (двоколірний Pantone стиль) */}
       <div className="absolute top-0 left-0 right-0 h-40 rounded-t-3xl bg-[#1c2413] border-b border-white/5 transition-colors duration-500 group-hover:bg-[#253018]" />
 
-      {/* Фотографія, що вистрибує (Popping Image) */}
+      {/* Фотографія, що вистрибує (Popping Image із pointer-events-none, щоб не перекривати кліки) */}
       <div className="absolute -top-12 z-10 flex w-full justify-center px-4 pointer-events-none">
         {product.image ? (
           <img
@@ -49,14 +81,15 @@ export function ProductCard({ product }: { product: Product }) {
           </p>
         </div>
 
-        {/* Кнопка-пігулка (Pill Button) */}
+        {/* Кнопка-пігулка (Pill Button) з інтерактивним станом завантаження */}
         <button
           onClick={handleBuy}
-          className="flex w-full items-center justify-center gap-3 rounded-full bg-[#b6c980] hover:bg-[#c6d990] py-4 text-xs font-bold uppercase tracking-widest text-black shadow-lg shadow-[#b6c980]/10 transition-all hover:shadow-[#b6c980]/30 active:scale-95 cursor-pointer mt-auto"
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-3 rounded-full bg-[#b6c980] hover:bg-[#c6d990] py-4 text-xs font-bold uppercase tracking-widest text-black shadow-lg shadow-[#b6c980]/10 transition-all hover:shadow-[#b6c980]/30 active:scale-95 cursor-pointer mt-auto disabled:opacity-50"
         >
           <span className="font-mono text-sm">{product.price} ₴</span>
           <span className="w-1.5 h-1.5 rounded-full bg-black/40" />
-          <span>Купити</span>
+          <span>{loading ? "Обробка..." : "Купити"}</span>
         </button>
       </div>
     </div>
