@@ -1,9 +1,19 @@
 "use client";
-import { ImagePlus, Pencil, Plus, Save, ShieldAlert, Trash2, Upload, Image as ImageIcon } from "lucide-react"; 
-import { FormEvent, useEffect, useState } from "react"; 
+import { ImagePlus, Pencil, Plus, Save, ShieldAlert, Trash2, Upload, Image as ImageIcon, ZoomIn, ZoomOut, Move } from "lucide-react"; 
+import { FormEvent, useEffect, useState, useRef } from "react"; 
 import type { ManagedProduct } from "@/lib/product-store";
 
-const blank = { name: "", description: "", category: "Інше", price: "", image: "", classname: "" };
+const blank = { 
+  name: "", 
+  description: "", 
+  category: "Інше", 
+  price: "", 
+  image: "", 
+  classname: "",
+  imgScale: 1,
+  imgX: 0,
+  imgY: 0
+};
 
 export default function Admin() {
   const [products, setProducts] = useState<ManagedProduct[]>([]);
@@ -11,6 +21,11 @@ export default function Admin() {
   const [form, setForm] = useState(blank);
   const [editing, setEditing] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+
+  // Стани для перетягування мишкою в живому шаблоні
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const load = () => fetch('/api/products').then(r => r.json()).then(setProducts);
 
@@ -33,7 +48,7 @@ export default function Admin() {
     load();
   }, []);
 
-  const change = (k: string, v: string) => setForm(x => ({ ...x, [k]: v }));
+  const change = (k: string, v: any) => setForm(x => ({ ...x, [k]: v }));
 
   const upload = async (file?: File) => {
     if (!file) return;
@@ -43,11 +58,40 @@ export default function Admin() {
     const r = await fetch('/api/admin/upload', { method: 'POST', body: fd });
     const d = await r.json();
     if (r.ok) {
-      change('image', d.url);
+      setForm(x => ({ ...x, image: d.url, imgScale: 1, imgX: 0, imgY: 0 }));
       setMessage('Фото додано.');
     } else {
       setMessage(d.error || 'Не вдалося завантажити фото');
     }
+  };
+
+  // Обробка перетягування зображення у шаблоні
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!form.image) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - form.imgX, y: e.clientY - form.imgY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
+    setForm(x => ({ ...x, imgX: newX, imgY: newY }));
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Зум колесом миші над картинкою
+  const handleWheel = (e: React.WheelEvent) => {
+    if (!form.image) return;
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.1 : -0.1;
+    setForm(x => ({
+      ...x,
+      imgScale: Math.min(Math.max(0.5, Number((x.imgScale + delta).toFixed(2))), 3)
+    }));
   };
 
   const submit = async (e: FormEvent) => {
@@ -58,7 +102,10 @@ export default function Admin() {
       category: form.category,
       price: Number(form.price),
       image: form.image,
-      classname: form.classname
+      classname: form.classname,
+      imgScale: form.imgScale,
+      imgX: form.imgX,
+      imgY: form.imgY
     };
     
     try {
@@ -85,7 +132,7 @@ export default function Admin() {
     }
   };
 
-  const edit = (p: ManagedProduct) => {
+  const edit = (p: ManagedProduct & { imgScale?: number; imgX?: number; imgY?: number }) => {
     setEditing(p.id);
     setForm({
       name: p.name,
@@ -93,7 +140,10 @@ export default function Admin() {
       category: p.category,
       price: String(p.price),
       image: p.image,
-      classname: p.classname || ""
+      classname: p.classname || "",
+      imgScale: p.imgScale ?? 1,
+      imgX: p.imgX ?? 0,
+      imgY: p.imgY ?? 0
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -192,6 +242,37 @@ export default function Admin() {
               </label>
             </div>
 
+            {form.image && (
+              <div className="grid gap-3 bg-black/40 p-4 rounded-xl border border-white/10">
+                <div className="flex items-center justify-between text-xs text-stone-300">
+                  <span className="flex items-center gap-1.5 text-[#c4da83]"><Move size={14} /> Налаштування позиції фото:</span>
+                  <button 
+                    type="button" 
+                    onClick={() => setForm(x => ({ ...x, imgScale: 1, imgX: 0, imgY: 0 }))}
+                    className="text-[10px] text-stone-400 hover:text-white underline cursor-pointer"
+                  >
+                    Скинути
+                  </button>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 flex-1">
+                    <ZoomOut size={14} className="text-stone-400" />
+                    <input 
+                      type="range" 
+                      min="0.5" 
+                      max="3" 
+                      step="0.05"
+                      value={form.imgScale}
+                      onChange={e => change('imgScale', Number(e.target.value))}
+                      className="w-full accent-[#c4da83] cursor-pointer"
+                    />
+                    <ZoomIn size={14} className="text-stone-400" />
+                  </div>
+                  <span className="font-mono text-xs text-[#c4da83] w-12 text-right">{Math.round(form.imgScale * 100)}%</span>
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs uppercase tracking-wider text-stone-400 mb-1.5">Короткий опис</label>
               <textarea 
@@ -202,13 +283,6 @@ export default function Admin() {
                 placeholder="Опис предмета для виживання..." 
               />
             </div>
-
-            {form.image && (
-              <div className="flex items-center gap-3 text-xs text-[#c4da83] bg-[#1c2413] p-3 rounded-xl border border-[#c4da83]/30">
-                <ImagePlus size={16} /> 
-                <span className="truncate">Шлях фото: {form.image}</span>
-              </div>
-            )}
 
             <div className="flex gap-3 pt-2">
               <button className="btn flex-1 justify-center cursor-pointer">
@@ -226,17 +300,36 @@ export default function Admin() {
             </div>
           </form>
 
+          {/* ЖИВИЙ ШАБЛОН З ІНТЕРАКТИВНИМ ПЕРЕТЯГУВАННЯМ ТА ЗУМОМ */}
           <div className="bg-black/50 border border-white/15 rounded-2xl p-4 sticky top-6 space-y-3 shadow-xl">
             <p className="eyebrow text-[#c4da83] text-center tracking-widest text-[10px]">Живий шаблон картки</p>
             
             <div className="rounded-xl bg-[#12160e] border border-[#c4da83]/30 p-3.5 space-y-2.5 shadow-2xl">
-              <div className="relative h-32 w-full rounded-lg overflow-hidden bg-black/60 border border-white/10 flex items-center justify-center">
+              <div 
+                ref={previewRef}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onWheel={handleWheel}
+                className="relative h-32 w-full rounded-lg overflow-hidden bg-black/60 border border-white/10 flex items-center justify-center select-none cursor-grab active:cursor-grabbing"
+                title="Затисніть ліву кнопку миші, щоб перетягувати фото. Крутіть коліщатко для зміни масштабу."
+              >
                 {form.image ? (
-                  <img src={form.image} alt="Preview" className="h-full w-full object-cover" />
+                  <img 
+                    src={form.image} 
+                    alt="Preview" 
+                    draggable={false}
+                    style={{
+                      transform: `translate(${form.imgX}px, ${form.imgY}px) scale(${form.imgScale})`,
+                      transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                    }}
+                    className="max-h-full max-w-full object-contain pointer-events-none" 
+                  />
                 ) : (
                   <ImageIcon size={28} className="text-stone-600" />
                 )}
-                <span className="absolute top-2 left-2 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded text-[9px] uppercase font-mono text-[#c4da83] border border-white/10">
+                <span className="absolute top-2 left-2 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded text-[9px] uppercase font-mono text-[#c4da83] border border-white/10 pointer-events-none">
                   {form.category || "Категорія"}
                 </span>
               </div>
@@ -257,7 +350,7 @@ export default function Admin() {
             </div>
             
             <p className="text-[10px] text-stone-500 text-center leading-relaxed">
-              Так товар виглядає для гравців у магазині.
+              Перетягуйте фото мишкою та крутіть коліщатко для масштабу.
             </p>
           </div>
 
@@ -274,7 +367,16 @@ export default function Admin() {
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             {products.map(p => (
               <article key={p.id} className="panel flex gap-4 p-4 items-center">
-                <img src={p.image} alt="" className="h-20 w-24 rounded object-cover border border-white/10" />
+                <div className="h-20 w-24 rounded bg-black/40 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                  <img 
+                    src={p.image} 
+                    alt="" 
+                    style={{
+                      transform: `translate(${p.imgX ?? 0}px, ${p.imgY ?? 0}px) scale(${p.imgScale ?? 1})`
+                    }}
+                    className="max-h-full max-w-full object-contain" 
+                  />
+                </div>
                 <div className="min-w-0 flex-1">
                   <p className="font-bold text-white">{p.name}</p>
                   <p className="mt-0.5 text-xs text-stone-400">
