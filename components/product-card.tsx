@@ -17,13 +17,17 @@ export function ProductCard({ product }: { product: ExtendedProduct }) {
     add(product);
   };
 
+  const baseScale = product.imgScale ?? 1;
+  const baseX = product.imgX ?? 0;
+  const baseY = product.imgY ?? 0;
+
   return (
     <div className="group relative w-full flex flex-col items-center justify-between rounded-3xl bg-[#12160e] border border-white/10 pt-36 pb-8 px-6 min-h-[380px] transition-all duration-500 hover:-translate-y-2 hover:border-[#b6c980]/40 hover:shadow-2xl hover:shadow-[#b6c980]/10">
       
       {/* Верхній кольоровий блок */}
       <div className="absolute top-0 left-0 right-0 h-40 rounded-t-3xl bg-[#1c2413] border-b border-white/5 transition-colors duration-500 group-hover:bg-[#253018]" />
 
-      {/* Картинка, що виходить за рамки з урахуванням налаштувань з адмінки */}
+      {/* Картинка, що виходить за рамки з твоїм позиціонуванням та збереженою анімацією наведення */}
       <div className="absolute -top-12 z-10 flex w-full justify-center px-4 pointer-events-none">
         {product.image ? (
           <div className="h-36 w-36 flex items-center justify-center">
@@ -32,9 +36,12 @@ export function ProductCard({ product }: { product: ExtendedProduct }) {
               alt={product.name}
               title={product.name}
               style={{
-                transform: `translate(${product.imgX ?? 0}px, ${product.imgY ?? 0}px) scale(${product.imgScale ?? 1})`
-              }}
-              className="max-h-36 max-w-full object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500 group-hover:-translate-y-3 group-hover:scale-110 group-hover:rotate-[-3deg]"
+                "--custom-x": `${baseX}px`,
+                "--custom-y": `${baseY}px`,
+                "--custom-scale": baseScale,
+                transform: `translate(var(--custom-x), var(--custom-y)) scale(var(--custom-scale))`
+              } as React.CSSProperties}
+              className="max-h-36 max-w-full object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-all duration-500 group-hover:scale-[calc(var(--custom-scale)*1.1)] group-hover:translate-x-[var(--custom-x)] group-hover:translate-y-[calc(var(--custom-y)-12px)] group-hover:rotate-[-3deg]"
             />
           </div>
         ) : (
