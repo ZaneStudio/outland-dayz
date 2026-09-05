@@ -8,7 +8,10 @@ export async function GET(){
   const products = await getManagedProducts();
   return NextResponse.json(products.map(p => ({
     ...p,
-    image: p.image.startsWith('/uploads/') ? p.image.replace('/uploads/', '/api/uploads/') : p.image
+    image: p.image.startsWith('/uploads/') ? p.image.replace('/uploads/', '/api/uploads/') : p.image,
+    imgScale: p.imgScale ?? 1,
+    imgX: p.imgX ?? 0,
+    imgY: p.imgY ?? 0
   })));
 }
 
