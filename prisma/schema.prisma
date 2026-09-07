@@ -252,7 +252,7 @@ model VipPlan {
   durationDays Int?
   features     String[]
   active       Boolean     @default(true)
-  createdAt    DateTime    @default(now())
+    createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   memberships  SteamVip[]
 }
@@ -274,5 +274,13 @@ model PurchaseLog {
   username    String
   productName String
   price       Int
+  createdAt   DateTime @default(now())
+}
+
+model SteamVisitor {
+  steamId     String   @id
+  username    String
+  avatar      String?
+  lastSeen    DateTime @default(now())
   createdAt   DateTime @default(now())
 }
