@@ -3,8 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  // Динамічно беремо поточний origin (твій реальний порт і домен на цю хвилину)
-  const baseUrl = req.nextUrl.origin;
+  const forwardedHost = req.headers.get("x-forwarded-host");
+  const forwardedProto = req.headers.get("x-forwarded-proto");
+  const host = forwardedHost || req.headers.get("host") || "outland-dayz.onrender.com";
+  const protocol = forwardedProto || (host.includes("localhost") ? "http" : "https");
+  const baseUrl = `${protocol}://${host}`;
 
   const params = new URLSearchParams({
     'openid.ns': 'http://specs.openid.net/auth/2.0',
