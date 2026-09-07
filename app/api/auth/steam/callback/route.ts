@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { encodeSteamSession, steamSessionCookie } from "@/lib/steam-auth";
+import { db } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,6 +19,26 @@ export async function GET(request: NextRequest) {
       const player = profile?.response?.players?.[0];
       if (player) { name = player.personaname || name; avatar = player.avatarfull || ""; }
     }
+
+    // Зберігаємо або оновлюємо відвідувача в базі для адмінки
+    try {
+      await db.steamVisitor.upsert({
+        where: { steamId: steamId },
+        update: {
+          username: name,
+          avatar: avatar || null,
+          lastSeen: new Date(),
+        },
+        create: {
+          steamId: steamId,
+          username: name,
+          avatar: avatar || null,
+        },
+      });
+    } catch (dbErr) {
+      console.error("Failed to save Steam visitor:", dbErr);
+    }
+
     const response = NextResponse.redirect(`${baseUrl}/profile`);
     response.cookies.set(steamSessionCookie, encodeSteamSession({ steamId, name, avatar }), { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 });
     response.cookies.set("steam_session", "", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 0 });
