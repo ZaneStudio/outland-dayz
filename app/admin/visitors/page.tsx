@@ -1,53 +1,72 @@
-import { db } from "@/lib/db";
-import { currentAdmin } from "@/lib/admin";
-import { redirect } from "next/navigation";
+"use client";
 
-export const dynamic = "force-dynamic";
+import { useState } from "react";
 
-export default async function AdminVisitorsPage() {
-  const admin = await currentAdmin();
-  if (!admin) redirect("/");
+interface Visitor {
+  id: string;
+  steamId: string;
+  username: string;
+  avatar: string | null;
+  lastSeen: string;
+}
 
-  let visitors: any[] = [];
-  try {
-    visitors = await db.steamVisitor.findMany({
-      orderBy: { lastSeen: "desc" },
-      take: 100,
-    });
-  } catch (e) {
-    console.log("SteamVisitor table not ready");
-  }
+export default function VisitorsAdminPage({ initialVisitors }: { initialVisitors: Visitor[] }) {
+  const [search, setSearch] = useState("");
+  const [visitors] = useState<Visitor[]>(initialVisitors);
+
+  const filteredVisitors = visitors.filter(
+    (v) =>
+      v.username.toLowerCase().includes(search.toLowerCase()) ||
+      v.steamId.includes(search)
+  );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 text-white">
-      <h1 className="text-3xl font-bold mb-6">Гравці на сайті (Steam)</h1>
+    <div className="p-6 text-white max-w-6xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">Гравці на сайті (Steam)</h1>
 
-      <div className="overflow-x-auto rounded-xl border border-white/10 bg-black/40 backdrop-blur-md">
-        <table className="w-full text-left text-sm text-stone-300">
-          <thead className="border-b border-white/10 bg-white/5 text-xs uppercase text-stone-200">
-            <tr>
-              <th className="px-6 py-4">Останній візит</th>
-              <th className="px-6 py-4">Нікнейм</th>
-              <th className="px-6 py-4">Steam ID</th>
+      {/* Пошук */}
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Пошук за нікнеймом або Steam ID..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full md:w-96 px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-white focus:outline-none focus:border-neutral-600"
+        />
+      </div>
+
+      {/* Таблиця */}
+      <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl overflow-hidden">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-neutral-800 text-neutral-400 text-sm">
+              <th className="p-4">ОСТАННІЙ ВІЗИТ</th>
+              <th className="p-4">НІКНЕЙМ</th>
+              <th className="p-4">STEAM ID</th>
             </tr>
           </thead>
           <tbody>
-            {visitors.map((v: any) => (
-              <tr key={v.steamId} className="border-b border-white/5 hover:bg-white/5">
-                <td className="px-6 py-4 whitespace-nowrap text-stone-400">
-                  {new Date(v.lastSeen).toLocaleString("uk-UA")}
-                </td>
-                <td className="px-6 py-4 font-medium text-white flex items-center gap-3">
-                  {v.avatar && <img src={v.avatar} alt="" className="w-8 h-8 rounded-full" />}
-                  {v.username}
-                </td>
-                <td className="px-6 py-4 font-mono text-xs text-stone-400">{v.steamId}</td>
-              </tr>
-            ))}
-            {visitors.length === 0 && (
+            {filteredVisitors.length > 0 ? (
+              filteredVisitors.map((visitor) => (
+                <tr key={visitor.id} className="border-b border-neutral-800/50 hover:bg-neutral-800/30">
+                  <td className="p-4 text-neutral-300 text-sm">
+                    {new Date(visitor.lastSeen).toLocaleString()}
+                  </td>
+                  <td className="p-4 flex items-center gap-3">
+                    {visitor.avatar ? (
+                      <img src={visitor.avatar} alt="" className="w-8 h-8 rounded-full" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-neutral-700" />
+                    )}
+                    <span className="font-medium">{visitor.username}</span>
+                  </td>
+                  <td className="p-4 text-neutral-400 font-mono text-sm">{visitor.steamId}</td>
+                </tr>
+              ))
+            ) : (
               <tr>
-                <td colSpan={3} className="px-6 py-10 text-center text-stone-500">
-                  Список відвідувачів поки що порожній
+                <td colSpan={3} className="p-8 text-center text-neutral-500">
+                  Нікого не знайдено
                 </td>
               </tr>
             )}
