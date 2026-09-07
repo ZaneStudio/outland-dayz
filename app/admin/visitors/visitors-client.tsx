@@ -3,17 +3,18 @@
 import { useState } from "react";
 
 interface Visitor {
-  id: string;
   steamId: string;
   username: string;
   avatar: string | null;
-  lastSeen: Date;
+  lastSeen: Date | string;
+  createdAt?: Date | string;
 }
 
 export default function VisitorsClient({ initialVisitors }: { initialVisitors: Visitor[] }) {
   const [search, setSearch] = useState("");
+  const [visitors] = useState<Visitor[]>(initialVisitors);
 
-  const filteredVisitors = initialVisitors.filter(
+  const filteredVisitors = visitors.filter(
     (v) =>
       v.username.toLowerCase().includes(search.toLowerCase()) ||
       v.steamId.includes(search)
@@ -23,6 +24,7 @@ export default function VisitorsClient({ initialVisitors }: { initialVisitors: V
     <div className="p-6 text-white max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Гравці на сайті (Steam)</h1>
 
+      {/* Пошук */}
       <div className="mb-6">
         <input
           type="text"
@@ -33,6 +35,7 @@ export default function VisitorsClient({ initialVisitors }: { initialVisitors: V
         />
       </div>
 
+      {/* Таблиця */}
       <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -45,7 +48,7 @@ export default function VisitorsClient({ initialVisitors }: { initialVisitors: V
           <tbody>
             {filteredVisitors.length > 0 ? (
               filteredVisitors.map((visitor) => (
-                <tr key={visitor.id} className="border-b border-neutral-800/50 hover:bg-neutral-800/30">
+                <tr key={visitor.steamId} className="border-b border-neutral-800/50 hover:bg-neutral-800/30">
                   <td className="p-4 text-neutral-300 text-sm">
                     {new Date(visitor.lastSeen).toLocaleString()}
                   </td>
