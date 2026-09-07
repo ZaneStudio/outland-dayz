@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSteamSession } from "@/lib/steam-auth";
 import { getManagedProducts } from "@/lib/product-store";
+import { db } from "@/lib/db";
 import { randomBytes } from "crypto";
 
 export const dynamic = "force-dynamic";
@@ -13,14 +14,15 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const items = body.items;
     
-    if (!items) {
+    if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "Невірні дані замовлення" }, { status: 400 });
     }
 
-    // Генеруємо код у точно такому ж форматі, як на хостингу: OUT-XXXX-XXXX
+    // Генеруємо код у форматі: OUT-XXXX-XXXX
     const part1 = randomBytes(2).toString("hex").toUpperCase();
     const part2 = randomBytes(2).toString("hex").toUpperCase();
     const code = body.code && body.code.startsWith("OUT-") ? body.code : `OUT-${part1}-${part2}`;
+    const orderId = body.orderId || `UDZ-${Date.now().toString().slice(-6)}`;
 
     const apiKey = process.env.PTERODACTYL_API_KEY;
     const serverId = process.env.PTERODACTYL_SERVER_ID;
@@ -87,7 +89,26 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    return NextResponse.json({ success: true, code });
+    // Зберігаємо історію покупок у базу даних для адмінки
+    try {
+      for (const item of items) {
+        const itemTotal = (item.price || 0) * (item.quantity || 1);
+        await (db as any).purchaseLog?.create({
+          data: {
+            orderId: orderId,
+            steamId: user.steamId || "unknown",
+            username: user.name || user.displayName || "Гравець",
+            productName: item.name || "Товар",
+            price: itemTotal,
+          },
+        });
+      }
+    } catch (dbError) {
+      console.error("Failed to save purchase log to database:", dbError);
+      // Продовжуємо виконання, щоб не ламати оформлення, навіть якщо лог не записався
+    }
+
+    return NextResponse.json({ success: true, code, orderId });
   } catch (error) {
     console.error("Order creation API error:", error);
     return NextResponse.json({ error: "Помилка сервера" }, { status: 500 });
