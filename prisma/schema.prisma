@@ -42,12 +42,12 @@ model User {
 }
 
 model Account {
-  id                String @id @default(cuid())
+  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -199,6 +199,9 @@ model ManagedProduct {
   category    String
   image       String
   classname   String?
+  imgScale    Float    @default(1)
+  imgX        Float    @default(0)
+  imgY        Float    @default(0)
   popular     Int      @default(0)
   createdAt   DateTime @default(now())
 }
