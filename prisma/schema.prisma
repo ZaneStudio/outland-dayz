@@ -266,3 +266,12 @@ model SteamVip {
   account   SteamAccount @relation(fields: [steamId], references: [steamId], onDelete: Cascade)
   plan      VipPlan      @relation(fields: [planId], references: [id])
 }
+
+model PurchaseLog {
+  id          String   @id @default(cuid())
+  steamId     String
+  username    String
+  productName String
+  price       Int
+  createdAt   DateTime @default(now())
+}
