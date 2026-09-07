@@ -89,22 +89,18 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Зберігаємо історію покупок у базу даних для адмінки
-    try {
-      for (const item of items) {
-        const itemTotal = (item.price || 0) * (item.quantity || 1);
-        await (db as any).purchaseLog?.create({
-          data: {
-            orderId: orderId,
-            steamId: user.steamId || "unknown",
-            username: user.name || (user as any).displayName || "Гравець",
-            productName: item.name || "Товар",
-            price: itemTotal,
-          },
-        });
-      }
-    } catch (dbError) {
-      console.error("Failed to save purchase log to database:", dbError);
+    // Зберігаємо історію покупок у базу даних напряму (без гальмування помилок)
+    for (const item of items) {
+      const itemTotal = (item.price || 0) * (item.quantity || 1);
+      await db.purchaseLog.create({
+        data: {
+          orderId: orderId,
+          steamId: user.steamId || "unknown",
+          username: user.name || "Гравець",
+          productName: item.name || "Товар",
+          price: itemTotal,
+        },
+      });
     }
 
     return NextResponse.json({ success: true, code, orderId });

@@ -246,14 +246,14 @@ model PromoUse {
 }
 
 model VipPlan {
-  id           String     @id
+  id           String      @id
   name         String
   price        Int
   durationDays Int?
   features     String[]
-  active       Boolean    @default(true)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  active       Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
   memberships  SteamVip[]
 }
 
@@ -269,6 +269,7 @@ model SteamVip {
 
 model PurchaseLog {
   id          String   @id @default(cuid())
+  orderId     String
   steamId     String
   username    String
   productName String
