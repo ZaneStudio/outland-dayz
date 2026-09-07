@@ -2,10 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { encodeSteamSession, steamSessionCookie } from "@/lib/steam-auth";
 import { db } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
-    // Завжди беремо поточний домен і порт із самого запиту, ігноруючи старитиий .env
-    const baseUrl = request.nextUrl.origin.replace(/\/$/, "");
+    const forwardedHost = request.headers.get("x-forwarded-host");
+    const forwardedProto = request.headers.get("x-forwarded-proto");
+    const host = forwardedHost || request.headers.get("host") || "outland-dayz.onrender.com";
+    const protocol = forwardedProto || (host.includes("localhost") ? "http" : "https");
+    const baseUrl = `${protocol}://${host}`;
+
     const received = new URLSearchParams(request.nextUrl.searchParams);
     const claimedId = received.get("openid.claimed_id") || "";
     const steamId = claimedId.match(/\/id\/(\d+)$/)?.[1];
@@ -36,7 +42,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Зберігаємо або оновлюємо відвідувача в базі для адмінки
     try {
       await db.steamVisitor.upsert({
         where: { steamId: steamId },
