@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
           data: {
             orderId: orderId,
             steamId: user.steamId || "unknown",
-            username: user.name || user.displayName || "Гравець",
+            username: user.name || (user as any).displayName || "Гравець",
             productName: item.name || "Товар",
             price: itemTotal,
           },
@@ -105,7 +105,6 @@ export async function POST(req: NextRequest) {
       }
     } catch (dbError) {
       console.error("Failed to save purchase log to database:", dbError);
-      // Продовжуємо виконання, щоб не ламати оформлення, навіть якщо лог не записався
     }
 
     return NextResponse.json({ success: true, code, orderId });
