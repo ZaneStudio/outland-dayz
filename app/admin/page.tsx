@@ -175,16 +175,18 @@ export default function Admin() {
   );
 
   return (
-    <main className="shell max-w-6xl py-14">
-      <p className="eyebrow">Обмежений доступ · Steam Admin</p>
-      <h1 className="heading mt-2 text-5xl">Керування магазином</h1>
+    <main className="shell max-w-6xl py-10 lg:py-12">
+      <div className="admin-page-heading">
+        <div><p className="eyebrow">Магазин · Steam Admin</p><h1 className="heading mt-2 text-5xl">Керування товарами</h1><p className="mt-3 max-w-xl text-sm text-stone-400">Створюйте картки товарів, завантажуйте зображення та відразу переглядайте результат.</p></div>
+        <div className="admin-stat"><span>У каталозі</span><b>{products.length}</b><small>товарів</small></div>
+      </div>
 
-      <section className="panel cut mt-8 p-6 lg:p-8">
+      <section className="panel cut admin-editor mt-8 p-5 sm:p-6 lg:p-8">
         <div className="flex items-center gap-3">
           <span className="grid h-10 w-10 place-items-center rounded-full bg-[#29351d]">
             <Plus className="text-[#c4da83]" />
           </span>
-          <h2 className="text-xl font-bold">{editing ? 'Редагувати товар' : 'Додати товар'}</h2>
+          <div><p className="eyebrow">Редактор каталогу</p><h2 className="mt-1 text-xl font-bold">{editing ? 'Редагувати товар' : 'Додати товар'}</h2></div>
         </div>
 
         <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_320px] items-start">
