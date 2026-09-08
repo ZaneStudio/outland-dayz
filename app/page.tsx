@@ -32,7 +32,7 @@ export default function Home() {
         <div className="shell relative z-10 flex min-h-[700px] flex-col justify-center py-12 sm:min-h-[760px] sm:py-24">
           
           {/* Ліва частина без плашки статусу сервера внизу */}
-          <div className="max-w-2xl xl:max-w-[650px] rounded-2xl bg-black/50 p-6 sm:p-8 backdrop-blur-md border border-white/10 shadow-2xl -ml-16 sm:-ml-32 lg:-ml-44 xl:-ml-52">
+          <div className="hero-content-card max-w-2xl xl:max-w-[650px] rounded-2xl bg-black/50 p-6 sm:p-8 backdrop-blur-md border border-white/10 shadow-2xl -ml-8 sm:-ml-14 lg:-ml-20 xl:-ml-28">
             <p className="eyebrow animate-enter">
               Зона виживання · Україна
             </p>

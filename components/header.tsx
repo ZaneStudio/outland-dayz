@@ -45,7 +45,7 @@ export function Header() {
 
   useEffect(() => {
     if (!transitioning) return;
-    const timer = window.setTimeout(() => setTransitioning(false), 220);
+    const timer = window.setTimeout(() => setTransitioning(false), 500);
     return () => window.clearTimeout(timer);
   }, [path, transitioning]);
 
@@ -55,8 +55,10 @@ export function Header() {
       <header className="sticky top-0 z-40 border-b border-white/10 bg-black/50 backdrop-blur-md shadow-lg">
         <div className="shell relative flex h-16 items-center justify-between gap-4">
           
-          {/* Пустий блок зліва для збереження симетрії сітки */}
-          <div className="w-24 hidden xl:block" />
+          <Link onClick={go('/')} href="/" className="site-wordmark hidden xl:flex" aria-label="Outland DayZ — головна">
+            <span className="site-wordmark-mark" />
+            <span>Outland <em>DayZ</em></span>
+          </Link>
 
           {/* Навігація чітко по центру */}
           <nav className="hidden absolute left-1/2 -translate-x-1/2 items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-300 xl:flex">
