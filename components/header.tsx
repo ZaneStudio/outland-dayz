@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Menu, ShoppingCart, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { siteConfig } from "@/lib/config";
 import { useCart } from "./cart";
@@ -19,17 +19,25 @@ type SteamUser = { steamId: string; name: string; avatar: string };
 export function Header() {
   const [open, setOpen] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [user, setUser] = useState<SteamUser | null>(null);
   const { items } = useCart();
   const router = useRouter();
   const path = usePathname();
+  const destination = useRef<string | null>(null);
+  const startTimer = useRef<number | null>(null);
 
   const go = (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (href === path) return;
     e.preventDefault();
     setOpen(false);
+    destination.current = href;
     setTransitioning(true);
-    router.push(href);
+    if (startTimer.current) window.clearTimeout(startTimer.current);
+    startTimer.current = window.setTimeout(() => {
+      startTransition(() => router.push(href));
+      startTimer.current = null;
+    }, 380);
   };
 
   useEffect(() => {
@@ -44,10 +52,15 @@ export function Header() {
   }, [path]);
 
   useEffect(() => {
-    if (!transitioning) return;
-    const timer = window.setTimeout(() => setTransitioning(false), 500);
+    if (!transitioning || isPending || path !== destination.current) return;
+    const timer = window.setTimeout(() => {
+      setTransitioning(false);
+      destination.current = null;
+    }, 160);
     return () => window.clearTimeout(timer);
-  }, [path, transitioning]);
+  }, [path, transitioning, isPending]);
+
+  useEffect(() => () => { if (startTimer.current) window.clearTimeout(startTimer.current); }, []);
 
   return (
     <>
