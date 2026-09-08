@@ -1,5 +1,33 @@
-<div className="flex items-center gap-2">
-  <button onClick={() => (window as any).launcher?.minimize()} className="p-2 text-gray-400 hover:text-white">—</button>
-  <button onClick={() => (window as any).launcher?.maximize()} className="p-2 text-gray-400 hover:text-white">□</button>
-  <button onClick={() => (window as any).launcher?.close()} className="p-2 text-gray-400 hover:text-red-500">×</button>
-</div>
+export default function WindowControls() {
+  const handleMinimize = () => {
+    if (typeof window !== "undefined" && (window as any).launcher) {
+      (window as any).launcher.minimize();
+    }
+  };
+
+  const handleMaximize = () => {
+    if (typeof window !== "undefined" && (window as any).launcher) {
+      (window as any).launcher.maximize();
+    }
+  };
+
+  const handleClose = () => {
+    if (typeof window !== "undefined" && (window as any).launcher) {
+      (window as any).launcher.close();
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      <button onClick={handleMinimize} className="p-2 text-gray-400 hover:text-white transition">
+        —
+      </button>
+      <button onClick={handleMaximize} className="p-2 text-gray-400 hover:text-white transition">
+        □
+      </button>
+      <button onClick={handleClose} className="p-2 text-gray-400 hover:text-red-500 transition">
+        ✕
+      </button>
+    </div>
+  );
+}
