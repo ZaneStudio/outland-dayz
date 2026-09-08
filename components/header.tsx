@@ -29,8 +29,12 @@ export function Header() {
     e.preventDefault();
     setOpen(false);
     setTransitioning(true);
-    window.setTimeout(() => router.push(href), 300);
+    router.push(href);
   };
+
+  useEffect(() => {
+    [...links.map(([, href]) => href), '/profile', '/login', '/checkout', '/news'].forEach((href) => router.prefetch(href));
+  }, [router]);
 
   useEffect(() => {
     fetch('/api/auth/session', { cache: 'no-store' })
@@ -41,7 +45,7 @@ export function Header() {
 
   useEffect(() => {
     if (!transitioning) return;
-    const timer = window.setTimeout(() => setTransitioning(false), 620);
+    const timer = window.setTimeout(() => setTransitioning(false), 220);
     return () => window.clearTimeout(timer);
   }, [path, transitioning]);
 

@@ -5,9 +5,6 @@ import { ConnectModal } from "@/components/connect-modal";
 import { HeroSidebar } from "@/components/hero-sidebar";
 import { siteConfig } from "@/lib/config";
 
-// Новини завантажуються з Neon, тому сторінка має рендеритися під час запиту,
-// а не на етапі production-збірки без доступу до бази.
-export const dynamic = "force-dynamic";
 
 export default function Home() {
   return (
