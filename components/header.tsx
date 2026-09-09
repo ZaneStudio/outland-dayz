@@ -12,6 +12,7 @@ const links = [
   ["Магазин", "/shop"],
   ["VIP", "/vip"],
   ["Кейси", "/roulette"],
+  ["Лаунчер", "/launcher-updates"],
 ];
 
 type SteamUser = { steamId: string; name: string; avatar: string };
