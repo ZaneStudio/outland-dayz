@@ -29,12 +29,13 @@ export default function LauncherUpdatesPage() {
       <div className="absolute inset-0 -z-30">
         <img src="/images/hero-bg.jpg" alt="" className="h-full w-full object-cover opacity-35" />
       </div>
-      <div className="absolute inset-0 -z-20 bg-[#060806]/75" />
+      <div className="absolute inset-0 -z-20 bg-black/20" />
+      <div className="hero-vignette absolute inset-0 -z-20" />
       <div className="grid-lines absolute inset-0 -z-10 opacity-60" />
       <div className="launcher-glow absolute -z-10" />
 
       <div className="shell">
-        <section className="launcher-hero cut mx-auto max-w-5xl overflow-hidden p-6 sm:p-9 lg:p-12">
+        <section className="launcher-hero hero-content-card mx-auto max-w-5xl overflow-hidden rounded-2xl p-6 sm:p-9 lg:p-12">
           <div className="launcher-scan-line" />
           <div className="relative grid items-center gap-10 lg:grid-cols-[1.1fr_.9fr]">
             <div>
@@ -57,7 +58,7 @@ export default function LauncherUpdatesPage() {
               <p className="mt-4 text-xs text-stone-400">Windows 10 / 11 · x64 · після встановлення подальші оновлення будуть автоматичними.</p>
             </div>
 
-            <div className="launcher-device panel cut p-5 sm:p-6">
+            <div className="launcher-device rounded-2xl p-5 sm:p-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div className="flex items-center gap-3"><span className="launcher-device-icon"><MonitorDown size={21} /></span><div><p className="text-sm font-bold text-[#eef5dd]">Outland Launcher</p><p className="text-xs text-stone-500">Готовий до запуску</p></div></div>
                 <span className="launcher-online"><i />ONLINE</span>
@@ -74,7 +75,7 @@ export default function LauncherUpdatesPage() {
 
         <section className="mx-auto mt-8 grid max-w-5xl gap-4 md:grid-cols-3">
           {features.map(({ icon: Icon, title, description }, index) => (
-            <article className="launcher-feature panel cut p-5" key={title}>
+            <article className="launcher-feature rounded-2xl border border-white/10 bg-black/40 p-5 backdrop-blur-md" key={title}>
               <div className="flex items-center justify-between"><span className="launcher-feature-icon"><Icon size={20} /></span><span className="eyebrow">0{index + 1}</span></div>
               <h2 className="mt-5 text-lg font-bold text-[#f0f3e8]">{title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-stone-400">{description}</p>
