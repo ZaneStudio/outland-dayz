@@ -92,6 +92,11 @@ a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection 
 .grid-lines { background-image:linear-gradient(rgba(185,206,135,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(185,206,135,.04) 1px,transparent 1px); background-size:45px 45px; }
 .hero-vignette { background:radial-gradient(ellipse at 53% 39%,transparent 0%,rgba(2,3,2,.17) 46%,rgba(2,3,2,.76) 100%); }
 
+/* Осіннє листя — декоративний шар, не перехоплює натискання */
+.autumn-leaves { position:fixed; z-index:32; inset:0; overflow:hidden; pointer-events:none; }
+.autumn-leaf { position:absolute; top:-12vh; left:var(--leaf-left); display:block; font-size:var(--leaf-size); line-height:1; opacity:.68; filter:drop-shadow(0 3px 4px rgba(0,0,0,.38)); will-change:transform; animation:leafFall var(--leaf-duration) linear var(--leaf-delay) infinite; }
+@keyframes leafFall { 0% { transform:translate3d(0,-8vh,0) rotate(0deg) scale(.78); opacity:0; } 7% { opacity:.7; } 24% { transform:translate3d(38px,26vh,0) rotate(135deg) scale(1); } 49% { transform:translate3d(-27px,53vh,0) rotate(300deg) scale(.9); } 73% { transform:translate3d(34px,78vh,0) rotate(470deg) scale(1.04); } 96% { opacity:.62; } 100% { transform:translate3d(-20px,115vh,0) rotate(650deg) scale(.82); opacity:0; } }
+
 /* Анімація переходу сторінок (шторка) */
 .route-curtain { 
   position: fixed; 

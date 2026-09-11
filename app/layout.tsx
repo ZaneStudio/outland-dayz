@@ -5,6 +5,7 @@ import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartProvider } from "@/components/cart";
+import { AutumnLeaves } from "@/components/autumn-leaves";
 
 // Підключаємо сучасний округлий шрифт з підтримкою кирилиці
 const montserrat = Montserrat({ 
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body className={`${montserrat.className} bg-[#0a0c09] text-white antialiased`}>
         <CartProvider>
           <Header />
+          <AutumnLeaves />
           <main className="min-h-screen">
             {children}
           </main>
