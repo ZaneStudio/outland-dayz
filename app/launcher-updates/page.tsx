@@ -1,8 +1,8 @@
 import { Check, Download, Gamepad2, MonitorDown, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
 
 const launcher = {
-  version: "1.2.0-beta.5",
-  download: "/launcher-updates/OutLand-Launcher-Beta-Setup-1.2.0-beta.5-x64.exe",
+  version: "1.2.0-beta.8",
+  download: "/launcher-updates/OutLand-Launcher-Beta-Setup-1.2.0-beta.8-x64.exe",
 };
 
 const features = [
