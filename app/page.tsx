@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Shield, Users } from "lucide-react";
+import { Download, Shield, Users } from "lucide-react";
 
 import { ConnectModal } from "@/components/connect-modal";
 import { HeroSidebar } from "@/components/hero-sidebar";
@@ -52,6 +52,14 @@ export default function Home() {
 
             <div className="animate-enter delay-3 mt-8 flex flex-wrap items-center gap-4">
               <ConnectModal />
+              <a
+                href="/launcher-updates/OutLand-Launcher-Beta-Setup-1.2.0-beta.5-x64.exe"
+                download
+                className="btn btn-outline rounded-xl"
+              >
+                <Download size={16} />
+                Скачати лаунчер
+              </a>
             </div>
           </div>
         </div>
