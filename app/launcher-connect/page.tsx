@@ -11,12 +11,12 @@ export default function LauncherConnect() {
       try {
         const r=await fetch('/api/auth/launcher',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state})});
         if (r.status===401) { setMessage('Увійдіть через Steam у сусідній вкладці. Ця сторінка підключить лаунчер автоматично.'); return; }
-        if (!r.ok) throw Error();
+        if (!r.ok) { const error=await r.json().catch(()=>null); throw Error(error?.error || `Помилка сервера (${r.status})`); }
         const {token}=await r.json();
         const form=document.createElement('form'); form.method='POST'; form.action=`http://127.0.0.1:${port}/callback`;
         for (const [name,value] of Object.entries({token,state:state!})) { const input=document.createElement('input'); input.type='hidden';input.name=name;input.value=value;form.append(input); }
         document.body.append(form); stopped=true;form.submit();
-      } catch { setMessage('Не вдалося підключитися. Спробуйте ще раз із лаунчера.'); }
+      } catch (error) { setMessage(error instanceof Error ? error.message : 'Не вдалося підключитися. Спробуйте ще раз із лаунчера.'); }
       finally {busy=false;}
     }
     connect(); const timer=setInterval(connect,2500);return()=>{stopped=true;clearInterval(timer);};

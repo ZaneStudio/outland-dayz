@@ -5,9 +5,13 @@ export const dynamic = 'force-dynamic';
 function key() { const k = process.env.STEAM_SESSION_SECRET; if (!k) throw new Error('Session secret required'); return k; }
 function sign(b: string) { return createHmac('sha256', key()).update('launcher:' + b).digest('base64url'); }
 export async function POST(req: NextRequest) {
-  if (req.headers.get('origin') !== new URL(req.url).origin) return new NextResponse(null,{status:403});
+  const allowedOrigin = process.env.NODE_ENV === 'production'
+    ? 'https://outland-dayz.onrender.com'
+    : new URL(req.url).origin;
+  if (req.headers.get('origin') !== allowedOrigin) return NextResponse.json({error:'Недозволена адреса запиту'},{status:403});
   const user = await getSteamSession();
   if (!user) return NextResponse.json({error:'Login required'},{status:401});
+  if (!process.env.STEAM_SESSION_SECRET) return NextResponse.json({error:'На Render потрібно налаштувати STEAM_SESSION_SECRET для підключення лаунчера.'},{status:503});
   const {state} = await req.json();
   if (!/^[a-f0-9]{64}$/.test(state)) return new NextResponse(null,{status:400});
   const body = Buffer.from(JSON.stringify({user,state,exp:Date.now()+30*86400000})).toString('base64url');
