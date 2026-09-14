@@ -4,6 +4,7 @@ import { Coins, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/data";
 import { ProductCard } from "@/components/product-card";
+import { readCachedProducts, refreshProducts } from "@/lib/product-client-cache";
 
 type SteamUser = { steamId: string; name: string; avatar: string };
 
@@ -44,10 +45,15 @@ export default function Shop() {
       })
       .catch(() => setUser(null));
 
-    fetch('/api/products')
-      .then(r => (r.ok ? r.json() : []))
+    const cachedProducts = readCachedProducts();
+    if (cachedProducts) setProducts(cachedProducts);
+
+    // Кеш показується одразу, а свіжий список приходить у фоні.
+    refreshProducts()
       .then(setProducts)
-      .catch(() => setProducts([]));
+      .catch(() => {
+        if (!cachedProducts) setProducts([]);
+      });
 
     return () => {
       window.removeEventListener("storage", syncBalance);

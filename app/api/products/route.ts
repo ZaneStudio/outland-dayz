@@ -12,7 +12,12 @@ export async function GET(){
     imgScale: p.imgScale ?? 1,
     imgX: p.imgX ?? 0,
     imgY: p.imgY ?? 0
-  })));
+  })), {
+    headers: {
+      // CDN і браузер коротко зберігають список, а потім оновлюють його у фоні.
+      "Cache-Control": "public, max-age=30, s-maxage=60, stale-while-revalidate=300",
+    },
+  });
 }
 
 export async function POST(request: NextRequest){

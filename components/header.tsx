@@ -5,6 +5,7 @@ import { Menu, ShoppingCart, X } from "lucide-react";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { siteConfig } from "@/lib/config";
+import { warmProductsCache } from "@/lib/product-client-cache";
 import { useCart } from "./cart";
 
 const links = [
@@ -43,6 +44,8 @@ export function Header() {
 
   useEffect(() => {
     [...links.map(([, href]) => href), '/profile', '/login', '/checkout', '/news'].forEach((href) => router.prefetch(href));
+    // Починаємо завантаження каталогу ще до переходу в магазин.
+    warmProductsCache();
   }, [router]);
 
   useEffect(() => {

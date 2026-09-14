@@ -16,20 +16,8 @@ export type ManagedProduct = {
   createdAt: string;
 };
 
-async function ensureColumnExists() {
-  try {
-    await db.$executeRawUnsafe(`ALTER TABLE "ManagedProduct" ADD COLUMN IF NOT EXISTS classname TEXT;`);
-    await db.$executeRawUnsafe(`ALTER TABLE "ManagedProduct" ADD COLUMN IF NOT EXISTS "imgScale" DOUBLE PRECISION DEFAULT 1;`);
-    await db.$executeRawUnsafe(`ALTER TABLE "ManagedProduct" ADD COLUMN IF NOT EXISTS "imgX" DOUBLE PRECISION DEFAULT 0;`);
-    await db.$executeRawUnsafe(`ALTER TABLE "ManagedProduct" ADD COLUMN IF NOT EXISTS "imgY" DOUBLE PRECISION DEFAULT 0;`);
-  } catch (e) {
-    console.error("ensureColumnExists warning:", e);
-  }
-}
-
 export async function getManagedProducts(): Promise<ManagedProduct[]> {
   try {
-    await ensureColumnExists();
     const products: any[] = await db.$queryRaw`SELECT * FROM "ManagedProduct" ORDER BY "createdAt" DESC`;
     
     return products.map((p: any) => ({
@@ -53,7 +41,6 @@ export async function getManagedProducts(): Promise<ManagedProduct[]> {
 }
 
 export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "popular" | "createdAt">): Promise<ManagedProduct> {
-  await ensureColumnExists();
   const id = randomUUID();
   const classname = input.classname || "";
   const imgScale = input.imgScale ?? 1;
@@ -86,7 +73,6 @@ export async function createManagedProduct(input: Omit<ManagedProduct, "id" | "p
 }
 
 export async function updateManagedProduct(id: string, input: Partial<Omit<ManagedProduct, "id" | "createdAt">>) {
-  await ensureColumnExists();
   try {
     if (input.classname !== undefined) {
       await db.$executeRaw`UPDATE "ManagedProduct" SET classname = ${input.classname} WHERE id = ${id}`;
