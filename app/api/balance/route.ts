@@ -1,43 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSteamSession } from "@/lib/steam-auth";
+import { getRequestUser } from "@/lib/launcher-auth";
 import { getBalance, creditBalance } from "@/lib/balance-store";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  const user = await getSteamSession();
+export async function GET(req: NextRequest) {
+  const user = await getRequestUser(req);
   if (!user) return NextResponse.json({ error: "Увійдіть через Steam" }, { status: 401 });
-  const data = await getBalance(user.steamId);
-  return NextResponse.json(data);
+  return NextResponse.json(await getBalance(user.steamId), { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(req: NextRequest) {
-  const user = await getSteamSession();
+  const user = await getRequestUser(req);
   if (!user) return NextResponse.json({ error: "Увійдіть через Steam" }, { status: 401 });
-
   try {
-    const body = await req.json();
-    const { action, amount } = body;
-
-    if (action === 'spend' && amount > 0) {
-      const accountData = await getBalance(user.steamId);
-      const currentBalance = accountData.balance;
-      
-      if (currentBalance < amount) {
-        return NextResponse.json({ error: "Недостатньо коштів" }, { status: 400 });
-      }
-
-      // Передаємо від'ємну суму в creditBalance, щоб списати кошти та зберегти транзакцію в базі
-      const txId = `spend-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-      const updatedAccount = await creditBalance(user.steamId, -amount, "Покупка в магазині", txId);
-
-      if (!updatedAccount) {
-        return NextResponse.json({ error: "Помилка транзакції" }, { status: 400 });
-      }
-
-      return NextResponse.json({ success: true, balance: updatedAccount.balance });
+    const { action, amount } = await req.json();
+    if (action === "spend" && Number.isInteger(amount) && amount > 0) {
+      const account = await getBalance(user.steamId);
+      if (account.balance < amount) return NextResponse.json({ error: "Недостатньо коштів" }, { status: 400 });
+      const id = `spend-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      const updated = await creditBalance(user.steamId, -amount, "Покупка в магазині", id);
+      return updated
+        ? NextResponse.json({ success: true, balance: updated.balance })
+        : NextResponse.json({ error: "Помилка транзакції" }, { status: 409 });
     }
-
     return NextResponse.json({ error: "Невідома дія" }, { status: 400 });
   } catch (error) {
     console.error("Balance POST error:", error);
