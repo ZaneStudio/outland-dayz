@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSteamSession } from "@/lib/steam-auth";
+import { getRequestUser } from "@/lib/launcher-auth";
 import { activatePromoCode } from "@/lib/promo-store";
 
 export async function POST(request: NextRequest) {
-  const user = await getSteamSession();
+  const user = await getRequestUser(request);
   if (!user) return NextResponse.json({ error: "Увійдіть через Steam" }, { status: 401 });
 
   const body = await request.json();
@@ -13,5 +13,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result, { status: 400 });
   }
 
-  return NextResponse.json({ success: true, amount: result.amount });
+  return NextResponse.json({ success: true, amount: result.amount, code: result.code });
 }

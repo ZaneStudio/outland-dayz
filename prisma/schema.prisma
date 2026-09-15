@@ -274,6 +274,7 @@ model PurchaseLog {
   username    String
   productName String
   price       Int
+  code        String?
   createdAt   DateTime @default(now())
 }
 

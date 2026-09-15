@@ -99,6 +99,7 @@ export async function POST(req: NextRequest) {
           username: user.name || "Гравець",
           productName: item.name || "Товар",
           price: itemTotal,
+          code,
         },
       });
     }

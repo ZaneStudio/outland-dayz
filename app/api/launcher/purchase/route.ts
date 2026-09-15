@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
       });
       if (changed.count !== 1) throw new InsufficientBalance();
       await tx.balanceTransaction.create({ data: { id: debitId, steamId: user.steamId, amount: -product.price, reason: `Покупка: ${product.name}` } });
-      await tx.purchaseLog.create({ data: { orderId, steamId: user.steamId, username: user.name, productName: product.name, price: product.price } });
+      await tx.purchaseLog.create({ data: { orderId, steamId: user.steamId, username: user.name, productName: product.name, price: product.price, code } });
     });
 
     try {
