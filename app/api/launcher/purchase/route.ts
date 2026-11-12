@@ -8,30 +8,45 @@ export const dynamic = "force-dynamic";
 
 class InsufficientBalance extends Error {}
 
-async function deliverCode(code: string, classname: string) {
+async function deliverCode(code: string, classname: string): Promise<boolean> {
   const apiKey = process.env.PTERODACTYL_API_KEY;
   const serverId = process.env.PTERODACTYL_SERVER_ID;
-  if (!apiKey || !serverId) throw new Error("Хостинг не налаштовано");
-  const fileContent = JSON.stringify({
-    maxUsages: 1,
-    currentUsages: 0,
-    blacklistedSteamIDS: [],
-    rewards: [{ isVehicle: 0, Classname: classname, QuantityPercent: -1, HealthPercent: -1, Attachments: [] }]
-  }, null, 2);
-  const directory = "/profiles/FT_Mods/Promocodes_Free/Codes";
-  const uploadUrlRes = await fetch(`https://console.uahost.eu/api/client/servers/${serverId}/files/upload`, {
-    headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" }
-  });
-  if (!uploadUrlRes.ok) throw new Error("Не вдалося підготувати видачу товару");
-  const uploadData = await uploadUrlRes.json();
-  const formData = new FormData();
-  formData.append("files", new Blob([fileContent], { type: "application/json" }), `${code}.json`);
-  const uploadRes = await fetch(`${uploadData.attributes.url}&directory=${encodeURIComponent(directory)}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}` },
-    body: formData
-  });
-  if (!uploadRes.ok) throw new Error("Не вдалося видати товар на сервері");
+  if (!apiKey || !serverId) {
+    console.warn("Pterodactyl credentials are missing, skipping file upload");
+    return false;
+  }
+  try {
+    const fileContent = JSON.stringify({
+      maxUsages: 1,
+      currentUsages: 0,
+      blacklistedSteamIDS: [],
+      rewards: [{ isVehicle: 0, Classname: classname, QuantityPercent: -1, HealthPercent: -1, Attachments: [] }]
+    }, null, 2);
+    const directory = "/profiles/FT_Mods/Promocodes_Free/Codes";
+    const uploadUrlRes = await fetch(`https://console.uahost.eu/api/client/servers/${serverId}/files/upload`, {
+      headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" }
+    });
+    if (!uploadUrlRes.ok) {
+      console.warn("Pterodactyl upload URL request failed:", uploadUrlRes.status);
+      return false;
+    }
+    const uploadData = await uploadUrlRes.json();
+    const formData = new FormData();
+    formData.append("files", new Blob([fileContent], { type: "application/json" }), `${code}.json`);
+    const uploadRes = await fetch(`${uploadData.attributes.url}&directory=${encodeURIComponent(directory)}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}` },
+      body: formData
+    });
+    if (!uploadRes.ok) {
+      console.warn("Pterodactyl file upload failed:", uploadRes.status);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn("Pterodactyl delivery error:", err);
+    return false;
+  }
 }
 
 export async function POST(req: NextRequest) {
