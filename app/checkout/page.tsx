@@ -32,15 +32,6 @@ export default function Checkout() {
     if (isProcessing) return;
     setIsProcessing(true);
 
-    const currentBalanceStr = localStorage.getItem("outland_user_balance") || "0";
-    const currentBalance = Number(currentBalanceStr);
-
-    if (currentBalance < total) {
-      alert(`Недостатньо коштів! Ваш баланс: ${currentBalance} ₴, а сума замовлення: ${total} ₴`);
-      setIsProcessing(false);
-      return;
-    }
-
     try {
       const balanceRes = await fetch('/api/balance', {
         method: 'POST',

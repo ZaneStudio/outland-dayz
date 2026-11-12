@@ -24,7 +24,20 @@ export default function Shop() {
       }
     };
 
+    const fetchServerBalance = () => {
+      fetch('/api/balance', { cache: 'no-store' })
+        .then(r => (r.ok ? r.json() : null))
+        .then(x => {
+          if (x && typeof x.balance === 'number') {
+            setBalance(x.balance);
+            localStorage.setItem("outland_user_balance", x.balance.toString());
+          }
+        })
+        .catch(() => {});
+    };
+
     window.addEventListener("storage", syncBalance);
+    window.addEventListener("focus", fetchServerBalance);
     const interval = setInterval(syncBalance, 1000);
 
     fetch('/api/auth/session')
@@ -33,14 +46,7 @@ export default function Shop() {
         const current = d?.user || null;
         setUser(current);
         if (current) {
-          fetch('/api/balance', { cache: 'no-store' })
-            .then(r => (r.ok ? r.json() : { balance: 0 }))
-            .then(x => {
-              const realBalance = Number(x.balance) || 0;
-              setBalance(realBalance);
-              localStorage.setItem("outland_user_balance", realBalance.toString());
-            })
-            .catch(() => setBalance(0));
+          fetchServerBalance();
         }
       })
       .catch(() => setUser(null));
@@ -57,6 +63,7 @@ export default function Shop() {
 
     return () => {
       window.removeEventListener("storage", syncBalance);
+      window.removeEventListener("focus", fetchServerBalance);
       clearInterval(interval);
     };
   }, []);

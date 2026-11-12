@@ -22,47 +22,76 @@ type SteamUser = {
 export default function ProfilePage() {
   const [user, setUser] = useState<SteamUser | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [balance, setBalance] = useState<number>(50);
+  const [balance, setBalance] = useState<number>(0);
+  const [vipLabel, setVipLabel] = useState<string>("Неактивний");
   const [promo, setPromo] = useState("");
   const [amount, setAmount] = useState("");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   useEffect(() => {
-    const updateBalanceFromStorage = () => {
-      const savedBalance = localStorage.getItem("outland_user_balance");
-      if (savedBalance !== null) {
-        setBalance(Number(savedBalance));
-      } else {
-        localStorage.setItem("outland_user_balance", "50");
-        setBalance(50);
+    const savedBalance = localStorage.getItem("outland_user_balance");
+    if (savedBalance !== null) {
+      setBalance(Number(savedBalance));
+    }
+
+    const syncFromServer = async () => {
+      try {
+        const res = await fetch('/api/launcher/profile', { cache: 'no-store' });
+        if (!res.ok) {
+          const sessionRes = await fetch('/api/auth/session', { cache: 'no-store' });
+          const sessionData = sessionRes.ok ? await sessionRes.json() : null;
+          setUser(sessionData?.user || null);
+          return;
+        }
+        const data = await res.json();
+        if (data?.user) {
+          setUser(data.user);
+        }
+        if (typeof data?.account?.balance === "number") {
+          setBalance(data.account.balance);
+          localStorage.setItem("outland_user_balance", String(data.account.balance));
+          localStorage.setItem("balance", String(data.account.balance));
+        }
+        setVipLabel(data?.vip?.name || "Неактивний");
+
+        if (Array.isArray(data?.purchases)) {
+          const grouped = new Map<string, Order>();
+          for (const item of data.purchases) {
+            const id = item.orderId || item.id;
+            const existing = grouped.get(id);
+            const price = Number(item.price) || 0;
+            const dateStr = item.createdAt
+              ? new Date(item.createdAt).toLocaleDateString("uk-UA", { day: "numeric", month: "long", year: "numeric" })
+              : "";
+            if (existing) {
+              existing.items.push({ id: item.id, name: item.productName, price });
+              existing.total += price;
+            } else {
+              grouped.set(id, {
+                id,
+                code: item.code || undefined,
+                date: dateStr,
+                items: [{ id: item.id, name: item.productName, price }],
+                total: price,
+              });
+            }
+          }
+          setOrders(Array.from(grouped.values()));
+        }
+      } catch {
+        // Ignore transient network errors
       }
     };
 
-    updateBalanceFromStorage();
-
-    window.addEventListener("storage", updateBalanceFromStorage);
-    const interval = setInterval(updateBalanceFromStorage, 1000);
-
-    fetch('/api/auth/session', { cache: 'no-store' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data?.user) {
-          setUser(data.user);
-          const savedOrders = JSON.parse(localStorage.getItem(`outland_orders_${data.user.steamId}`) || localStorage.getItem("outland_orders") || "[]");
-          setOrders(savedOrders);
-        } else {
-          setUser(null);
-        }
-      })
-      .catch(() => setUser(null));
+    syncFromServer();
+    window.addEventListener("focus", syncFromServer);
+    const interval = setInterval(syncFromServer, 8000);
 
     return () => {
-      window.removeEventListener("storage", updateBalanceFromStorage);
+      window.removeEventListener("focus", syncFromServer);
       clearInterval(interval);
     };
   }, []);
-
-  const vipLabel = "Неактивний";
 
   const handleCopySteamId = () => {
     if (!user) return;
