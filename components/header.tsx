@@ -232,7 +232,7 @@ export function Header() {
               ) : (
                 <Link
                   onClick={go("/login")}
-                  className="hidden h-10 w-28 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-xs font-bold uppercase tracking-wider text-stone-300 transition hover:border-white/20 hover:bg-white/10 hover:text-white md:inline-flex"
+                  className="hidden h-10 min-w-28 px-4 whitespace-nowrap items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-xs font-bold uppercase tracking-wider text-stone-300 transition hover:border-white/20 hover:bg-white/10 hover:text-white md:inline-flex"
                   href="/login"
                 >
                   Увійти
@@ -242,7 +242,7 @@ export function Header() {
               <Link
                 onMouseEnter={user ? warmProfileCache : undefined}
                 onClick={go(user ? "/profile" : "/login")}
-                className="btn rounded-xl hidden !h-10 !min-h-10 w-28 !px-4 text-xs sm:inline-flex items-center justify-center"
+                className="btn rounded-xl hidden !h-10 !min-h-10 min-w-28 !px-4 whitespace-nowrap text-xs sm:inline-flex items-center justify-center"
                 href={user ? "/profile" : "/login"}
               >
                 {user ? "Профіль" : "Steam Вхід"}
