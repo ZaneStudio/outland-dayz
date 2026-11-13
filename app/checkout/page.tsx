@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/cart";
+import { readCachedProfile, saveCachedProfile } from "@/lib/profile-client-cache";
 import { ShoppingBag, Trash2, ArrowRight, Coins, ShoppingCart, Check } from "lucide-react";
 
 export default function Checkout() {
@@ -85,6 +86,16 @@ export default function Checkout() {
         localStorage.setItem(userOrdersKey, JSON.stringify([newOrder, ...userOrders]));
       }
 
+      const cachedProfile = readCachedProfile();
+      if (cachedProfile) {
+        saveCachedProfile({
+          ...cachedProfile,
+          savedAt: Date.now(),
+          balance: typeof newBalance === "number" ? newBalance : cachedProfile.balance,
+          orders: [newOrder, ...cachedProfile.orders],
+        });
+      }
+
       clear();
       setOrder(orderId);
     } catch (error) {
@@ -115,9 +126,9 @@ export default function Checkout() {
             <p className="mt-4 text-sm text-stone-300">Номер вашого замовлення: <b className="text-white font-mono">{order}</b></p>
             <p className="mt-2 text-xs text-[#b6c980]">Файл успішно створено на ігровому сервері!</p>
             <div className="mt-8">
-              <a href="/profile" className="btn inline-flex items-center gap-2 rounded-xl px-6">
+              <Link href="/profile" className="btn inline-flex items-center gap-2 rounded-xl px-6">
                 До профілю <ArrowRight size={16} />
-              </a>
+              </Link>
             </div>
           </div>
         </div>

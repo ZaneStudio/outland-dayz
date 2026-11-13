@@ -42,8 +42,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    try {
-      await db.steamVisitor.upsert({
+    void Promise.all([
+      db.steamVisitor.upsert({
         where: { steamId: steamId },
         update: {
           username: name,
@@ -55,10 +55,15 @@ export async function GET(request: NextRequest) {
           username: name,
           avatar: avatar || null,
         },
-      });
-    } catch (dbErr) {
+      }),
+      db.steamAccount.upsert({
+        where: { steamId: steamId },
+        update: {},
+        create: { steamId: steamId },
+      }),
+    ]).catch((dbErr) => {
       console.error("Failed to save Steam visitor:", dbErr);
-    }
+    });
 
     const response = NextResponse.redirect(`${baseUrl}/profile`);
     response.cookies.set(steamSessionCookie, encodeSteamSession({ steamId, name, avatar }), { 

@@ -3,91 +3,119 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Coins, Crown, Bell, LogOut, Settings, ShoppingBag, Calendar, CheckCircle2, Ticket, CreditCard, Copy, ShieldCheck, Terminal } from "lucide-react";
-
-type Order = {
-  id: string;
-  code?: string;
-  date: string;
-  items: Array<{ id: string; name: string; price: number; image?: string }>;
-  total: number;
-};
-
-type SteamUser = {
-  steamId: string;
-  name: string;
-  avatar: string;
-};
+import {
+  Coins,
+  Crown,
+  Bell,
+  LogOut,
+  Settings,
+  ShoppingBag,
+  Calendar,
+  CheckCircle2,
+  Ticket,
+  CreditCard,
+  Copy,
+  ShieldCheck,
+  Terminal,
+} from "lucide-react";
+import {
+  clearProfileCache,
+  readCachedProfile,
+  readCachedSessionUser,
+  refreshProfile,
+  saveCachedProfile,
+  saveCachedSessionUser,
+  type ProfileOrder,
+  type SteamUser,
+} from "@/lib/profile-client-cache";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<SteamUser | null>(null);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [balance, setBalance] = useState<number>(0);
-  const [vipLabel, setVipLabel] = useState<string>("Неактивний");
+  const [user, setUser] = useState<SteamUser | null>(() => readCachedProfile()?.user || readCachedSessionUser());
+  const [authChecked, setAuthChecked] = useState<boolean>(() => Boolean(readCachedProfile()?.user || readCachedSessionUser()));
+  const [orders, setOrders] = useState<ProfileOrder[]>(() => readCachedProfile()?.orders || []);
+  const [balance, setBalance] = useState<number>(() => {
+    const cached = readCachedProfile();
+    if (cached) return cached.balance;
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("outland_user_balance");
+      if (saved !== null && !Number.isNaN(Number(saved))) return Number(saved);
+    }
+    return 0;
+  });
+  const [vipLabel, setVipLabel] = useState<string>(() => readCachedProfile()?.vipLabel || "Неактивний");
   const [promo, setPromo] = useState("");
   const [amount, setAmount] = useState("");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedBalance = localStorage.getItem("outland_user_balance");
-    if (savedBalance !== null) {
-      setBalance(Number(savedBalance));
+    let active = true;
+
+    const cachedProfile = readCachedProfile();
+    const cachedUser = cachedProfile?.user || readCachedSessionUser();
+
+    if (cachedUser) {
+      setUser(cachedUser);
+      setAuthChecked(true);
+    }
+    if (cachedProfile) {
+      setBalance(cachedProfile.balance);
+      setVipLabel(cachedProfile.vipLabel);
+      setOrders(cachedProfile.orders);
+    } else {
+      const savedBalance = localStorage.getItem("outland_user_balance");
+      if (savedBalance !== null && !Number.isNaN(Number(savedBalance))) {
+        setBalance(Number(savedBalance));
+      }
+    }
+
+    // Якщо в кеші ще немає користувача (наприклад, одразу після редіректу зі Steam),
+    // миттєво читаємо сесію з cookie без очікування бази даних.
+    if (!cachedUser) {
+      fetch("/api/auth/session", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (!active) return;
+          const sessionUser = (data?.user as SteamUser | undefined) || null;
+          if (sessionUser) {
+            saveCachedSessionUser(sessionUser);
+            setUser(sessionUser);
+          }
+          setAuthChecked(true);
+        })
+        .catch(() => {
+          if (active) setAuthChecked(true);
+        });
     }
 
     const syncFromServer = async () => {
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
       try {
-        const res = await fetch('/api/launcher/profile', { cache: 'no-store' });
-        if (!res.ok) {
-          const sessionRes = await fetch('/api/auth/session', { cache: 'no-store' });
-          const sessionData = sessionRes.ok ? await sessionRes.json() : null;
-          setUser(sessionData?.user || null);
+        const profile = await refreshProfile();
+        if (!active) return;
+
+        if (!profile) {
+          setUser(null);
+          setAuthChecked(true);
           return;
         }
-        const data = await res.json();
-        if (data?.user) {
-          setUser(data.user);
-        }
-        if (typeof data?.account?.balance === "number") {
-          setBalance(data.account.balance);
-          localStorage.setItem("outland_user_balance", String(data.account.balance));
-          localStorage.setItem("balance", String(data.account.balance));
-        }
-        setVipLabel(data?.vip?.name || "Неактивний");
 
-        if (Array.isArray(data?.purchases)) {
-          const grouped = new Map<string, Order>();
-          for (const item of data.purchases) {
-            const id = item.orderId || item.id;
-            const existing = grouped.get(id);
-            const price = Number(item.price) || 0;
-            const dateStr = item.createdAt
-              ? new Date(item.createdAt).toLocaleDateString("uk-UA", { day: "numeric", month: "long", year: "numeric" })
-              : "";
-            if (existing) {
-              existing.items.push({ id: item.id, name: item.productName, price });
-              existing.total += price;
-            } else {
-              grouped.set(id, {
-                id,
-                code: item.code || undefined,
-                date: dateStr,
-                items: [{ id: item.id, name: item.productName, price }],
-                total: price,
-              });
-            }
-          }
-          setOrders(Array.from(grouped.values()));
-        }
+        setUser(profile.user);
+        setBalance(profile.balance);
+        setVipLabel(profile.vipLabel);
+        setOrders(profile.orders);
+        setAuthChecked(true);
       } catch {
-        // Ignore transient network errors
+        // Ігноруємо тимчасові помилки мережі, залишаючи кешовані дані
+        if (active) setAuthChecked(true);
       }
     };
 
-    syncFromServer();
+    void syncFromServer();
     window.addEventListener("focus", syncFromServer);
-    const interval = setInterval(syncFromServer, 8000);
+    const interval = setInterval(syncFromServer, 20000);
 
     return () => {
+      active = false;
       window.removeEventListener("focus", syncFromServer);
       clearInterval(interval);
     };
@@ -107,7 +135,8 @@ export default function ProfilePage() {
   };
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    clearProfileCache();
+    await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
     setUser(null);
     window.location.href = "/";
   };
@@ -128,18 +157,57 @@ export default function ProfilePage() {
     window.open(monobankJarUrl, "_blank");
   };
 
+  if (!user && !authChecked) {
+    return (
+      <main className="min-h-screen pb-28 relative isolate overflow-hidden">
+        <div className="absolute inset-0 -z-20 pointer-events-none">
+          <img
+            src="/images/hero-bg.jpg"
+            alt="Outland DayZ Background"
+            className="h-full w-full scale-105 object-cover blur-[4px] brightness-90"
+          />
+        </div>
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/40 to-black/80 pointer-events-none" />
+        <div className="shell mt-10 sm:mt-14 max-w-5xl space-y-6">
+          <div className="rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 shadow-2xl animate-pulse flex items-center gap-5">
+            <div className="h-19 w-19 rounded-2xl bg-white/10 shrink-0" />
+            <div className="space-y-2.5 flex-1">
+              <div className="h-3 w-40 rounded bg-white/10" />
+              <div className="h-7 w-56 rounded bg-white/15" />
+              <div className="h-3 w-36 rounded bg-white/10" />
+            </div>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="rounded-2xl bg-black/60 border border-white/15 p-5 h-22 animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   if (!user) {
     return (
       <main className="min-h-screen pb-28 relative isolate overflow-hidden grid place-items-center">
         <div className="absolute inset-0 -z-20 pointer-events-none">
-          <img src="/images/hero-bg.jpg" alt="Background" className="h-full w-full scale-105 object-cover blur-[4px] brightness-90" />
+          <img
+            src="/images/hero-bg.jpg"
+            alt="Background"
+            className="h-full w-full scale-105 object-cover blur-[4px] brightness-90"
+          />
         </div>
         <div className="absolute inset-0 -z-10 bg-black/70 pointer-events-none" />
-        
+
         <div className="rounded-3xl bg-black/80 backdrop-blur-xl border border-white/15 p-10 text-center space-y-4 max-w-md mx-auto shadow-2xl">
           <h2 className="heading text-2xl text-white">Потрібна авторизація</h2>
-          <p className="text-xs text-stone-400">Увійдіть через Steam, щоб переглянути свій особистий профіль та історію покупок.</p>
-          <Link href="/login" className="btn inline-flex items-center justify-center w-full !min-h-12 rounded-xl text-xs uppercase tracking-widest shadow-lg">
+          <p className="text-xs text-stone-400">
+            Увійдіть через Steam, щоб переглянути свій особистий профіль та історію покупок.
+          </p>
+          <Link
+            href="/login"
+            className="btn inline-flex items-center justify-center w-full !min-h-12 rounded-xl text-xs uppercase tracking-widest shadow-lg"
+          >
             Увійти через Steam
           </Link>
         </div>
@@ -150,28 +218,31 @@ export default function ProfilePage() {
   return (
     <main className="min-h-screen pb-28 relative isolate overflow-hidden">
       <div className="absolute inset-0 -z-20 pointer-events-none">
-        <img src="/images/hero-bg.jpg" alt="Outland DayZ Background" className="h-full w-full scale-105 object-cover blur-[4px] brightness-90" />
+        <img
+          src="/images/hero-bg.jpg"
+          alt="Outland DayZ Background"
+          className="h-full w-full scale-105 object-cover blur-[4px] brightness-90"
+        />
       </div>
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/40 to-black/80 pointer-events-none" />
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-[#b6c980]/10 blur-[140px] rounded-full pointer-events-none -z-10" />
-      
+
       <div className="hero-vignette absolute inset-0 -z-10 pointer-events-none" />
       <div className="grid-lines absolute inset-0 -z-10 opacity-40 pointer-events-none" />
 
       <div className="shell mt-10 sm:mt-14 max-w-5xl space-y-6">
-        
         <div className="relative rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 shadow-2xl shadow-[#b6c980]/5 animate-enter flex flex-wrap items-center justify-between gap-6 overflow-hidden group">
           <div className="absolute -right-24 -top-24 w-64 h-64 bg-[#b6c980]/5 blur-3xl rounded-full pointer-events-none group-hover:bg-[#b6c980]/10 transition duration-700" />
-          
+
           <div className="flex items-center gap-5 min-w-0 relative z-10">
             {user.avatar ? (
-              <Image 
-                src={user.avatar} 
-                width={76} 
-                height={76} 
-                alt="Steam avatar" 
+              <Image
+                src={user.avatar}
+                width={76}
+                height={76}
+                alt="Steam avatar"
                 unoptimized
-                className="h-19 w-19 shrink-0 rounded-2xl border border-[#b6c980]/40 object-cover shadow-xl shadow-[#b6c980]/10" 
+                className="h-19 w-19 shrink-0 rounded-2xl border border-[#b6c980]/40 object-cover shadow-xl shadow-[#b6c980]/10"
               />
             ) : (
               <div className="grid h-19 w-19 shrink-0 place-items-center rounded-2xl bg-[#1c2413] text-2xl font-bold text-[#b6c980] border border-[#b6c980]/40 shadow-xl shadow-[#b6c980]/10">
@@ -190,12 +261,15 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-          
+
           <div className="flex flex-wrap items-center gap-3 relative z-10">
-            <Link href="/profile/settings" className="btn btn-outline !min-h-11 px-5 rounded-xl text-xs uppercase tracking-wider inline-flex items-center gap-2 border-white/20 hover:bg-white/10 hover:border-[#b6c980] transition shadow-lg">
+            <Link
+              href="/profile/settings"
+              className="btn btn-outline !min-h-11 px-5 rounded-xl text-xs uppercase tracking-wider inline-flex items-center gap-2 border-white/20 hover:bg-white/10 hover:border-[#b6c980] transition shadow-lg"
+            >
               <Settings size={15} /> Налаштування
             </Link>
-            <button 
+            <button
               onClick={handleLogout}
               className="btn border-red-500/30 bg-transparent text-[#f0b3aa] hover:bg-red-500/20 !min-h-11 px-5 rounded-xl text-xs uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer transition shadow-lg"
             >
@@ -203,7 +277,7 @@ export default function ProfilePage() {
             </button>
           </div>
         </div>
-        
+
         <div className="grid gap-6 sm:grid-cols-3 animate-enter delay-1">
           <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-5 shadow-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#b6c980] hover:shadow-[#b6c980]/15 group">
             <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30 shadow-lg group-hover:scale-110 transition duration-300">
@@ -237,15 +311,16 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 animate-enter delay-2">
-          
           <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-7 shadow-2xl flex flex-col justify-between transition duration-300 hover:border-white/30">
             <div>
               <div className="flex items-center gap-2.5 text-[#b6c980] mb-3">
                 <Ticket size={22} />
                 <h3 className="font-bold text-white text-base tracking-wide">Промокод</h3>
               </div>
-              <p className="text-xs text-stone-400 mb-5 leading-relaxed">Введіть акційний код для миттєвого зарахування бонусів на ігровий рахунок.</p>
-              
+              <p className="text-xs text-stone-400 mb-5 leading-relaxed">
+                Введіть акційний код для миттєвого зарахування бонусів на ігровий рахунок.
+              </p>
+
               <div className="flex gap-2.5">
                 <input
                   type="text"
@@ -254,7 +329,7 @@ export default function ProfilePage() {
                   onChange={(e) => setPromo(e.target.value)}
                   className="w-full rounded-xl bg-black/50 border border-white/15 px-4 py-3.5 text-xs uppercase tracking-wider text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition shadow-inner"
                 />
-                <button 
+                <button
                   onClick={async () => {
                     if (!promo.trim()) {
                       alert("Введіть промокод!");
@@ -264,17 +339,34 @@ export default function ProfilePage() {
                       const res = await fetch("/api/promocodes/activate", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ code: promo })
+                        body: JSON.stringify({ code: promo }),
                       });
                       const data = await res.json();
                       if (!res.ok) {
                         alert(data.error || "Помилка активації промокоду");
                         return;
                       }
-                      alert(`Успішно! На ваш баланс зараховано ${data.amount} ₴`);
+                      const nextBalance = balance + (Number(data.amount) || 0);
+                      setBalance(nextBalance);
+                      if (user) {
+                        saveCachedProfile({
+                          savedAt: Date.now(),
+                          user,
+                          balance: nextBalance,
+                          vipLabel,
+                          orders,
+                        });
+                      }
                       setPromo("");
-                      window.location.reload();
-                    } catch (err) {
+                      alert(`Успішно! На ваш баланс зараховано ${data.amount} ₴`);
+                      void refreshProfile().then((updated) => {
+                        if (updated) {
+                          setBalance(updated.balance);
+                          setVipLabel(updated.vipLabel);
+                          setOrders(updated.orders);
+                        }
+                      });
+                    } catch {
                       alert("Помилка мережі");
                     }
                   }}
@@ -286,8 +378,10 @@ export default function ProfilePage() {
             </div>
 
             <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-stone-400">
-              <span>Steam ID: <b className="text-white font-mono">{user.steamId}</b></span>
-              <button 
+              <span>
+                Steam ID: <b className="text-white font-mono">{user.steamId}</b>
+              </span>
+              <button
                 onClick={handleCopySteamId}
                 className="inline-flex items-center gap-1.5 text-[#b6c980] hover:text-white transition cursor-pointer font-medium"
               >
@@ -302,8 +396,10 @@ export default function ProfilePage() {
                 <CreditCard size={22} />
                 <h3 className="font-bold text-white text-base tracking-wide">Поповнити баланс (Monobank)</h3>
               </div>
-              <p className="text-xs text-stone-400 mb-5 leading-relaxed">Перехід на захищену сторінку оплати Monobank для поповнення рахунку.</p>
-              
+              <p className="text-xs text-stone-400 mb-5 leading-relaxed">
+                Перехід на захищену сторінку оплати Monobank для поповнення рахунку.
+              </p>
+
               <div className="flex gap-2.5">
                 <input
                   type="number"
@@ -312,7 +408,7 @@ export default function ProfilePage() {
                   onChange={(e) => setAmount(e.target.value)}
                   className="w-full rounded-xl bg-black/50 border border-white/15 px-4 py-3.5 text-xs text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition font-mono shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
-                <button 
+                <button
                   onClick={handleTopUp}
                   className="btn rounded-xl px-6 text-xs uppercase tracking-widest shrink-0 cursor-pointer shadow-lg shadow-[#b6c980]/10 hover:scale-[1.02] transition"
                 >
@@ -322,10 +418,10 @@ export default function ProfilePage() {
             </div>
 
             <p className="mt-5 text-[11px] text-stone-500 leading-relaxed pt-3 border-t border-white/10">
-              <b className="text-stone-300">Важливо:</b> у коментарі до платежу автоматично підтягнеться ваш Steam ID для зарахування коштів.
+              <b className="text-stone-300">Важливо:</b> у коментарі до платежу автоматично підтягнеться ваш Steam ID
+              для зарахування коштів.
             </p>
           </div>
-
         </div>
 
         <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 shadow-2xl animate-enter delay-3 transition duration-300 hover:border-white/30">
@@ -346,7 +442,10 @@ export default function ProfilePage() {
                 const fullCommand = `!code ${displayCode}`;
 
                 return (
-                  <div key={order.id} className="rounded-xl bg-black/50 border border-white/10 p-5 space-y-4 shadow-inner transition hover:border-[#b6c980]/40">
+                  <div
+                    key={order.id}
+                    className="rounded-xl bg-black/50 border border-white/10 p-5 space-y-4 shadow-inner transition hover:border-[#b6c980]/40"
+                  >
                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="text-[#b6c980]" size={16} />
@@ -372,8 +471,11 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="bg-white/5 rounded-lg p-2.5 border border-white/5 text-[11px] text-stone-400 flex items-center gap-2">
-                      <span className="text-[#b6c980] font-bold">💡 Підказка:</span> 
-                      <span>Скопіюйте цю команду та введіть її у загальний або ігровий чат на сервері Outland DayZ, щоб отримати придбані предмети.</span>
+                      <span className="text-[#b6c980] font-bold">💡 Підказка:</span>
+                      <span>
+                        Скопіюйте цю команду та введіть її у загальний або ігровий чат на сервері Outland DayZ, щоб
+                        отримати придбані предмети.
+                      </span>
                     </div>
 
                     <div className="grid gap-2 pt-1">
@@ -400,7 +502,6 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
-
       </div>
     </main>
   );

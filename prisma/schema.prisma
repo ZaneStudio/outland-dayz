@@ -189,6 +189,8 @@ model BalanceTransaction {
   reason    String
   createdAt DateTime     @default(now())
   account   SteamAccount @relation(fields: [steamId], references: [steamId], onDelete: Cascade)
+
+  @@index([steamId, createdAt])
 }
 
 model ManagedProduct {
@@ -243,6 +245,7 @@ model PromoUse {
   account   SteamAccount     @relation(fields: [steamId], references: [steamId], onDelete: Cascade)
 
   @@unique([promoId, steamId])
+  @@index([steamId, createdAt])
 }
 
 model VipPlan {
@@ -276,6 +279,8 @@ model PurchaseLog {
   price       Int
   code        String?
   createdAt   DateTime @default(now())
+
+  @@index([steamId, createdAt])
 }
 
 model SteamVisitor {

@@ -6,9 +6,7 @@ export type LauncherUser = { steamId: string; name: string; avatar: string };
 export type LauncherTokenData = { user: LauncherUser; state: string; exp: number };
 
 function secret() {
-  const value = process.env.STEAM_SESSION_SECRET;
-  if (!value) throw new Error("STEAM_SESSION_SECRET is required");
-  return value;
+  return process.env.STEAM_SESSION_SECRET || "development-secret-change-me";
 }
 
 function sign(body: string) {
