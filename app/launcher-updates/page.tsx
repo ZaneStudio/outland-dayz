@@ -1,8 +1,8 @@
 import { Check, Download, Gamepad2, MonitorDown, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
 
 const launcher = {
-  version: "1.2.0-beta.13",
-  download: "/launcher-updates/OutLand-Launcher-Beta-Setup-1.2.0-beta.13-x64.exe",
+  version: "1.2.0-beta.14",
+  download: "/launcher-updates/OutLand-Launcher-Beta-Setup-1.2.0-beta.14-x64.exe",
 };
 
 const features = [
@@ -65,7 +65,7 @@ export default function LauncherUpdatesPage() {
               </div>
               <div className="mt-5 space-y-3 text-sm">
                 <div className="launcher-device-row"><span>Оновлення</span><b><RefreshCw size={14} /> Автоматичні</b></div>
-                <div className="launcher-device-row"><span>Сервер</span><b>57.128.210.53:2323</b></div>
+                <div className="launcher-device-row"><span>Сервер</span><b>149.50.101.26:2312</b></div>
                 <div className="launcher-device-row"><span>Статус</span><b className="text-[#cce784]">Готово до гри</b></div>
               </div>
               <div className="mt-6 h-1.5 overflow-hidden rounded-full bg-black/50"><div className="launcher-progress h-full rounded-full" /></div>
