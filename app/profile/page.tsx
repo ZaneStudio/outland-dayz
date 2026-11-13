@@ -278,8 +278,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-3 animate-enter delay-1">
-          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-5 shadow-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#b6c980] hover:shadow-[#b6c980]/15 group">
+        <div className="grid gap-6 sm:grid-cols-3">
+          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-5 shadow-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#b6c980] hover:shadow-[#b6c980]/15 group animate-enter delay-1">
             <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30 shadow-lg group-hover:scale-110 transition duration-300">
               <Coins size={22} />
             </div>
@@ -289,7 +289,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-5 shadow-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#d9ca72] hover:shadow-[#d9ca72]/15 group">
+          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-5 shadow-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#d9ca72] hover:shadow-[#d9ca72]/15 group animate-enter delay-1">
             <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#282512] text-[#d9ca72] border border-[#d9ca72]/30 shadow-lg group-hover:scale-110 transition duration-300">
               <Crown size={22} />
             </div>
@@ -299,7 +299,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-5 shadow-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#b6c980] hover:shadow-[#b6c980]/15 group">
+          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-5 shadow-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#b6c980] hover:shadow-[#b6c980]/15 group animate-enter delay-1">
             <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30 shadow-lg group-hover:scale-110 transition duration-300">
               <Bell size={22} />
             </div>
@@ -310,8 +310,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 animate-enter delay-2">
-          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-7 shadow-2xl flex flex-col justify-between transition duration-300 hover:border-white/30">
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-7 shadow-2xl flex flex-col justify-between transition duration-300 hover:border-white/30 animate-enter delay-2">
             <div>
               <div className="flex items-center gap-2.5 text-[#b6c980] mb-3">
                 <Ticket size={22} />
@@ -390,7 +390,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-7 shadow-2xl flex flex-col justify-between transition duration-300 hover:border-white/30">
+          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-7 shadow-2xl flex flex-col justify-between transition duration-300 hover:border-white/30 animate-enter delay-2">
             <div>
               <div className="flex items-center gap-2.5 text-[#b6c980] mb-3">
                 <CreditCard size={22} />

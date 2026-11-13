@@ -67,12 +67,12 @@ export default async function NewsPage() {
             <p className="text-xs text-stone-500">Слідкуйте за оновленнями — незабаром тут з’являться перші анонси.</p>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 animate-enter delay-1">
+          <div className="grid gap-6 md:grid-cols-2">
             {news.map((item, index) => (
               <article
                 key={item.id}
                 id={item.slug}
-                className="group relative rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 overflow-hidden shadow-2xl flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:border-[#b6c980]/50 hover:shadow-[#b6c980]/10"
+                className="group relative rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 overflow-hidden shadow-2xl flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:border-[#b6c980]/50 hover:shadow-[#b6c980]/10 animate-enter delay-1"
               >
                 <div>
                   {item.image ? (
