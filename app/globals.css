@@ -10,9 +10,9 @@
 @font-face { font-family: 'Montserrat Fallback'; src: local('Arial'); ascent-override: 85.79%; descent-override: 22.25%; line-gap-override: 0.00%; size-adjust: 112.83%; }
 .font-montserrat { font-family: 'Montserrat', 'Montserrat Fallback', sans-serif; }
 
-:root { --line: rgba(217,226,195,.13); --accent:#b6c87b; --deep:#080a08; }
+:root { --line: rgba(217,226,195,.13); --accent:#b6c87b; --deep:#080a08; color-scheme: dark; }
 * { box-sizing: border-box; }
-html { background:#090b09; scroll-behavior:smooth; }
+html { background:#090b09; scroll-behavior:smooth; color-scheme: dark; }
 body { margin:0; min-width:320px; background:radial-gradient(ellipse at 50% -15%,rgba(114,136,67,.14),transparent 38%),#090b09; color:#ecefe7; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; }
 body:before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.08; z-index:50; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E"); }
 a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection { background:#84955a; color:#081008; }
@@ -177,3 +177,51 @@ a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection 
 .roulette-prize-image { width: 26px; height: 26px; border-radius: 4px; object-fit: cover; filter: drop-shadow(0 2px 4px rgba(0,0,0,.9)); }
 .roulette-pointer { position: absolute; z-index: 5; top: 6px; width: 0; height: 0; border-right: 12px solid transparent; border-left: 12px solid transparent; border-top: 28px solid #84955a; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
 .roulette-progress { background: linear-gradient(90deg, #71804e, #94a467); box-shadow: 0 0 12px rgba(148,164,103,0.35); }
+
+/* Кастомний скролбар у стилі Outland DayZ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(8, 11, 8, 0.75);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(168, 190, 112, 0.55), rgba(113, 135, 67, 0.65));
+  border-radius: 999px;
+  border: 1px solid rgba(182, 201, 128, 0.25);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #b6c980, #839950);
+  border-color: rgba(216, 236, 154, 0.5);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(182, 201, 128, 0.5), rgba(113, 135, 67, 0.7));
+  border-radius: 999px;
+  border: 1px solid rgba(182, 201, 128, 0.3);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #c6da8e, #8ea657);
+}
