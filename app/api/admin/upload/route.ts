@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server"; 
+import { NextRequest, NextResponse } from "next/server";
 import { currentAdmin } from "@/lib/admin";
 
 export async function POST(request: NextRequest) {
-  if (!await currentAdmin()) {
+  if (!(await currentAdmin())) {
     return NextResponse.json({ error: "Недостатньо прав" }, { status: 403 });
   }
 
@@ -15,9 +15,21 @@ export async function POST(request: NextRequest) {
 
   try {
     const buffer = Buffer.from(await image.arrayBuffer());
-    const base64Image = `data:${image.type};base64,${buffer.toString("base64")}`;
 
-    return NextResponse.json({ url: base64Image }, { status: 201 });
+    try {
+      const sharpMod = await import("sharp");
+      const sharp = sharpMod.default || sharpMod;
+      const optimized = await sharp(buffer)
+        .resize(520, 520, { fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 86, alphaQuality: 95, effort: 5 })
+        .toBuffer();
+
+      const base64Image = `data:image/webp;base64,${optimized.toString("base64")}`;
+      return NextResponse.json({ url: base64Image }, { status: 201 });
+    } catch {
+      const base64Image = `data:${image.type};base64,${buffer.toString("base64")}`;
+      return NextResponse.json({ url: base64Image }, { status: 201 });
+    }
   } catch (e) {
     console.error("Upload error:", e);
     return NextResponse.json({ error: "Помилка обробки зображення" }, { status: 500 });

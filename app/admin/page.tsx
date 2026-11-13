@@ -2,6 +2,7 @@
 import { ImagePlus, Pencil, Plus, Save, ShieldAlert, Trash2, Upload, Image as ImageIcon, ZoomIn, ZoomOut, Move } from "lucide-react"; 
 import { FormEvent, useEffect, useState, useRef } from "react"; 
 import type { ManagedProduct } from "@/lib/product-store";
+import { saveProductsCache } from "@/lib/product-client-cache";
 
 // Розширений тип товару з урахуванням налаштувань зображення
 type ExtendedProduct = ManagedProduct & {
@@ -33,7 +34,13 @@ export default function Admin() {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const previewRef = useRef<HTMLDivElement>(null);
 
-  const load = () => fetch('/api/products').then(r => r.json()).then(setProducts);
+  const load = () =>
+    fetch(`/api/products?t=${Date.now()}`, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((list) => {
+        setProducts(list);
+        saveProductsCache(list);
+      });
 
   useEffect(() => {
     fetch('/api/auth/session')

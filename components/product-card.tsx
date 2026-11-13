@@ -35,6 +35,7 @@ export function ProductCard({ product }: { product: ExtendedProduct }) {
               src={product.image}
               alt={product.name}
               title={product.name}
+              decoding="async"
               style={{
                 "--tx": `${x}px`,
                 "--ty": `${y}px`,
