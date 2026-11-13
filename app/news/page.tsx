@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ArrowLeft, Calendar, Newspaper, Sparkles, ShieldCheck } from "lucide-react";
 import { getManagedNews } from "@/lib/news-store";
 
 export const dynamic = "force-dynamic";
@@ -6,38 +8,123 @@ export default async function NewsPage() {
   const news = await getManagedNews();
 
   return (
-    <main className="shell py-24">
-      <div className="mb-12">
-        <p className="eyebrow">Архів подій</p>
-        <h1 className="heading mt-2 text-4xl sm:text-5xl">Усі новини сервера</h1>
+    <main className="min-h-screen pb-28 relative isolate overflow-hidden">
+      {/* Атмосферний фон у єдиному стилі сайту */}
+      <div className="absolute inset-0 -z-20 pointer-events-none">
+        <img
+          src="/images/hero-bg.jpg"
+          alt="Outland DayZ Background"
+          className="h-full w-full scale-105 object-cover blur-[4px] brightness-90"
+        />
       </div>
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/45 to-black/85 pointer-events-none" />
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[720px] h-[320px] bg-[#b6c980]/10 blur-[140px] rounded-full pointer-events-none -z-10" />
 
-      {news.length === 0 ? (
-        <div className="panel p-12 text-center text-stone-400">
-          Новин поки немає.
-        </div>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {news.map((item) => (
-            <div 
-              key={item.id} 
-              id={item.slug}
-              className="panel cut flex flex-col p-6 transition duration-300 hover:border-[#84955a]"
-            >
-              {item.image && (
-                <img 
-                  src={item.image} 
-                  alt={item.title} 
-                  className="mb-4 h-48 w-full rounded object-cover border border-white/10" 
-                />
-              )}
-              <p className="text-xs text-[#acbd75]">{item.date}</p>
-              <h3 className="mt-2 text-xl font-bold">{item.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-stone-300 whitespace-pre-wrap">{item.text}</p>
+      <div className="hero-vignette absolute inset-0 -z-10 pointer-events-none" />
+      <div className="grid-lines absolute inset-0 -z-10 opacity-45 pointer-events-none" />
+
+      <div className="shell mt-10 sm:mt-14 max-w-5xl space-y-8">
+        {/* Верхня шапка розділу новин */}
+        <section className="relative rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 lg:p-10 shadow-2xl shadow-[#b6c980]/5 animate-enter flex flex-wrap items-center justify-between gap-6 overflow-hidden group">
+          <div className="absolute -right-24 -top-24 w-64 h-64 bg-[#b6c980]/10 blur-3xl rounded-full pointer-events-none group-hover:bg-[#b6c980]/15 transition duration-700" />
+
+          <div className="flex items-start sm:items-center gap-5 min-w-0 relative z-10">
+            <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/40 shadow-xl shadow-[#b6c980]/10">
+              <Newspaper size={28} />
             </div>
-          ))}
-        </div>
-      )}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="inline-block h-2 w-2 rounded-full bg-[#b6c980] animate-pulse" />
+                <p className="eyebrow text-[#b6c980] tracking-widest">Архів подій · Outland DayZ</p>
+              </div>
+              <h1 className="heading text-3xl sm:text-5xl text-[#f2f5e9] mt-2">Усі новини сервера</h1>
+              <p className="mt-2 text-xs sm:text-sm text-stone-300 max-w-xl leading-relaxed">
+                Офіційні оновлення, анонси вайпів, розробка нових механік та важливі події спільноти.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 relative z-10">
+            <div className="rounded-2xl bg-black/50 border border-white/10 px-4 py-2.5 flex items-center gap-2.5">
+              <Sparkles size={15} className="text-[#b6c980]" />
+              <span className="text-xs text-stone-400">Публікацій:</span>
+              <b className="font-mono text-sm text-[#dce8b3]">{news.length}</b>
+            </div>
+            <Link
+              href="/"
+              className="btn btn-outline !min-h-11 px-5 rounded-xl text-xs uppercase tracking-wider inline-flex items-center gap-2 border-white/20 hover:bg-white/10 hover:border-[#b6c980] transition shadow-lg"
+            >
+              <ArrowLeft size={15} /> На головну
+            </Link>
+          </div>
+        </section>
+
+        {/* Сітка новин */}
+        {news.length === 0 ? (
+          <div className="rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 p-12 text-center text-stone-400 shadow-2xl animate-enter delay-1 flex flex-col items-center gap-3">
+            <Newspaper size={32} className="text-stone-600" />
+            <p className="text-base font-bold text-stone-300">Новин поки немає</p>
+            <p className="text-xs text-stone-500">Слідкуйте за оновленнями — незабаром тут з’являться перші анонси.</p>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 animate-enter delay-1">
+            {news.map((item, index) => (
+              <article
+                key={item.id}
+                id={item.slug}
+                className="group relative rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 overflow-hidden shadow-2xl flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:border-[#b6c980]/50 hover:shadow-[#b6c980]/10"
+              >
+                <div>
+                  {item.image ? (
+                    <div className="relative h-56 sm:h-64 w-full overflow-hidden border-b border-white/10 bg-[#11150d]">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        decoding="async"
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent pointer-events-none" />
+                      <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2">
+                        <span className="rounded-xl bg-black/65 backdrop-blur-md border border-white/15 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-widest text-[#b6c980]">
+                          Новина #{String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span className="rounded-xl bg-black/65 backdrop-blur-md border border-white/15 px-3 py-1 text-[11px] font-medium text-stone-200 inline-flex items-center gap-1.5">
+                          <Calendar size={12} className="text-[#b6c980]" />
+                          {item.date}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="px-6 pt-6 flex items-center justify-between gap-2">
+                      <span className="rounded-xl bg-[#1c2413] border border-[#b6c980]/30 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-widest text-[#b6c980]">
+                        Новина #{String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span className="text-xs text-stone-400 inline-flex items-center gap-1.5">
+                        <Calendar size={13} className="text-[#b6c980]" />
+                        {item.date}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="p-6 sm:p-7">
+                    <h2 className="text-xl sm:text-2xl font-bold text-[#f2f5e9] leading-snug transition group-hover:text-[#dce8b3]">
+                      {item.title}
+                    </h2>
+                    <p className="mt-3.5 text-sm leading-relaxed text-stone-300 whitespace-pre-wrap">{item.text}</p>
+                  </div>
+                </div>
+
+                <div className="px-6 sm:px-7 pb-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-stone-400">
+                  <span className="inline-flex items-center gap-1.5 text-[#b6c980]">
+                    <ShieldCheck size={14} /> Outland DayZ · Офіційно
+                  </span>
+                  <span className="font-mono text-[11px] text-stone-500">{item.date}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
     </main>
   );
 }
