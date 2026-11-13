@@ -113,11 +113,16 @@ a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection 
   pointer-events: none; 
   display: grid; 
   place-items: center; 
-  background: rgba(7, 10, 7, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  transform: translateY(105%); 
-  transition: transform .45s cubic-bezier(0.76,0,0.24,1); 
+  background: radial-gradient(circle at 50% 45%, rgba(24, 32, 17, 0.98) 0%, rgba(7, 10, 7, 0.99) 75%);
+  border-top: 1px solid rgba(182, 200, 123, 0.2);
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.85);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translate3d(0, 102%, 0); 
+  opacity: 0.98;
+  transition:
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.32s ease; 
 } 
 
 .route-curtain:after { 
@@ -126,18 +131,23 @@ a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection 
   font-family: Impact, Haettenschweiler, sans-serif; 
   font-size: clamp(2rem, 7vw, 7rem); 
   letter-spacing: 0.12em; 
-  opacity: 0.35; 
+  opacity: 0; 
+  transform: translate3d(0, 18px, 0) scale(0.96);
   text-shadow: 0 0 30px rgba(182, 200, 123, 0.3);
-  animation: curtainText .45s cubic-bezier(0.76,0,0.24,1) both;
+  transition:
+    opacity 0.28s ease 0.06s,
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1) 0.04s;
 } 
 
 .route-curtain.is-active { 
-  transform: translateY(0); 
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0); 
+  opacity: 1;
 } 
 
-@keyframes curtainText {
-  from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to { opacity: 0.35; transform: translateY(0) scale(1); }
+.route-curtain.is-active:after {
+  opacity: 0.38;
+  transform: translate3d(0, 0, 0) scale(1);
 }
 
 @keyframes enter { from { opacity:0; transform:translateY(22px) } to { opacity:1; transform:translateY(0) } }

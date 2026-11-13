@@ -4,10 +4,12 @@ import Link from "next/link";
 import { Menu, ShoppingCart, X } from "lucide-react";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { warmProductsCache } from "@/lib/product-client-cache";
+import { readCachedProducts, refreshProducts, warmProductsCache } from "@/lib/product-client-cache";
 import {
   clearProfileCache,
+  readCachedProfile,
   readCachedSessionUser,
+  refreshProfile,
   saveCachedSessionUser,
   warmProfileCache,
   type SteamUser,
@@ -22,6 +24,24 @@ const links = [
   ["Лаунчер", "/launcher-updates"],
 ];
 
+const CURTAIN_ENTER_MS = 380;
+const MIN_CURTAIN_HOLD_MS = 460;
+
+function waitForNextPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => resolve());
+    });
+  });
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
+  return Promise.race([
+    promise.catch(() => null),
+    new Promise<null>((resolve) => window.setTimeout(() => resolve(null), ms)),
+  ]);
+}
+
 export function Header() {
   const [open, setOpen] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
@@ -32,21 +52,42 @@ export function Header() {
   const path = usePathname();
   const destination = useRef<string | null>(null);
   const startTimer = useRef<number | null>(null);
+  const safetyTimer = useRef<number | null>(null);
+  const transitionStartedAt = useRef<number>(0);
+  const transitionSeq = useRef<number>(0);
 
   const go = (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (href === path) return;
     e.preventDefault();
     setOpen(false);
+
     if (href === "/profile") {
       warmProfileCache();
+    } else if (href === "/shop") {
+      warmProductsCache();
     }
+
+    const seq = ++transitionSeq.current;
     destination.current = href;
+    transitionStartedAt.current = performance.now();
     setTransitioning(true);
+
     if (startTimer.current) window.clearTimeout(startTimer.current);
+    if (safetyTimer.current) window.clearTimeout(safetyTimer.current);
+
+    // Чекаємо, поки шторка плавно і повністю закриє екран, перш ніж рендерити нову сторінку
     startTimer.current = window.setTimeout(() => {
+      if (transitionSeq.current !== seq) return;
       startTransition(() => router.push(href));
       startTimer.current = null;
-    }, 150);
+    }, CURTAIN_ENTER_MS);
+
+    // Страхувальний таймер, щоб шторка ніколи не зависла
+    safetyTimer.current = window.setTimeout(() => {
+      if (transitionSeq.current !== seq) return;
+      setTransitioning(false);
+      destination.current = null;
+    }, 4500);
   };
 
   useEffect(() => {
@@ -83,16 +124,47 @@ export function Header() {
 
   useEffect(() => {
     if (!transitioning || isPending || path !== destination.current) return;
-    const timer = window.setTimeout(() => {
+
+    const seq = transitionSeq.current;
+    let cancelled = false;
+
+    const finishTransition = async () => {
+      // 1. Чекаємо готовності даних цільової сторінки, якщо вони ще завантажуються
+      if (path === "/profile" && !readCachedProfile()) {
+        await withTimeout(refreshProfile(), 2200);
+      } else if (path === "/shop" && !readCachedProducts()) {
+        await withTimeout(refreshProducts(), 2200);
+      }
+
+      // 2. Переконуємося, що шторка повністю завершила анімацію підйому до верху екрана
+      const elapsed = performance.now() - transitionStartedAt.current;
+      if (elapsed < MIN_CURTAIN_HOLD_MS) {
+        await new Promise((resolve) => window.setTimeout(resolve, MIN_CURTAIN_HOLD_MS - elapsed));
+      }
+
+      // 3. Чекаємо, поки браузер відмалює DOM нової сторінки під шторкою
+      await waitForNextPaint();
+
+      if (cancelled || transitionSeq.current !== seq) return;
+      if (safetyTimer.current) {
+        window.clearTimeout(safetyTimer.current);
+        safetyTimer.current = null;
+      }
       setTransitioning(false);
       destination.current = null;
-    }, 100);
-    return () => window.clearTimeout(timer);
+    };
+
+    void finishTransition();
+
+    return () => {
+      cancelled = true;
+    };
   }, [path, transitioning, isPending]);
 
   useEffect(
     () => () => {
       if (startTimer.current) window.clearTimeout(startTimer.current);
+      if (safetyTimer.current) window.clearTimeout(safetyTimer.current);
     },
     []
   );
