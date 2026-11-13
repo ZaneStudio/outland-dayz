@@ -6,7 +6,6 @@ import Image from "next/image";
 import {
   Coins,
   Crown,
-  Bell,
   LogOut,
   Settings,
   ShoppingBag,
@@ -15,8 +14,9 @@ import {
   Ticket,
   CreditCard,
   Copy,
-  ShieldCheck,
+  Check,
   Terminal,
+  ArrowUpRight,
 } from "lucide-react";
 import {
   clearProfileCache,
@@ -68,8 +68,6 @@ export default function ProfilePage() {
       }
     }
 
-    // Якщо в кеші ще немає користувача (наприклад, одразу після редіректу зі Steam),
-    // миттєво читаємо сесію з cookie без очікування бази даних.
     if (!cachedUser) {
       fetch("/api/auth/session", { cache: "no-store" })
         .then((r) => (r.ok ? r.json() : null))
@@ -105,7 +103,6 @@ export default function ProfilePage() {
         setOrders(profile.orders);
         setAuthChecked(true);
       } catch {
-        // Ігноруємо тимчасові помилки мережі, залишаючи кешовані дані
         if (active) setAuthChecked(true);
       }
     };
@@ -157,31 +154,64 @@ export default function ProfilePage() {
     window.open(monobankJarUrl, "_blank");
   };
 
+  const handleActivatePromo = async () => {
+    if (!promo.trim()) {
+      alert("Введіть промокод!");
+      return;
+    }
+    try {
+      const res = await fetch("/api/promocodes/activate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: promo }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "Помилка активації промокоду");
+        return;
+      }
+      const nextBalance = balance + (Number(data.amount) || 0);
+      setBalance(nextBalance);
+      if (user) {
+        saveCachedProfile({
+          savedAt: Date.now(),
+          user,
+          balance: nextBalance,
+          vipLabel,
+          orders,
+        });
+      }
+      setPromo("");
+      alert(`Успішно! На ваш баланс зараховано ${data.amount} ₴`);
+      void refreshProfile().then((updated) => {
+        if (updated) {
+          setBalance(updated.balance);
+          setVipLabel(updated.vipLabel);
+          setOrders(updated.orders);
+        }
+      });
+    } catch {
+      alert("Помилка мережі");
+    }
+  };
+
   if (!user && !authChecked) {
     return (
-      <main className="min-h-screen pb-28 relative isolate overflow-hidden">
+      <main className="min-h-[calc(100vh-64px)] py-8 sm:py-10 relative isolate overflow-hidden">
         <div className="absolute inset-0 -z-20 pointer-events-none">
           <img
             src="/images/hero-bg.jpg"
             alt="Outland DayZ Background"
-            className="h-full w-full scale-105 object-cover blur-[4px] brightness-90"
+            className="h-full w-full scale-105 object-cover"
           />
         </div>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/40 to-black/80 pointer-events-none" />
-        <div className="shell mt-10 sm:mt-14 max-w-5xl space-y-6">
-          <div className="rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 shadow-2xl animate-pulse flex items-center gap-5">
-            <div className="h-19 w-19 rounded-2xl bg-white/10 shrink-0" />
-            <div className="space-y-2.5 flex-1">
-              <div className="h-3 w-40 rounded bg-white/10" />
-              <div className="h-7 w-56 rounded bg-white/15" />
-              <div className="h-3 w-36 rounded bg-white/10" />
-            </div>
-          </div>
-          <div className="grid gap-6 sm:grid-cols-3">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="rounded-2xl bg-black/60 border border-white/15 p-5 h-22 animate-pulse" />
-            ))}
-          </div>
+        <div className="absolute inset-0 -z-10 bg-black/35 pointer-events-none" />
+        <div className="hero-vignette absolute inset-0 -z-10 pointer-events-none" />
+        <div className="grid-lines absolute inset-0 -z-10 opacity-50 pointer-events-none" />
+
+        <div className="shell max-w-6xl grid gap-5 lg:grid-cols-[380px_1fr]">
+          <div className="rounded-2xl bg-black/55 backdrop-blur-md border border-white/10 p-6 h-[420px] animate-pulse" />
+          <div className="rounded-2xl bg-black/55 backdrop-blur-md border border-white/10 p-6 h-[420px] animate-pulse" />
         </div>
       </main>
     );
@@ -189,24 +219,26 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <main className="min-h-screen pb-28 relative isolate overflow-hidden grid place-items-center">
+      <main className="min-h-[calc(100vh-64px)] relative isolate overflow-hidden grid place-items-center py-14">
         <div className="absolute inset-0 -z-20 pointer-events-none">
           <img
             src="/images/hero-bg.jpg"
             alt="Background"
-            className="h-full w-full scale-105 object-cover blur-[4px] brightness-90"
+            className="h-full w-full scale-105 object-cover"
           />
         </div>
-        <div className="absolute inset-0 -z-10 bg-black/70 pointer-events-none" />
+        <div className="absolute inset-0 -z-10 bg-black/45 pointer-events-none" />
+        <div className="hero-vignette absolute inset-0 -z-10 pointer-events-none" />
+        <div className="grid-lines absolute inset-0 -z-10 opacity-50 pointer-events-none" />
 
-        <div className="rounded-3xl bg-black/80 backdrop-blur-xl border border-white/15 p-10 text-center space-y-4 max-w-md mx-auto shadow-2xl">
+        <div className="hero-content-card rounded-2xl bg-black/55 backdrop-blur-md border border-white/15 p-8 sm:p-10 text-center space-y-4 max-w-md mx-auto shadow-2xl">
           <h2 className="heading text-2xl text-white">Потрібна авторизація</h2>
-          <p className="text-xs text-stone-400">
+          <p className="text-xs text-stone-300 leading-relaxed">
             Увійдіть через Steam, щоб переглянути свій особистий профіль та історію покупок.
           </p>
           <Link
             href="/login"
-            className="btn inline-flex items-center justify-center w-full !min-h-12 rounded-xl text-xs uppercase tracking-widest shadow-lg"
+            className="btn inline-flex items-center justify-center w-full !min-h-11 rounded-xl text-xs uppercase tracking-widest shadow-lg"
           >
             Увійти через Steam
           </Link>
@@ -216,291 +248,261 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="min-h-screen pb-28 relative isolate overflow-hidden">
+    <main className="min-h-[calc(100vh-64px)] py-8 sm:py-10 relative isolate overflow-hidden">
       <div className="absolute inset-0 -z-20 pointer-events-none">
         <img
           src="/images/hero-bg.jpg"
           alt="Outland DayZ Background"
-          className="h-full w-full scale-105 object-cover blur-[4px] brightness-90"
+          className="h-full w-full scale-105 object-cover"
         />
       </div>
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/40 to-black/80 pointer-events-none" />
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-[#b6c980]/10 blur-[140px] rounded-full pointer-events-none -z-10" />
-
+      <div className="absolute inset-0 -z-10 bg-black/35 pointer-events-none" />
       <div className="hero-vignette absolute inset-0 -z-10 pointer-events-none" />
-      <div className="grid-lines absolute inset-0 -z-10 opacity-40 pointer-events-none" />
+      <div className="grid-lines absolute inset-0 -z-10 opacity-50 pointer-events-none" />
 
-      <div className="shell mt-10 sm:mt-14 max-w-5xl space-y-6">
-        <div className="relative rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 shadow-2xl shadow-[#b6c980]/5 animate-enter flex flex-wrap items-center justify-between gap-6 overflow-hidden group">
-          <div className="absolute -right-24 -top-24 w-64 h-64 bg-[#b6c980]/5 blur-3xl rounded-full pointer-events-none group-hover:bg-[#b6c980]/10 transition duration-700" />
+      <div className="shell max-w-6xl">
+        <div className="grid gap-5 lg:grid-cols-[380px_1fr] items-start">
+          {/* Ліва колонка: Профіль + Баланс + Поповнення та Промокод */}
+          <div className="space-y-4">
+            {/* Картка гравця та статусу */}
+            <section className="hero-content-card rounded-2xl bg-black/55 backdrop-blur-md border border-white/12 p-5 shadow-2xl">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  {user.avatar ? (
+                    <Image
+                      src={user.avatar}
+                      width={56}
+                      height={56}
+                      alt="Steam avatar"
+                      unoptimized
+                      className="h-14 w-14 shrink-0 rounded-xl border border-[#b6c980]/40 object-cover"
+                    />
+                  ) : (
+                    <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#1c2413] text-xl font-bold text-[#b6c980] border border-[#b6c980]/40">
+                      {user.name ? user.name.slice(0, 1) : "U"}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <h1 className="heading truncate text-2xl text-[#f2f5e9] leading-none">{user.name}</h1>
+                    <button
+                      onClick={handleCopySteamId}
+                      title="Скопіювати Steam ID"
+                      className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-mono text-stone-400 hover:text-[#b6c980] transition cursor-pointer"
+                    >
+                      <span>ID: {user.steamId}</span>
+                      {copiedCode === "steam" ? (
+                        <Check size={12} className="text-[#b6c980]" />
+                      ) : (
+                        <Copy size={12} className="opacity-70" />
+                      )}
+                    </button>
+                  </div>
+                </div>
 
-          <div className="flex items-center gap-5 min-w-0 relative z-10">
-            {user.avatar ? (
-              <Image
-                src={user.avatar}
-                width={76}
-                height={76}
-                alt="Steam avatar"
-                unoptimized
-                className="h-19 w-19 shrink-0 rounded-2xl border border-[#b6c980]/40 object-cover shadow-xl shadow-[#b6c980]/10"
-              />
-            ) : (
-              <div className="grid h-19 w-19 shrink-0 place-items-center rounded-2xl bg-[#1c2413] text-2xl font-bold text-[#b6c980] border border-[#b6c980]/40 shadow-xl shadow-[#b6c980]/10">
-                {user.name ? user.name.slice(0, 1) : "U"}
-              </div>
-            )}
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="inline-block h-2 w-2 rounded-full bg-[#b6c980] animate-pulse" />
-                <p className="eyebrow text-[#b6c980] tracking-widest">Особистий файл · Steam Secure</p>
-              </div>
-              <h1 className="heading truncate text-2xl sm:text-3xl text-[#f2f5e9] mt-1">{user.name}</h1>
-              <div className="flex items-center gap-2 mt-1">
-                <ShieldCheck size={13} className="text-[#b6c980]" />
-                <p className="truncate text-xs text-stone-400 font-mono">ID: {user.steamId}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 relative z-10">
-            <Link
-              href="/profile/settings"
-              className="btn btn-outline !min-h-11 px-5 rounded-xl text-xs uppercase tracking-wider inline-flex items-center gap-2 border-white/20 hover:bg-white/10 hover:border-[#b6c980] transition shadow-lg"
-            >
-              <Settings size={15} /> Налаштування
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="btn border-red-500/30 bg-transparent text-[#f0b3aa] hover:bg-red-500/20 !min-h-11 px-5 rounded-xl text-xs uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer transition shadow-lg"
-            >
-              <LogOut size={15} /> Вийти
-            </button>
-          </div>
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-3">
-          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-5 shadow-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#b6c980] hover:shadow-[#b6c980]/15 group animate-enter delay-1">
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30 shadow-lg group-hover:scale-110 transition duration-300">
-              <Coins size={22} />
-            </div>
-            <div>
-              <p className="eyebrow text-[#b6c980]">Баланс</p>
-              <p className="mt-0.5 text-xl font-bold font-mono text-[#b6c980]">{balance} ₴</p>
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-5 shadow-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#d9ca72] hover:shadow-[#d9ca72]/15 group animate-enter delay-1">
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#282512] text-[#d9ca72] border border-[#d9ca72]/30 shadow-lg group-hover:scale-110 transition duration-300">
-              <Crown size={22} />
-            </div>
-            <div>
-              <p className="eyebrow text-[#d9ca72]">VIP статус</p>
-              <p className="mt-0.5 text-base font-bold text-stone-200">{vipLabel}</p>
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-5 shadow-2xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#b6c980] hover:shadow-[#b6c980]/15 group animate-enter delay-1">
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30 shadow-lg group-hover:scale-110 transition duration-300">
-              <Bell size={22} />
-            </div>
-            <div>
-              <p className="eyebrow text-[#b6c980]">Повідомлень</p>
-              <p className="mt-0.5 text-xl font-bold text-white font-mono">0</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-7 shadow-2xl flex flex-col justify-between transition duration-300 hover:border-white/30 animate-enter delay-2">
-            <div>
-              <div className="flex items-center gap-2.5 text-[#b6c980] mb-3">
-                <Ticket size={22} />
-                <h3 className="font-bold text-white text-base tracking-wide">Промокод</h3>
-              </div>
-              <p className="text-xs text-stone-400 mb-5 leading-relaxed">
-                Введіть акційний код для миттєвого зарахування бонусів на ігровий рахунок.
-              </p>
-
-              <div className="flex gap-2.5">
-                <input
-                  type="text"
-                  placeholder="ВВЕДІТЬ КОД"
-                  value={promo}
-                  onChange={(e) => setPromo(e.target.value)}
-                  className="w-full rounded-xl bg-black/50 border border-white/15 px-4 py-3.5 text-xs uppercase tracking-wider text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition shadow-inner"
-                />
-                <button
-                  onClick={async () => {
-                    if (!promo.trim()) {
-                      alert("Введіть промокод!");
-                      return;
-                    }
-                    try {
-                      const res = await fetch("/api/promocodes/activate", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ code: promo }),
-                      });
-                      const data = await res.json();
-                      if (!res.ok) {
-                        alert(data.error || "Помилка активації промокоду");
-                        return;
-                      }
-                      const nextBalance = balance + (Number(data.amount) || 0);
-                      setBalance(nextBalance);
-                      if (user) {
-                        saveCachedProfile({
-                          savedAt: Date.now(),
-                          user,
-                          balance: nextBalance,
-                          vipLabel,
-                          orders,
-                        });
-                      }
-                      setPromo("");
-                      alert(`Успішно! На ваш баланс зараховано ${data.amount} ₴`);
-                      void refreshProfile().then((updated) => {
-                        if (updated) {
-                          setBalance(updated.balance);
-                          setVipLabel(updated.vipLabel);
-                          setOrders(updated.orders);
-                        }
-                      });
-                    } catch {
-                      alert("Помилка мережі");
-                    }
-                  }}
-                  className="btn rounded-xl px-6 text-xs uppercase tracking-widest shrink-0 cursor-pointer shadow-lg shadow-[#b6c980]/10 hover:scale-[1.02] transition"
-                >
-                  Активувати
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-stone-400">
-              <span>
-                Steam ID: <b className="text-white font-mono">{user.steamId}</b>
-              </span>
-              <button
-                onClick={handleCopySteamId}
-                className="inline-flex items-center gap-1.5 text-[#b6c980] hover:text-white transition cursor-pointer font-medium"
-              >
-                <Copy size={13} /> {copiedCode === "steam" ? "Скопійовано!" : "Копіювати"}
-              </button>
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-7 shadow-2xl flex flex-col justify-between transition duration-300 hover:border-white/30 animate-enter delay-2">
-            <div>
-              <div className="flex items-center gap-2.5 text-[#b6c980] mb-3">
-                <CreditCard size={22} />
-                <h3 className="font-bold text-white text-base tracking-wide">Поповнити баланс (Monobank)</h3>
-              </div>
-              <p className="text-xs text-stone-400 mb-5 leading-relaxed">
-                Перехід на захищену сторінку оплати Monobank для поповнення рахунку.
-              </p>
-
-              <div className="flex gap-2.5">
-                <input
-                  type="number"
-                  placeholder="Сума, ₴"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-xl bg-black/50 border border-white/15 px-4 py-3.5 text-xs text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition font-mono shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-                <button
-                  onClick={handleTopUp}
-                  className="btn rounded-xl px-6 text-xs uppercase tracking-widest shrink-0 cursor-pointer shadow-lg shadow-[#b6c980]/10 hover:scale-[1.02] transition"
-                >
-                  Поповнити
-                </button>
-              </div>
-            </div>
-
-            <p className="mt-5 text-[11px] text-stone-500 leading-relaxed pt-3 border-t border-white/10">
-              <b className="text-stone-300">Важливо:</b> у коментарі до платежу автоматично підтягнеться ваш Steam ID
-              для зарахування коштів.
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-2xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 shadow-2xl animate-enter delay-3 transition duration-300 hover:border-white/30">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <p className="eyebrow text-[#b6c980]">Логи транзакцій</p>
-              <h3 className="heading text-2xl text-white mt-1">Історія покупок</h3>
-            </div>
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30 shadow-md">
-              <ShoppingBag size={20} />
-            </div>
-          </div>
-
-          {orders.length > 0 ? (
-            <div className="max-h-[520px] overflow-y-auto space-y-4 pr-2 custom-scrollbar">
-              {orders.map((order) => {
-                const displayCode = order.code || "OUT-7492-X9M1";
-                const fullCommand = `!code ${displayCode}`;
-
-                return (
-                  <div
-                    key={order.id}
-                    className="rounded-xl bg-black/50 border border-white/10 p-5 space-y-4 shadow-inner transition hover:border-[#b6c980]/40"
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <Link
+                    href="/profile/settings"
+                    title="Налаштування"
+                    aria-label="Налаштування"
+                    className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-stone-300 hover:border-[#b6c980]/50 hover:text-white transition"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="text-[#b6c980]" size={16} />
-                        <span className="font-mono text-sm font-bold text-white">{order.id}</span>
-                      </div>
+                    <Settings size={15} />
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    title="Вийти з акаунта"
+                    aria-label="Вийти з акаунта"
+                    className="grid h-9 w-9 place-items-center rounded-xl border border-red-500/25 bg-red-500/10 text-[#f0b3aa] hover:bg-red-500/20 transition cursor-pointer"
+                  >
+                    <LogOut size={15} />
+                  </button>
+                </div>
+              </div>
 
-                      <div className="flex flex-wrap items-center gap-3">
-                        <div className="bg-[#1c2413] px-3 py-1.5 rounded-xl border border-[#b6c980]/30 flex items-center gap-2 shadow-sm">
-                          <Terminal size={14} className="text-[#b6c980]" />
-                          <span className="font-mono text-xs font-bold text-[#b6c980]">{fullCommand}</span>
+              {/* Компактна панель Баланс + VIP */}
+              <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-2.5">
+                <div className="rounded-xl bg-black/45 border border-white/10 px-3.5 py-2.5 flex items-center gap-3">
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/25">
+                    <Coins size={17} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold">Баланс</p>
+                    <p className="text-base font-bold font-mono text-[#b6c980] truncate">{balance} ₴</p>
+                  </div>
+                </div>
+
+                <Link
+                  href="/vip"
+                  className="rounded-xl bg-black/45 border border-white/10 px-3.5 py-2.5 flex items-center gap-3 hover:border-[#d9ca72]/40 transition"
+                >
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#282512] text-[#d9ca72] border border-[#d9ca72]/25">
+                    <Crown size={17} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold">Статус</p>
+                    <p className="text-sm font-bold text-stone-100 truncate">{vipLabel}</p>
+                  </div>
+                </Link>
+              </div>
+            </section>
+
+            {/* Картка фінансів: Поповнення + Промокод в одному компактному блоці */}
+            <section className="hero-content-card rounded-2xl bg-black/55 backdrop-blur-md border border-white/12 p-5 shadow-2xl space-y-5">
+              {/* Поповнення Monobank */}
+              <div>
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white">
+                    <CreditCard size={15} className="text-[#b6c980]" />
+                    Поповнення балансу
+                  </span>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400">Monobank</span>
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Сума, ₴"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="w-full h-10 rounded-xl bg-black/50 border border-white/12 px-3.5 text-xs text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <button
+                    onClick={handleTopUp}
+                    className="btn !min-h-10 h-10 rounded-xl !px-4 text-xs uppercase tracking-wider shrink-0 cursor-pointer"
+                  >
+                    Поповнити <ArrowUpRight size={14} />
+                  </button>
+                </div>
+
+                <div className="mt-2 flex items-center justify-between gap-1.5">
+                  <div className="flex items-center gap-1.5">
+                    {[50, 100, 250, 500].map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setAmount(String(preset))}
+                        className="rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] font-mono text-stone-300 hover:border-[#b6c980]/50 hover:text-[#b6c980] transition cursor-pointer"
+                      >
+                        +{preset}
+                      </button>
+                    ))}
+                  </div>
+                  <span className="text-[10px] text-stone-500">Steam ID додається автоматично</span>
+                </div>
+              </div>
+
+              {/* Промокод */}
+              <div className="pt-4 border-t border-white/10">
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white">
+                    <Ticket size={15} className="text-[#b6c980]" />
+                    Промокод
+                  </span>
+                  <span className="text-[10px] text-stone-400">Бонус на рахунок</span>
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="ВВЕДІТЬ КОД"
+                    value={promo}
+                    onChange={(e) => setPromo(e.target.value)}
+                    className="w-full h-10 rounded-xl bg-black/50 border border-white/12 px-3.5 text-xs uppercase tracking-wider text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition font-mono"
+                  />
+                  <button
+                    onClick={handleActivatePromo}
+                    className="btn btn-outline !min-h-10 h-10 rounded-xl !px-4 text-xs uppercase tracking-wider shrink-0 cursor-pointer hover:border-[#b6c980]"
+                  >
+                    Активувати
+                  </button>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* Права колонка: Історія покупок */}
+          <section className="hero-content-card rounded-2xl bg-black/55 backdrop-blur-md border border-white/12 p-5 sm:p-6 shadow-2xl">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30">
+                  <ShoppingBag size={18} />
+                </div>
+                <div>
+                  <h2 className="heading text-2xl text-white leading-none">Історія покупок</h2>
+                  <p className="mt-1 text-[11px] text-stone-400">
+                    Скопіюйте команду <code className="text-[#b6c980] font-mono">!code</code> та введіть її у чат на сервері для видачі
+                  </p>
+                </div>
+              </div>
+
+              <span className="rounded-xl bg-black/45 border border-white/10 px-3 py-1.5 text-xs font-mono text-stone-300">
+                Замовлень: <b className="text-[#b6c980]">{orders.length}</b>
+              </span>
+            </div>
+
+            {orders.length > 0 ? (
+              <div className="mt-4 max-h-[460px] overflow-y-auto space-y-3 pr-1 custom-scrollbar">
+                {orders.map((order) => {
+                  const displayCode = order.code || "OUT-7492-X9M1";
+                  const fullCommand = `!code ${displayCode}`;
+
+                  return (
+                    <div
+                      key={order.id}
+                      className="rounded-xl bg-black/45 border border-white/10 p-4 transition hover:border-[#b6c980]/35"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-white/8">
+                        <div className="flex items-center gap-2.5">
+                          <CheckCircle2 className="text-[#b6c980] shrink-0" size={15} />
+                          <span className="font-mono text-xs font-bold text-white">{order.id}</span>
+                          <span className="text-stone-600">·</span>
+                          <span className="inline-flex items-center gap-1 text-[11px] text-stone-400">
+                            <Calendar size={12} /> {order.date}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleCopyCode(displayCode)}
-                            className="ml-2 text-[10px] uppercase bg-[#2b381c] hover:bg-[#384925] text-[#b6c980] px-2 py-0.5 rounded transition cursor-pointer font-bold"
+                            className="inline-flex items-center gap-2 rounded-lg bg-[#1c2413] hover:bg-[#263119] border border-[#b6c980]/30 px-2.5 py-1 text-xs font-mono text-[#b6c980] transition cursor-pointer"
+                            title="Скопіювати команду видачі"
                           >
-                            {copiedCode === displayCode ? "Скопійовано!" : "Копіювати"}
+                            <Terminal size={12} />
+                            <span className="font-bold">{fullCommand}</span>
+                            <span className="rounded bg-black/40 px-1.5 py-0.5 text-[10px] uppercase font-sans font-bold text-[#dce8b3]">
+                              {copiedCode === displayCode ? "Скопійовано" : "Копіювати"}
+                            </span>
                           </button>
                         </div>
+                      </div>
 
-                        <div className="flex items-center gap-1.5 text-xs text-stone-400">
-                          <Calendar size={14} /> {order.date}
-                        </div>
+                      <div className="mt-2.5 space-y-1.5">
+                        {order.items.map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-xs">
+                            <span className="text-stone-300 truncate pr-3">{item.name}</span>
+                            <span className="font-mono text-stone-400 shrink-0">{item.price} ₴</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-2.5 pt-2 border-t border-white/8 flex items-center justify-between text-xs">
+                        <span className="text-stone-500">Разом:</span>
+                        <span className="font-mono font-bold text-[#b6c980]">{order.total} ₴</span>
                       </div>
                     </div>
-
-                    <div className="bg-white/5 rounded-lg p-2.5 border border-white/5 text-[11px] text-stone-400 flex items-center gap-2">
-                      <span className="text-[#b6c980] font-bold">💡 Підказка:</span>
-                      <span>
-                        Скопіюйте цю команду та введіть її у загальний або ігровий чат на сервері Outland DayZ, щоб
-                        отримати придбані предмети.
-                      </span>
-                    </div>
-
-                    <div className="grid gap-2 pt-1">
-                      {order.items.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-sm">
-                          <span className="text-stone-300">{item.name}</span>
-                          <span className="font-mono text-[#b6c980] font-bold">{item.price} ₴</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between pt-3 border-t border-white/10 text-sm font-bold">
-                      <span className="text-stone-400 uppercase tracking-wider text-xs">Загальна сума:</span>
-                      <span className="font-mono text-base text-[#b6c980]">{order.total} ₴</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="rounded-xl bg-black/50 border border-white/10 p-10 text-center text-stone-400 text-sm shadow-inner flex flex-col items-center justify-center gap-3">
-              <ShoppingBag size={28} className="text-stone-600" />
-              <p>У вас поки немає історії покупок. Зробіть перше замовлення в магазині!</p>
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="mt-4 rounded-xl bg-black/40 border border-white/8 p-10 text-center text-stone-400 text-xs flex flex-col items-center justify-center gap-3">
+                <ShoppingBag size={24} className="text-stone-500" />
+                <p>У вас поки немає замовлень.</p>
+                <Link href="/shop" className="btn !min-h-9 rounded-xl !px-4 text-[11px]">
+                  Перейти в магазин
+                </Link>
+              </div>
+            )}
+          </section>
         </div>
       </div>
     </main>
