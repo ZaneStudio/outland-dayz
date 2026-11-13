@@ -20,7 +20,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[560px] h-[320px] bg-[#b6c980]/10 blur-[130px] rounded-full pointer-events-none -z-10" />
 
       <div className="shell relative z-10 w-full flex justify-center">
-        <section className="hero-content-card w-full max-w-md rounded-3xl bg-black/50 p-8 sm:p-10 backdrop-blur-md border border-white/15 shadow-2xl text-center">
+        <section className="hero-content-card w-full max-w-md rounded-2xl bg-black/50 p-8 sm:p-10 backdrop-blur-md border border-white/10 shadow-2xl text-center">
           <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/40 shadow-xl shadow-[#b6c980]/10 mb-5 animate-enter">
             <Gamepad2 size={30} />
           </div>
@@ -56,7 +56,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
 
             <Link
               href="/"
-              className="btn btn-outline w-full !min-h-11 rounded-xl text-xs uppercase tracking-wider border-white/15 hover:border-[#b6c980]"
+              className="btn btn-outline w-full !min-h-11 rounded-xl text-xs uppercase tracking-wider border-white/10 hover:border-[#b6c980]"
             >
               <ArrowLeft size={15} /> Повернутися на головну
             </Link>

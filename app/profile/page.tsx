@@ -210,8 +210,8 @@ export default function ProfilePage() {
         <div className="grid-lines absolute inset-0 -z-10 opacity-50 pointer-events-none" />
 
         <div className="shell max-w-6xl grid gap-5 lg:grid-cols-[380px_1fr]">
-          <div className="rounded-2xl bg-black/55 backdrop-blur-md border border-white/10 p-6 h-[420px] animate-pulse" />
-          <div className="rounded-2xl bg-black/55 backdrop-blur-md border border-white/10 p-6 h-[420px] animate-pulse" />
+          <div className="rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 p-6 h-[420px] animate-pulse" />
+          <div className="rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 p-6 h-[420px] animate-pulse" />
         </div>
       </main>
     );
@@ -231,7 +231,7 @@ export default function ProfilePage() {
         <div className="hero-vignette absolute inset-0 -z-10 pointer-events-none" />
         <div className="grid-lines absolute inset-0 -z-10 opacity-50 pointer-events-none" />
 
-        <div className="hero-content-card rounded-2xl bg-black/55 backdrop-blur-md border border-white/15 p-8 sm:p-10 text-center space-y-4 max-w-md mx-auto shadow-2xl">
+        <div className="hero-content-card rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 p-8 sm:p-10 text-center space-y-4 max-w-md mx-auto shadow-2xl">
           <h2 className="heading text-2xl text-white">Потрібна авторизація</h2>
           <p className="text-xs text-stone-300 leading-relaxed">
             Увійдіть через Steam, щоб переглянути свій особистий профіль та історію покупок.
@@ -265,7 +265,7 @@ export default function ProfilePage() {
           {/* Ліва колонка: Профіль + Баланс + Поповнення та Промокод */}
           <div className="space-y-4">
             {/* Картка гравця та статусу */}
-            <section className="hero-content-card rounded-2xl bg-black/55 backdrop-blur-md border border-white/12 p-5 shadow-2xl">
+            <section className="hero-content-card rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 p-5 shadow-2xl">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3.5 min-w-0">
                   {user.avatar ? (
@@ -304,7 +304,7 @@ export default function ProfilePage() {
                     href="/profile/settings"
                     title="Налаштування"
                     aria-label="Налаштування"
-                    className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-stone-300 hover:border-[#b6c980]/50 hover:text-white transition"
+                    className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-stone-300 hover:border-[#b6c980]/50 hover:text-white transition"
                   >
                     <Settings size={15} />
                   </Link>
@@ -321,7 +321,7 @@ export default function ProfilePage() {
 
               {/* Компактна панель Баланс + VIP */}
               <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 gap-2.5">
-                <div className="rounded-xl bg-black/45 border border-white/10 px-3.5 py-2.5 flex items-center gap-3">
+                <div className="rounded-xl bg-black/40 border border-white/10 px-3.5 py-2.5 flex items-center gap-3">
                   <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/25">
                     <Coins size={17} />
                   </div>
@@ -333,7 +333,7 @@ export default function ProfilePage() {
 
                 <Link
                   href="/vip"
-                  className="rounded-xl bg-black/45 border border-white/10 px-3.5 py-2.5 flex items-center gap-3 hover:border-[#d9ca72]/40 transition"
+                  className="rounded-xl bg-black/40 border border-white/10 px-3.5 py-2.5 flex items-center gap-3 hover:border-[#d9ca72]/40 transition"
                 >
                   <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#282512] text-[#d9ca72] border border-[#d9ca72]/25">
                     <Crown size={17} />
@@ -347,7 +347,7 @@ export default function ProfilePage() {
             </section>
 
             {/* Картка фінансів: Поповнення + Промокод в одному компактному блоці */}
-            <section className="hero-content-card rounded-2xl bg-black/55 backdrop-blur-md border border-white/12 p-5 shadow-2xl space-y-5">
+            <section className="hero-content-card rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 p-5 shadow-2xl space-y-5">
               {/* Поповнення Monobank */}
               <div>
                 <div className="flex items-center justify-between mb-2.5">
@@ -364,7 +364,7 @@ export default function ProfilePage() {
                     placeholder="Сума, ₴"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full h-10 rounded-xl bg-black/50 border border-white/12 px-3.5 text-xs text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full h-10 rounded-xl bg-black/40 border border-white/10 px-3.5 text-xs text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <button
                     onClick={handleTopUp}
@@ -381,7 +381,7 @@ export default function ProfilePage() {
                         key={preset}
                         type="button"
                         onClick={() => setAmount(String(preset))}
-                        className="rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] font-mono text-stone-300 hover:border-[#b6c980]/50 hover:text-[#b6c980] transition cursor-pointer"
+                        className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-mono text-stone-300 hover:border-[#b6c980]/50 hover:text-[#b6c980] transition cursor-pointer"
                       >
                         +{preset}
                       </button>
@@ -407,7 +407,7 @@ export default function ProfilePage() {
                     placeholder="ВВЕДІТЬ КОД"
                     value={promo}
                     onChange={(e) => setPromo(e.target.value)}
-                    className="w-full h-10 rounded-xl bg-black/50 border border-white/12 px-3.5 text-xs uppercase tracking-wider text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition font-mono"
+                    className="w-full h-10 rounded-xl bg-black/40 border border-white/10 px-3.5 text-xs uppercase tracking-wider text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition font-mono"
                   />
                   <button
                     onClick={handleActivatePromo}
@@ -421,7 +421,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Права колонка: Історія покупок */}
-          <section className="hero-content-card rounded-2xl bg-black/55 backdrop-blur-md border border-white/12 p-5 sm:p-6 shadow-2xl">
+          <section className="hero-content-card rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 p-5 sm:p-6 shadow-2xl">
             <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10">
               <div className="flex items-center gap-3">
                 <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30">
@@ -435,7 +435,7 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <span className="rounded-xl bg-black/45 border border-white/10 px-3 py-1.5 text-xs font-mono text-stone-300">
+              <span className="rounded-xl bg-black/40 border border-white/10 px-3 py-1.5 text-xs font-mono text-stone-300">
                 Замовлень: <b className="text-[#b6c980]">{orders.length}</b>
               </span>
             </div>
@@ -449,9 +449,9 @@ export default function ProfilePage() {
                   return (
                     <div
                       key={order.id}
-                      className="rounded-xl bg-black/45 border border-white/10 p-4 transition hover:border-[#b6c980]/35"
+                      className="rounded-xl bg-black/40 border border-white/10 p-4 transition hover:border-[#b6c980]/35"
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-white/8">
+                      <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-white/10">
                         <div className="flex items-center gap-2.5">
                           <CheckCircle2 className="text-[#b6c980] shrink-0" size={15} />
                           <span className="font-mono text-xs font-bold text-white">{order.id}</span>
@@ -485,7 +485,7 @@ export default function ProfilePage() {
                         ))}
                       </div>
 
-                      <div className="mt-2.5 pt-2 border-t border-white/8 flex items-center justify-between text-xs">
+                      <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between text-xs">
                         <span className="text-stone-500">Разом:</span>
                         <span className="font-mono font-bold text-[#b6c980]">{order.total} ₴</span>
                       </div>
@@ -494,7 +494,7 @@ export default function ProfilePage() {
                 })}
               </div>
             ) : (
-              <div className="mt-4 rounded-xl bg-black/40 border border-white/8 p-10 text-center text-stone-400 text-xs flex flex-col items-center justify-center gap-3">
+              <div className="mt-4 rounded-xl bg-black/40 border border-white/10 p-10 text-center text-stone-400 text-xs flex flex-col items-center justify-center gap-3">
                 <ShoppingBag size={24} className="text-stone-500" />
                 <p>У вас поки немає замовлень.</p>
                 <Link href="/shop" className="btn !min-h-9 rounded-xl !px-4 text-[11px]">

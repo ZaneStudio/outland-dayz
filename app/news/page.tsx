@@ -17,15 +17,15 @@ export default async function NewsPage() {
           className="h-full w-full scale-105 object-cover blur-[4px] brightness-90"
         />
       </div>
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/45 to-black/85 pointer-events-none" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/40 to-black/80 pointer-events-none" />
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[720px] h-[320px] bg-[#b6c980]/10 blur-[140px] rounded-full pointer-events-none -z-10" />
 
       <div className="hero-vignette absolute inset-0 -z-10 pointer-events-none" />
-      <div className="grid-lines absolute inset-0 -z-10 opacity-45 pointer-events-none" />
+      <div className="grid-lines absolute inset-0 -z-10 opacity-50 pointer-events-none" />
 
       <div className="shell mt-10 sm:mt-14 max-w-5xl space-y-8">
         {/* Верхня шапка розділу новин */}
-        <section className="relative rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 p-6 sm:p-8 lg:p-10 shadow-2xl shadow-[#b6c980]/5 animate-enter flex flex-wrap items-center justify-between gap-6 overflow-hidden group">
+        <section className="hero-content-card relative rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 p-6 sm:p-8 lg:p-10 shadow-2xl flex flex-wrap items-center justify-between gap-6 overflow-hidden group">
           <div className="absolute -right-24 -top-24 w-64 h-64 bg-[#b6c980]/10 blur-3xl rounded-full pointer-events-none group-hover:bg-[#b6c980]/15 transition duration-700" />
 
           <div className="flex items-start sm:items-center gap-5 min-w-0 relative z-10">
@@ -61,7 +61,7 @@ export default async function NewsPage() {
 
         {/* Сітка новин */}
         {news.length === 0 ? (
-          <div className="rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 p-12 text-center text-stone-400 shadow-2xl animate-enter delay-1 flex flex-col items-center gap-3">
+          <div className="hero-content-card rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 p-12 text-center text-stone-400 shadow-2xl flex flex-col items-center gap-3">
             <Newspaper size={32} className="text-stone-600" />
             <p className="text-base font-bold text-stone-300">Новин поки немає</p>
             <p className="text-xs text-stone-500">Слідкуйте за оновленнями — незабаром тут з’являться перші анонси.</p>
@@ -72,7 +72,7 @@ export default async function NewsPage() {
               <article
                 key={item.id}
                 id={item.slug}
-                className="group relative rounded-3xl bg-black/60 backdrop-blur-xl border border-white/15 overflow-hidden shadow-2xl flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:border-[#b6c980]/50 hover:shadow-[#b6c980]/10 animate-enter delay-1"
+                className="hero-content-card group relative rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 overflow-hidden shadow-2xl flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:border-[#b6c980]/40"
               >
                 <div>
                   {item.image ? (
@@ -83,12 +83,12 @@ export default async function NewsPage() {
                         decoding="async"
                         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
                       <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2">
-                        <span className="rounded-xl bg-black/65 backdrop-blur-md border border-white/15 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-widest text-[#b6c980]">
+                        <span className="rounded-xl bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-widest text-[#b6c980]">
                           Новина #{String(index + 1).padStart(2, "0")}
                         </span>
-                        <span className="rounded-xl bg-black/65 backdrop-blur-md border border-white/15 px-3 py-1 text-[11px] font-medium text-stone-200 inline-flex items-center gap-1.5">
+                        <span className="rounded-xl bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1 text-[11px] font-medium text-stone-200 inline-flex items-center gap-1.5">
                           <Calendar size={12} className="text-[#b6c980]" />
                           {item.date}
                         </span>
