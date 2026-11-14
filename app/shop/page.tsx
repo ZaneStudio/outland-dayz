@@ -1,6 +1,6 @@
 "use client";
 
-import { Coins, Search } from "lucide-react";
+import { Coins, Search, SlidersHorizontal } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/data";
 import { ProductCard } from "@/components/product-card";
@@ -93,51 +93,37 @@ export default function Shop() {
   );
 
   return (
-    <main className="min-h-screen pb-24">
-      <section className="relative isolate overflow-hidden border-b border-white/10 py-8 sm:py-10">
-        <div className="absolute inset-0 -z-20">
-          <img
-            src="/images/hero-bg.jpg"
-            alt="Outland DayZ Background"
-            className="h-full w-full scale-105 object-cover"
-          />
-        </div>
+    <main className="min-h-screen pb-24 relative isolate overflow-hidden">
+      {/* Розмитий атмосферний фон на всю сторінку магазину */}
+      <div className="fixed inset-0 -z-20 pointer-events-none">
+        <img
+          src="/images/hero-bg.jpg"
+          alt="Outland DayZ Background"
+          style={{ filter: "blur(6px) brightness(0.8)" }}
+          className="h-full w-full scale-105 object-cover"
+        />
+      </div>
+      <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+      <div className="hero-vignette fixed inset-0 -z-10 pointer-events-none" />
+      <div className="grid-lines fixed inset-0 -z-10 opacity-50 pointer-events-none" />
 
-        <div className="absolute inset-0 -z-10 bg-black/40" />
-        <div className="hero-vignette absolute inset-0 -z-10" />
-        <div className="grid-lines absolute inset-0 -z-10 opacity-60" />
-
-        <div className="shell relative z-10 flex items-center justify-end">
-          {user && (
-            <div className="rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 flex min-w-52 items-center gap-3 px-5 py-3 shadow-xl">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#2a351b] text-[#d8ec9a] border border-white/5">
-                <Coins size={18} />
-              </span>
-              <div>
-                <p className="eyebrow">Ваш баланс</p>
-                <p className="mt-0.5 text-lg font-bold text-[#d8ec9a]">{balance === null ? "…" : `${balance} ₴`}</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <div className="shell mt-6 sm:mt-8">
-        <div className="rounded-2xl bg-black/50 p-4 sm:p-6 backdrop-blur-md border border-white/10 shadow-xl grid gap-4 md:grid-cols-[1fr_auto_auto]">
-          <div className="relative w-full">
+      <div className="shell pt-8 sm:pt-10">
+        {/* Панель пошуку, фільтрів та балансу */}
+        <div className="hero-content-card rounded-2xl bg-black/50 p-4 sm:p-5 backdrop-blur-md border border-white/10 shadow-2xl flex flex-wrap items-center gap-3.5">
+          <div className="relative flex-1 min-w-[240px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-stone-500 outline-none focus:border-[#b6c980] transition"
-              placeholder="Пошук предмету..."
+              className="w-full h-11 bg-black/40 border border-white/10 rounded-xl pl-11 pr-4 text-sm text-white placeholder-stone-400 outline-none focus:border-[#b6c980] transition"
+              placeholder="Пошук предмету за назвою..."
             />
           </div>
 
           <select
             value={cat}
             onChange={(e) => setCat(e.target.value)}
-            className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-stone-300 outline-none focus:border-[#b6c980] transition cursor-pointer"
+            className="h-11 bg-black/40 border border-white/10 rounded-xl px-4 text-xs font-bold uppercase tracking-wider text-stone-200 outline-none focus:border-[#b6c980] transition cursor-pointer"
           >
             {cats.map((x) => (
               <option key={x} value={x} className="bg-neutral-900 text-white">
@@ -149,7 +135,7 @@ export default function Shop() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-stone-300 outline-none focus:border-[#b6c980] transition cursor-pointer"
+            className="h-11 bg-black/40 border border-white/10 rounded-xl px-4 text-xs font-bold uppercase tracking-wider text-stone-200 outline-none focus:border-[#b6c980] transition cursor-pointer"
           >
             <option value="popular" className="bg-neutral-900 text-white">
               За популярністю
@@ -158,17 +144,38 @@ export default function Shop() {
               Від дешевших
             </option>
           </select>
+
+          {user && (
+            <div className="h-11 rounded-xl bg-[#1c2413]/90 border border-[#b6c980]/30 flex items-center gap-2.5 px-4 shadow-lg">
+              <Coins size={17} className="text-[#b6c980] shrink-0" />
+              <span className="text-xs text-stone-300">Баланс:</span>
+              <b className="font-mono text-sm font-extrabold text-[#dce8b3]">
+                {balance === null ? "…" : `${balance} ₴`}
+              </b>
+            </div>
+          )}
         </div>
 
         {products === null ? (
-          <div className="rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 mt-6 animate-pulse p-12 text-center text-stone-500 shadow-xl">
+          <div className="hero-content-card rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 mt-6 animate-pulse p-12 text-center text-stone-400 shadow-xl">
             Завантаження товарів...
           </div>
         ) : (
           <>
-            <p className="mt-8 text-sm text-stone-400">
-              Знайдено товарів: <span className="text-white font-bold">{view.length}</span>
-            </p>
+            <div className="mt-5 flex items-center justify-between text-xs text-stone-300 px-1">
+              <span className="inline-flex items-center gap-2">
+                <SlidersHorizontal size={13} className="text-[#b6c980]" />
+                Знайдено товарів: <b className="text-white font-mono text-sm">{view.length}</b>
+              </span>
+              {cat !== "Усі" && (
+                <button
+                  onClick={() => setCat("Усі")}
+                  className="text-[#b6c980] hover:text-white underline cursor-pointer"
+                >
+                  Скинути фільтр ({cat})
+                </button>
+              )}
+            </div>
 
             <div className="mt-6 grid gap-x-6 gap-y-16 pt-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {view.map((p) => (
@@ -177,9 +184,11 @@ export default function Shop() {
             </div>
 
             {!view.length && (
-              <div className="rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 mt-6 p-12 text-center shadow-xl">
-                <p className="font-bold text-stone-300 text-lg">Магазин оновлюється</p>
-                <p className="mt-2 text-sm text-stone-500">Адміністрація додасть нові товари найближчим часом.</p>
+              <div className="hero-content-card rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 mt-6 p-12 text-center shadow-xl">
+                <p className="font-bold text-stone-200 text-lg">Товарів не знайдено</p>
+                <p className="mt-2 text-sm text-stone-400">
+                  Спробуйте змінити пошуковий запит або обрати іншу категорію.
+                </p>
               </div>
             )}
           </>
