@@ -144,7 +144,7 @@ export function ConnectModal() {
   
   return (
     <>
-      <button onClick={openModal} className="btn rounded-xl !min-h-14 !px-7 !text-sm sm:!px-9 shadow-lg cursor-pointer">
+      <button onClick={openModal} className="btn rounded-xl !min-h-14 h-14 w-full !px-6 !text-sm shadow-lg cursor-pointer">
         Грати зараз <Gamepad2 size={18} />
       </button>
       {modal}
