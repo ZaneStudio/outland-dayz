@@ -108,15 +108,20 @@ export default function Checkout() {
 
   if (order) {
     return (
-      <main className="relative isolate min-h-[700px] overflow-hidden border-b border-white/10 sm:min-h-[760px]">
-        <div className="absolute inset-0 -z-20">
-          <img src="/images/hero-bg.jpg" alt="Outland DayZ Background" className="h-full w-full scale-105 object-cover" />
+      <main className="relative isolate min-h-[calc(100vh-64px)] overflow-hidden border-b border-white/10 flex items-center justify-center py-12">
+        <div className="fixed inset-0 h-screen w-screen overflow-hidden -z-20 pointer-events-none">
+          <img
+            src="/images/hero-bg.jpg"
+            alt="Outland DayZ Background"
+            style={{ filter: "blur(6px) brightness(0.85)" }}
+            className="h-full w-full scale-105 object-cover object-center"
+          />
         </div>
-        <div className="absolute inset-0 -z-10 bg-black/20" />
-        <div className="hero-vignette absolute inset-0 -z-10" />
-        <div className="grid-lines absolute inset-0 -z-10 opacity-60" />
+        <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+        <div className="hero-vignette fixed inset-0 -z-10 pointer-events-none" />
+        <div className="grid-lines fixed inset-0 -z-10 opacity-50 pointer-events-none" />
 
-        <div className="shell relative z-10 flex min-h-[700px] flex-col items-center justify-center py-12 sm:min-h-[760px] sm:py-24">
+        <div className="shell relative z-10 flex w-full flex-col items-center justify-center">
           <div className="hero-content-card w-full max-w-xl rounded-2xl bg-black/50 p-8 sm:p-10 backdrop-blur-md border border-white/10 shadow-2xl text-center">
             <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-black/60 text-[#b6c980] border border-white/10 mb-5">
               <Check size={28} />
@@ -139,15 +144,20 @@ export default function Checkout() {
   }
 
   return (
-    <main className="relative isolate min-h-[700px] overflow-hidden border-b border-white/10 sm:min-h-[760px]">
-      <div className="absolute inset-0 -z-20">
-        <img src="/images/hero-bg.jpg" alt="Outland DayZ Background" className="h-full w-full scale-105 object-cover" />
+    <main className="relative isolate min-h-[calc(100vh-64px)] overflow-hidden border-b border-white/10 flex items-center justify-center py-12">
+      <div className="fixed inset-0 h-screen w-screen overflow-hidden -z-20 pointer-events-none">
+        <img
+          src="/images/hero-bg.jpg"
+          alt="Outland DayZ Background"
+          style={{ filter: "blur(6px) brightness(0.85)" }}
+          className="h-full w-full scale-105 object-cover object-center"
+        />
       </div>
-      <div className="absolute inset-0 -z-10 bg-black/20" />
-      <div className="hero-vignette absolute inset-0 -z-10" />
-      <div className="grid-lines absolute inset-0 -z-10 opacity-60" />
+      <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+      <div className="hero-vignette fixed inset-0 -z-10 pointer-events-none" />
+      <div className="grid-lines fixed inset-0 -z-10 opacity-50 pointer-events-none" />
 
-      <div className="shell relative z-10 flex min-h-[700px] flex-col justify-center py-12 sm:min-h-[760px] sm:py-24 max-w-5xl">
+      <div className="shell relative z-10 flex w-full flex-col justify-center max-w-5xl">
         {items.length > 0 ? (
           <div className="grid gap-6 lg:grid-cols-[1fr_380px] w-full">
             <div className="space-y-4">
