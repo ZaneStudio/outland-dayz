@@ -108,35 +108,44 @@ async function fetchFileContent(
   }
 }
 
+const KNOWN_NEW_SERVER_ID = "f5b20b0d";
+
+function getCandidateServerIds(): string[] {
+  const configured = process.env.PTERODACTYL_SERVER_ID?.trim();
+  return Array.from(new Set([configured, KNOWN_NEW_SERVER_ID].filter((id): id is string => Boolean(id))));
+}
+
 export async function fetchPterodactylResources(): Promise<PterodactylResources | null> {
-  const apiKey = process.env.PTERODACTYL_API_KEY;
-  const serverId = process.env.PTERODACTYL_SERVER_ID;
-  if (!apiKey || !serverId) return null;
+  const apiKey = process.env.PTERODACTYL_API_KEY?.trim();
+  if (!apiKey) return null;
 
   const baseUrl = getPanelBaseUrl();
-  try {
-    const res = await fetch(`${baseUrl}/api/client/servers/${serverId}/resources`, {
-      headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
-      cache: "no-store",
-      signal: AbortSignal.timeout(6000),
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    const attr = json?.attributes;
-    const r = attr?.resources;
-    if (!attr || !r) return null;
-    return {
-      state: String(attr.current_state || "unknown"),
-      cpuAbsolute: Math.round(Number(r.cpu_absolute || 0) * 10) / 10,
-      memoryMb: Math.round(Number(r.memory_bytes || 0) / (1024 * 1024)),
-      diskMb: Math.round(Number(r.disk_bytes || 0) / (1024 * 1024)),
-      networkRxMb: Math.round((Number(r.network_rx_bytes || 0) / (1024 * 1024)) * 10) / 10,
-      networkTxMb: Math.round((Number(r.network_tx_bytes || 0) / (1024 * 1024)) * 10) / 10,
-      uptimeMs: Number(r.uptime || 0),
-    };
-  } catch {
-    return null;
+  for (const serverId of getCandidateServerIds()) {
+    try {
+      const res = await fetch(`${baseUrl}/api/client/servers/${serverId}/resources`, {
+        headers: { Authorization: `Bearer ${apiKey}`, Accept: "application/json" },
+        cache: "no-store",
+        signal: AbortSignal.timeout(6000),
+      });
+      if (!res.ok) continue;
+      const json = await res.json();
+      const attr = json?.attributes;
+      const r = attr?.resources;
+      if (!attr || !r) continue;
+      return {
+        state: String(attr.current_state || "unknown"),
+        cpuAbsolute: Math.round(Number(r.cpu_absolute || 0) * 10) / 10,
+        memoryMb: Math.round(Number(r.memory_bytes || 0) / (1024 * 1024)),
+        diskMb: Math.round(Number(r.disk_bytes || 0) / (1024 * 1024)),
+        networkRxMb: Math.round((Number(r.network_rx_bytes || 0) / (1024 * 1024)) * 10) / 10,
+        networkTxMb: Math.round((Number(r.network_tx_bytes || 0) / (1024 * 1024)) * 10) / 10,
+        uptimeMs: Number(r.uptime || 0),
+      };
+    } catch {
+      continue;
+    }
   }
+  return null;
 }
 
 async function resolveSteamIdByNameMap(): Promise<Map<string, string>> {
@@ -164,10 +173,10 @@ async function resolveSteamIdByNameMap(): Promise<Map<string, string>> {
 }
 
 export async function syncServerLogsFromPterodactyl(): Promise<PterodactylSyncResult> {
-  const apiKey = process.env.PTERODACTYL_API_KEY;
-  const serverId = process.env.PTERODACTYL_SERVER_ID;
+  const apiKey = process.env.PTERODACTYL_API_KEY?.trim();
+  const candidateIds = getCandidateServerIds();
 
-  if (!apiKey || !serverId) {
+  if (!apiKey || candidateIds.length === 0) {
     return {
       configured: false,
       serverState: "unconfigured",
@@ -182,11 +191,23 @@ export async function syncServerLogsFromPterodactyl(): Promise<PterodactylSyncRe
   const baseUrl = getPanelBaseUrl();
 
   try {
-    const [resources, profilesEntries, rootEntries] = await Promise.all([
-      fetchPterodactylResources(),
-      listDirectory(baseUrl, serverId, apiKey, "/profiles"),
-      listDirectory(baseUrl, serverId, apiKey, "/"),
-    ]);
+    const resources = await fetchPterodactylResources();
+    let serverId = candidateIds[0];
+    let profilesEntries: PterodactylFileEntry[] = [];
+    let rootEntries: PterodactylFileEntry[] = [];
+
+    for (const cid of candidateIds) {
+      const [pList, rList] = await Promise.all([
+        listDirectory(baseUrl, cid, apiKey, "/profiles"),
+        listDirectory(baseUrl, cid, apiKey, "/"),
+      ]);
+      if (pList.length > 0 || rList.length > 0) {
+        serverId = cid;
+        profilesEntries = pList;
+        rootEntries = rList;
+        break;
+      }
+    }
 
     const serverState = resources?.state || "unknown";
 

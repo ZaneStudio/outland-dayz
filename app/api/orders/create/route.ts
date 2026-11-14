@@ -1,8 +1,10 @@
+import { randomBytes, randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getSteamSession } from "@/lib/steam-auth";
 import { getManagedProducts } from "@/lib/product-store";
+import { creditBalance } from "@/lib/balance-store";
+import { deliverPromoCodeToServer, type DeliveryRewardItem } from "@/lib/server-delivery";
 import { db } from "@/lib/db";
-import { randomBytes } from "crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +15,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const items = body.items;
-    
+
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "Невірні дані замовлення" }, { status: 400 });
     }
@@ -21,27 +23,29 @@ export async function POST(req: NextRequest) {
     // Генеруємо код у форматі: OUT-XXXX-XXXX
     const part1 = randomBytes(2).toString("hex").toUpperCase();
     const part2 = randomBytes(2).toString("hex").toUpperCase();
-    const code = body.code && body.code.startsWith("OUT-") ? body.code : `OUT-${part1}-${part2}`;
-    const orderId = body.orderId || `UDZ-${Date.now().toString().slice(-6)}`;
-
-    const apiKey = process.env.PTERODACTYL_API_KEY;
-    const serverId = process.env.PTERODACTYL_SERVER_ID;
-
-    if (!apiKey || !serverId) {
-      console.error("Pterodactyl credentials are missing");
-      return NextResponse.json({ success: true, warning: "Хостинг не налаштовано", code });
-    }
+    const code =
+      typeof body.code === "string" && body.code.startsWith("OUT-")
+        ? body.code
+        : `OUT-${part1}-${part2}`;
+    const orderId =
+      typeof body.orderId === "string" && body.orderId
+        ? body.orderId
+        : `UDZ-${Date.now().toString().slice(-6)}`;
 
     const allProducts = await getManagedProducts();
-    const rewards = [];
+    const rewards: DeliveryRewardItem[] = [];
+    let verifiedTotal = 0;
 
     for (const item of items) {
-      const count = item.quantity || 1;
-      const dbProduct = allProducts.find(p => p.id === item.id);
-      
-      const gameClassname = (dbProduct && dbProduct.classname && dbProduct.classname.trim() !== "") 
-        ? dbProduct.classname 
-        : item.name;
+      const count = Math.max(1, Number(item.quantity) || 1);
+      const dbProduct = allProducts.find((p) => p.id === item.id);
+      const unitPrice = dbProduct ? dbProduct.price : Number(item.price) || 0;
+      verifiedTotal += unitPrice * count;
+
+      const gameClassname =
+        dbProduct && dbProduct.classname && dbProduct.classname.trim() !== ""
+          ? dbProduct.classname.trim()
+          : String(item.name || "Item").trim();
 
       for (let i = 0; i < count; i++) {
         rewards.push({
@@ -49,62 +53,66 @@ export async function POST(req: NextRequest) {
           Classname: gameClassname,
           QuantityPercent: -1,
           HealthPercent: -1,
-          Attachments: []
+          Attachments: [],
         });
       }
     }
 
-    const fileContent = JSON.stringify({
-      maxUsages: 1,
-      currentUsages: 0,
-      blacklistedSteamIDS: [],
-      rewards: rewards
-    }, null, 2);
+    const delivery = await deliverPromoCodeToServer(code, rewards);
 
-    const fileName = `${code}.json`;
-    const directory = "/profiles/FT_Mods/Promocodes_Free/Codes";
-
-    const uploadUrlRes = await fetch(`https://console.uahost.eu/api/client/servers/${serverId}/files/upload`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Accept": "application/json"
+    if (!delivery.ok) {
+      console.error("Server auto-delivery failed:", delivery);
+      let refundedBalance: number | undefined;
+      if (verifiedTotal > 0) {
+        const refund = await creditBalance(
+          user.steamId,
+          verifiedTotal,
+          "Повернення: помилка автовидачі на сервер",
+          `refund-order-${randomUUID()}`
+        );
+        refundedBalance = refund?.balance;
       }
-    });
 
-    if (uploadUrlRes.ok) {
-      const uploadData = await uploadUrlRes.json();
-      const signedUrl = uploadData.attributes.url;
-
-      const formData = new FormData();
-      const blob = new Blob([fileContent], { type: "application/json" });
-      formData.append("files", blob, fileName);
-
-      await fetch(`${signedUrl}&directory=${encodeURIComponent(directory)}`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`
+      return NextResponse.json(
+        {
+          success: false,
+          delivered: false,
+          refunded: verifiedTotal > 0,
+          balance: refundedBalance,
+          error:
+            "Не вдалося доставити товар на ігровий сервер. Кошти повернуто на баланс.",
+          detail: delivery.error,
         },
-        body: formData
-      });
+        { status: 502 }
+      );
     }
 
-    // Зберігаємо історію покупок у базу даних напряму (без гальмування помилок)
+    // Зберігаємо історію покупок у базу даних
     for (const item of items) {
-      const itemTotal = (item.price || 0) * (item.quantity || 1);
+      const count = Math.max(1, Number(item.quantity) || 1);
+      const dbProduct = allProducts.find((p) => p.id === item.id);
+      const unitPrice = dbProduct ? dbProduct.price : Number(item.price) || 0;
+      const itemTotal = unitPrice * count;
+
       await db.purchaseLog.create({
         data: {
-          orderId: orderId,
+          orderId,
           steamId: user.steamId || "unknown",
           username: user.name || "Гравець",
-          productName: item.name || "Товар",
+          productName: dbProduct?.name || item.name || "Товар",
           price: itemTotal,
           code,
         },
       });
     }
 
-    return NextResponse.json({ success: true, code, orderId });
+    return NextResponse.json({
+      success: true,
+      delivered: true,
+      deliveryMethod: delivery.method,
+      code,
+      orderId,
+    });
   } catch (error) {
     console.error("Order creation API error:", error);
     return NextResponse.json({ error: "Помилка сервера" }, { status: 500 });

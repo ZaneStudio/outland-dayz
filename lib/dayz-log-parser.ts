@@ -181,6 +181,12 @@ export function parseDayZLogContent(
 
     const lineSteamId = extractSteamId(body);
 
+    // Script log line with SteamID: SCRIPT : Player "Name" (steamid=7656119...) ...
+    const scriptSteamMatch = body.match(/SCRIPT\s*:\s*Player\s+"([^"]+)"\s*\(steamid=(7656119\d{10})\)/i);
+    if (scriptSteamMatch) {
+      steamByName.set(scriptSteamMatch[1].trim().toLowerCase(), scriptSteamMatch[2]);
+    }
+
     // BattlEye Verified GUID
     const beGuidMatch = body.match(/BattlEye Server:\s*Verified GUID\s*\(([a-f0-9]+)\)\s*of player\s*#\d+\s+(.+)$/i);
     if (beGuidMatch) {

@@ -68,6 +68,28 @@ export default function Checkout() {
       const orderResData = await orderRes.json();
       console.log("Результат створення замовлення:", orderResData);
 
+      if (!orderRes.ok || !orderResData.delivered) {
+        if (typeof orderResData.balance === "number") {
+          localStorage.setItem("outland_user_balance", orderResData.balance.toString());
+          localStorage.setItem("balance", orderResData.balance.toString());
+          window.dispatchEvent(new Event("storage"));
+          const cachedProfile = readCachedProfile();
+          if (cachedProfile) {
+            saveCachedProfile({
+              ...cachedProfile,
+              savedAt: Date.now(),
+              balance: orderResData.balance,
+            });
+          }
+        }
+        alert(
+          orderResData.error ||
+            "Не вдалося створити файл на ігровому сервері. Спробуйте пізніше."
+        );
+        setIsProcessing(false);
+        return;
+      }
+
       const newOrder = {
         id: orderId,
         code: redeemCode,
