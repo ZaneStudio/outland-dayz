@@ -93,14 +93,14 @@ export default function Shop() {
   );
 
   return (
-    <main className="min-h-screen pb-24 relative isolate overflow-hidden">
-      {/* Розмитий атмосферний фон на всю сторінку магазину */}
-      <div className="fixed inset-0 -z-20 pointer-events-none">
+    <main className="min-h-screen pb-24 relative isolate overflow-x-clip">
+      {/* Розмитий атмосферний фон, зафіксований рівно по розміру вікна без розтягування */}
+      <div className="fixed inset-0 h-screen w-screen overflow-hidden -z-20 pointer-events-none">
         <img
           src="/images/hero-bg.jpg"
           alt="Outland DayZ Background"
           style={{ filter: "blur(6px) brightness(0.8)" }}
-          className="h-full w-full scale-105 object-cover"
+          className="h-full w-full scale-105 object-cover object-center"
         />
       </div>
       <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />

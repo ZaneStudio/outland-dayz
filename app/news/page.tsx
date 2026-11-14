@@ -8,20 +8,19 @@ export default async function NewsPage() {
   const news = await getManagedNews();
 
   return (
-    <main className="min-h-screen pb-28 relative isolate overflow-hidden">
-      {/* Атмосферний фон у єдиному стилі сайту */}
-      <div className="absolute inset-0 -z-20 pointer-events-none">
+    <main className="min-h-screen pb-28 relative isolate overflow-x-clip">
+      {/* Атмосферний фон у єдиному стилі сайту, зафіксований по розміру екрану */}
+      <div className="fixed inset-0 h-screen w-screen overflow-hidden -z-20 pointer-events-none">
         <img
           src="/images/hero-bg.jpg"
           alt="Outland DayZ Background"
-          className="h-full w-full scale-105 object-cover blur-[4px] brightness-90"
+          style={{ filter: "blur(6px) brightness(0.85)" }}
+          className="h-full w-full scale-105 object-cover object-center"
         />
       </div>
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/60 via-black/40 to-black/80 pointer-events-none" />
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[720px] h-[320px] bg-[#b6c980]/10 blur-[140px] rounded-full pointer-events-none -z-10" />
-
-      <div className="hero-vignette absolute inset-0 -z-10 pointer-events-none" />
-      <div className="grid-lines absolute inset-0 -z-10 opacity-50 pointer-events-none" />
+      <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+      <div className="hero-vignette fixed inset-0 -z-10 pointer-events-none" />
+      <div className="grid-lines fixed inset-0 -z-10 opacity-50 pointer-events-none" />
 
       <div className="shell mt-10 sm:mt-14 max-w-5xl space-y-8">
         {/* Верхня шапка розділу новин */}

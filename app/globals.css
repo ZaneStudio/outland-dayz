@@ -12,8 +12,8 @@
 
 :root { --line: rgba(217,226,195,.13); --accent:#b6c87b; --deep:#080a08; color-scheme: dark; }
 * { box-sizing: border-box; }
-html { background:#090b09; scroll-behavior:smooth; color-scheme: dark; }
-body { margin:0; min-width:320px; background:radial-gradient(ellipse at 50% -15%,rgba(114,136,67,.14),transparent 38%),#090b09; color:#ecefe7; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; }
+html { background:#090b09; scroll-behavior:smooth; color-scheme: dark; overflow-x: hidden; }
+body { margin:0; min-width:320px; overflow-x: hidden; background:radial-gradient(ellipse at 50% -15%,rgba(114,136,67,.14),transparent 38%),#090b09; color:#ecefe7; font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; }
 body:before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.08; z-index:50; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E"); }
 a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection { background:#84955a; color:#081008; }
 
@@ -156,8 +156,8 @@ a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection 
 .delay-2 { animation-delay:.24s; } 
 .delay-3 { animation-delay:.36s; }
 
-@keyframes pageEnter { from { opacity:.01; transform:translateY(7px); filter:blur(2px); } to { opacity:1; transform:none; filter:none; } }
-.page-enter { animation:pageEnter .28s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes pageEnter { from { opacity:.01; } to { opacity:1; } }
+.page-enter { animation:pageEnter .24s ease-out; }
 .panel, .btn, .hero-news-panel { will-change:transform; }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; } }
 
@@ -178,7 +178,7 @@ a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection 
 .roulette-pointer { position: absolute; z-index: 5; top: 6px; width: 0; height: 0; border-right: 12px solid transparent; border-left: 12px solid transparent; border-top: 28px solid #84955a; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
 .roulette-progress { background: linear-gradient(90deg, #71804e, #94a467); box-shadow: 0 0 12px rgba(148,164,103,0.35); }
 
-/* Кастомний скролбар у стилі Outland DayZ */
+/* Основний скролбар вікна (темний, без сірої підкладки справа) */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -191,19 +191,27 @@ a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection 
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(8, 11, 8, 0.75);
-  border-radius: 999px;
+  background: #090b09;
+}
+
+::-webkit-scrollbar-corner {
+  background: #090b09;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(168, 190, 112, 0.55), rgba(113, 135, 67, 0.65));
+  background: #232b1c;
   border-radius: 999px;
-  border: 1px solid rgba(182, 201, 128, 0.25);
+  border: 2px solid #090b09;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #b6c980, #839950);
-  border-color: rgba(216, 236, 154, 0.5);
+  background: #3b492e;
+}
+
+/* Внутрішній скролбар для блоків (наприклад, Історія покупок у профілі) */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(182, 201, 128, 0.5) #0b0e0a;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -211,7 +219,7 @@ a { color:inherit; text-decoration:none; } button { font:inherit; } ::selection 
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.35);
+  background: #0b0e0a;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 999px;
 }
