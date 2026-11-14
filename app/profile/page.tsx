@@ -308,14 +308,6 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <Link
-                    href="/profile/settings"
-                    title="Налаштування"
-                    aria-label="Налаштування"
-                    className="grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/5 text-stone-200 hover:border-[#b6c980]/50 hover:text-white transition"
-                  >
-                    <Settings size={18} />
-                  </Link>
                   <button
                     onClick={handleLogout}
                     title="Вийти з акаунта"
@@ -463,17 +455,17 @@ export default function ProfilePage() {
                       key={order.id}
                       className="rounded-2xl bg-black/45 border border-white/10 p-5 transition hover:border-[#b6c980]/35"
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-white/10">
-                        <div className="flex items-center gap-2.5">
+                      <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 pb-3.5 border-b border-white/10">
+                        <div className="flex items-center gap-2 min-w-0">
                           <CheckCircle2 className="text-[#b6c980] shrink-0" size={17} />
-                          <span className="font-mono text-sm sm:text-[15px] font-bold text-white">{order.id}</span>
-                          <span className="text-stone-500">·</span>
-                          <span className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] text-stone-300">
+                          <span className="font-mono text-sm sm:text-[15px] font-bold text-white truncate">{order.id}</span>
+                          <span className="text-stone-500 shrink-0">·</span>
+                          <span className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] text-stone-300 shrink-0">
                             <Calendar size={14} className="text-[#b6c980]" /> {order.date}
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0">
                           <button
                             onClick={() => handleCopyCode(displayCode)}
                             className="inline-flex items-center gap-2.5 rounded-xl bg-[#1c2413] hover:bg-[#263119] border border-[#b6c980]/35 px-3.5 py-2 text-xs sm:text-[13px] font-mono text-[#c8dc8f] transition cursor-pointer"
