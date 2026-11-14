@@ -1,8 +1,8 @@
-version: 1.2.0-beta.16
+version: 1.2.0-beta.17
 files:
-  - url: OutLand-Launcher-Beta-Setup-1.2.0-beta.16-x64.exe
-    sha512: abBZdN1aACqL25l3Cwa+zRZqpHnhgsOK4ZiHk22mhBSrcvG8R7GHJnal6VqFB4HrWBt0M8DsSwNv939t8A3ydg==
-    size: 95338817
-path: OutLand-Launcher-Beta-Setup-1.2.0-beta.16-x64.exe
-sha512: abBZdN1aACqL25l3Cwa+zRZqpHnhgsOK4ZiHk22mhBSrcvG8R7GHJnal6VqFB4HrWBt0M8DsSwNv939t8A3ydg==
-releaseDate: '2026-11-14T18:04:29.847Z'
+  - url: OutLand-Launcher-Beta-Setup-1.2.0-beta.17-x64.exe
+    sha512: YaX5zZHkEvAwIrbOlpdIrMue/HfE6GrQL6z9zQ9IFp7zWR3xwF4jdGsjCtznr1AE3lKiBBEuMI/sWhuRLO5osg==
+    size: 91934085
+path: OutLand-Launcher-Beta-Setup-1.2.0-beta.17-x64.exe
+sha512: YaX5zZHkEvAwIrbOlpdIrMue/HfE6GrQL6z9zQ9IFp7zWR3xwF4jdGsjCtznr1AE3lKiBBEuMI/sWhuRLO5osg==
+releaseDate: '2026-11-14T23:16:22.681Z'
