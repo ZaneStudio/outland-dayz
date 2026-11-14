@@ -1,9 +1,10 @@
 "use client";
 
-import { Coins, Search, SlidersHorizontal } from "lucide-react";
+import { ArrowUpDown, Coins, Layers, Search, SlidersHorizontal } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/data";
 import { ProductCard } from "@/components/product-card";
+import { CustomSelect, type SelectOption } from "@/components/custom-select";
 import { readCachedProducts, refreshProducts } from "@/lib/product-client-cache";
 import { readCachedProfile, readCachedSessionUser, type SteamUser } from "@/lib/profile-client-cache";
 
@@ -82,12 +83,47 @@ export default function Shop() {
     };
   }, []);
 
-  const cats = ["Усі", ...new Set((products || []).map((p) => p.category))];
+  const categoryOptions = useMemo<SelectOption[]>(() => {
+    const list = products || [];
+    const map = new Map<string, { label: string; count: number }>();
+
+    for (const item of list) {
+      const raw = (item.category || "Інше").trim();
+      const key = raw.toLowerCase();
+      const existing = map.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        map.set(key, { label: raw, count: 1 });
+      }
+    }
+
+    return [
+      { value: "Усі", label: "Усі категорії", count: list.length },
+      ...Array.from(map.values()).map((entry) => ({
+        value: entry.label,
+        label: entry.label,
+        count: entry.count,
+      })),
+    ];
+  }, [products]);
+
+  const sortOptions: SelectOption[] = useMemo(
+    () => [
+      { value: "popular", label: "За популярністю" },
+      { value: "price", label: "Від дешевших" },
+    ],
+    []
+  );
 
   const view = useMemo(
     () =>
       (products || [])
-        .filter((p) => (cat === "Усі" || p.category === cat) && p.name.toLowerCase().includes(q.toLowerCase()))
+        .filter(
+          (p) =>
+            (cat === "Усі" || (p.category || "").trim().toLowerCase() === cat.trim().toLowerCase()) &&
+            p.name.toLowerCase().includes(q.toLowerCase())
+        )
         .sort((a, b) => (sort === "price" ? a.price - b.price : b.popular - a.popular)),
     [products, q, cat, sort]
   );
@@ -109,7 +145,7 @@ export default function Shop() {
 
       <div className="shell pt-8 sm:pt-10">
         {/* Панель пошуку, фільтрів та балансу */}
-        <div className="hero-content-card rounded-2xl bg-black/50 p-4 sm:p-5 backdrop-blur-md border border-white/10 shadow-2xl flex flex-wrap items-center gap-3.5">
+        <div className="hero-content-card !overflow-visible relative z-30 rounded-2xl bg-black/50 p-4 sm:p-5 backdrop-blur-md border border-white/10 shadow-2xl flex flex-wrap items-center gap-3.5">
           <div className="relative flex-1 min-w-[240px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
             <input
@@ -120,30 +156,21 @@ export default function Shop() {
             />
           </div>
 
-          <select
+          <CustomSelect
             value={cat}
-            onChange={(e) => setCat(e.target.value)}
-            className="h-11 bg-black/40 border border-white/10 rounded-xl px-4 text-xs font-bold uppercase tracking-wider text-stone-200 outline-none focus:border-[#b6c980] transition cursor-pointer"
-          >
-            {cats.map((x) => (
-              <option key={x} value={x} className="bg-neutral-900 text-white">
-                {x}
-              </option>
-            ))}
-          </select>
+            onChange={setCat}
+            options={categoryOptions}
+            icon={<Layers size={14} />}
+            className="min-w-[185px]"
+          />
 
-          <select
+          <CustomSelect
             value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            className="h-11 bg-black/40 border border-white/10 rounded-xl px-4 text-xs font-bold uppercase tracking-wider text-stone-200 outline-none focus:border-[#b6c980] transition cursor-pointer"
-          >
-            <option value="popular" className="bg-neutral-900 text-white">
-              За популярністю
-            </option>
-            <option value="price" className="bg-neutral-900 text-white">
-              Від дешевших
-            </option>
-          </select>
+            onChange={setSort}
+            options={sortOptions}
+            icon={<ArrowUpDown size={14} />}
+            className="min-w-[195px]"
+          />
 
           {user && (
             <div className="h-11 rounded-xl bg-[#1c2413]/90 border border-[#b6c980]/30 flex items-center gap-2.5 px-4 shadow-lg">
