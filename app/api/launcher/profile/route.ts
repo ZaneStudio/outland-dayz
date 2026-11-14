@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
             rouletteSpins: account?.rouletteSpins ?? 0,
             createdAt: account?.createdAt ?? new Date(),
           },
-          vip: account?.vip ? { name: account.vip.plan.name, expiresAt: account.vip.expiresAt } : null,
+          vip: null,
           purchases,
         },
         { headers: { "Cache-Control": "no-store" } }
@@ -96,7 +96,7 @@ export async function GET(req: NextRequest) {
           rouletteSpins: account?.rouletteSpins ?? 0,
           createdAt: account?.createdAt ?? new Date(),
         },
-        vip: account?.vip ? { name: account.vip.plan.name, expiresAt: account.vip.expiresAt } : null,
+        vip: null,
         purchases,
         promoUses: (account?.promoUses ?? []).map((use) => ({
           id: use.id,

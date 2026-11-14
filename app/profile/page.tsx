@@ -42,7 +42,7 @@ export default function ProfilePage() {
     }
     return 0;
   });
-  const [vipLabel, setVipLabel] = useState<string>(() => readCachedProfile()?.vipLabel || "Неактивний");
+  const [vipLabel, setVipLabel] = useState<string>("Відсутній");
   const [promo, setPromo] = useState("");
   const [amount, setAmount] = useState("");
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -234,13 +234,13 @@ export default function ProfilePage() {
         <div className="grid-lines absolute inset-0 -z-10 opacity-50 pointer-events-none" />
 
         <div className="hero-content-card rounded-3xl bg-black/50 backdrop-blur-md border border-white/10 p-8 sm:p-10 text-center space-y-4 max-w-md mx-auto shadow-2xl">
-          <h2 className="heading text-2xl text-white">Потрібна авторизація</h2>
-          <p className="text-xs text-stone-300 leading-relaxed">
+          <h2 className="heading text-3xl text-white">Потрібна авторизація</h2>
+          <p className="text-sm text-stone-200 leading-relaxed">
             Увійдіть через Steam, щоб переглянути свій особистий профіль та історію покупок.
           </p>
           <Link
             href="/login"
-            className="btn inline-flex items-center justify-center w-full !min-h-12 rounded-xl text-xs uppercase tracking-widest shadow-lg"
+            className="btn inline-flex items-center justify-center w-full !min-h-12 rounded-xl text-[13px] uppercase tracking-widest shadow-lg"
           >
             Увійти через Steam
           </Link>
@@ -265,7 +265,7 @@ export default function ProfilePage() {
       <div className="grid-lines absolute inset-0 -z-10 opacity-50 pointer-events-none" />
 
       <div className="shell">
-        <div className="grid gap-6 lg:grid-cols-[430px_1fr] items-start">
+        <div className="grid gap-6 lg:grid-cols-[440px_1fr] items-start">
           {/* Ліва колонка: Профіль + Баланс + Поповнення та Промокод */}
           <div className="space-y-5">
             {/* Картка гравця та статусу */}
@@ -289,19 +289,19 @@ export default function ProfilePage() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="inline-block h-2 w-2 rounded-full bg-[#b6c980] animate-pulse" />
-                      <span className="eyebrow text-[10px] text-[#b6c980]">Steam Профіль</span>
+                      <span className="eyebrow text-xs text-[#b6c980]">Steam Профіль</span>
                     </div>
                     <h1 className="heading truncate text-2xl sm:text-3xl text-[#f2f5e9] leading-none">{user.name}</h1>
                     <button
                       onClick={handleCopySteamId}
                       title="Скопіювати Steam ID"
-                      className="mt-2 inline-flex items-center gap-1.5 text-xs font-mono text-stone-400 hover:text-[#b6c980] transition cursor-pointer"
+                      className="mt-2 inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-mono text-stone-300 hover:text-[#b6c980] transition cursor-pointer"
                     >
                       <span>ID: {user.steamId}</span>
                       {copiedCode === "steam" ? (
-                        <Check size={13} className="text-[#b6c980]" />
+                        <Check size={14} className="text-[#b6c980]" />
                       ) : (
-                        <Copy size={13} className="opacity-70" />
+                        <Copy size={14} className="opacity-80" />
                       )}
                     </button>
                   </div>
@@ -312,9 +312,9 @@ export default function ProfilePage() {
                     href="/profile/settings"
                     title="Налаштування"
                     aria-label="Налаштування"
-                    className="grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/5 text-stone-300 hover:border-[#b6c980]/50 hover:text-white transition"
+                    className="grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/5 text-stone-200 hover:border-[#b6c980]/50 hover:text-white transition"
                   >
-                    <Settings size={17} />
+                    <Settings size={18} />
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -322,33 +322,35 @@ export default function ProfilePage() {
                     aria-label="Вийти з акаунта"
                     className="grid h-11 w-11 place-items-center rounded-xl border border-red-500/25 bg-red-500/10 text-[#f0b3aa] hover:bg-red-500/20 transition cursor-pointer"
                   >
-                    <LogOut size={17} />
+                    <LogOut size={18} />
                   </button>
                 </div>
               </div>
 
               {/* Панель Баланс + VIP */}
               <div className="mt-5 pt-5 border-t border-white/10 grid grid-cols-2 gap-3.5">
-                <div className="rounded-2xl bg-black/40 border border-white/10 p-3.5 flex items-center gap-3.5">
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/25">
+                <div className="rounded-2xl bg-black/40 border border-white/10 p-4 flex items-center gap-3.5">
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30">
                     <Coins size={20} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] uppercase tracking-wider text-stone-400 font-semibold">Баланс</p>
-                    <p className="mt-0.5 text-xl font-bold font-mono text-[#b6c980] truncate">{balance} ₴</p>
+                    <p className="text-xs uppercase tracking-wider text-stone-300 font-bold">Баланс</p>
+                    <p className="mt-0.5 text-xl sm:text-2xl font-extrabold font-mono text-[#b6c980] truncate">
+                      {balance} ₴
+                    </p>
                   </div>
                 </div>
 
                 <Link
                   href="/vip"
-                  className="rounded-2xl bg-black/40 border border-white/10 p-3.5 flex items-center gap-3.5 hover:border-[#d9ca72]/40 transition"
+                  className="rounded-2xl bg-black/40 border border-white/10 p-4 flex items-center gap-3.5 hover:border-[#d9ca72]/40 transition"
                 >
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#282512] text-[#d9ca72] border border-[#d9ca72]/25">
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#282512] text-[#d9ca72] border border-[#d9ca72]/30">
                     <Crown size={20} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] uppercase tracking-wider text-stone-400 font-semibold">Статус</p>
-                    <p className="mt-0.5 text-base font-bold text-stone-100 truncate">{vipLabel}</p>
+                    <p className="text-xs uppercase tracking-wider text-stone-300 font-bold">VIP Статус</p>
+                    <p className="mt-0.5 text-base sm:text-lg font-bold text-stone-200 truncate">Відсутній</p>
                   </div>
                 </Link>
               </div>
@@ -359,11 +361,13 @@ export default function ProfilePage() {
               {/* Поповнення Monobank */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white">
-                    <CreditCard size={17} className="text-[#b6c980]" />
+                  <span className="inline-flex items-center gap-2 text-sm sm:text-[15px] font-bold uppercase tracking-wider text-white">
+                    <CreditCard size={18} className="text-[#b6c980]" />
                     Поповнення балансу
                   </span>
-                  <span className="text-[11px] font-mono uppercase tracking-wider text-stone-400">Monobank</span>
+                  <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[#c8dc8f]">
+                    Monobank
+                  </span>
                 </div>
 
                 <div className="flex gap-2.5">
@@ -372,41 +376,41 @@ export default function ProfilePage() {
                     placeholder="Сума, ₴"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full h-12 rounded-xl bg-black/40 border border-white/10 px-4 text-sm text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-full h-12 rounded-xl bg-black/45 border border-white/10 px-4 text-sm sm:text-base text-white placeholder-stone-400 focus:border-[#b6c980] focus:outline-none transition font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <button
                     onClick={handleTopUp}
-                    className="btn !min-h-12 h-12 rounded-xl !px-5 text-xs uppercase tracking-wider shrink-0 cursor-pointer"
+                    className="btn !min-h-12 h-12 rounded-xl !px-5 text-[13px] uppercase tracking-wider shrink-0 cursor-pointer"
                   >
-                    Поповнити <ArrowUpRight size={15} />
+                    Поповнити <ArrowUpRight size={16} />
                   </button>
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2.5">
                   <div className="flex items-center gap-2">
                     {[50, 100, 250, 500].map((preset) => (
                       <button
                         key={preset}
                         type="button"
                         onClick={() => setAmount(String(preset))}
-                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-mono text-stone-300 hover:border-[#b6c980]/50 hover:text-[#b6c980] transition cursor-pointer"
+                        className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-1.5 text-[13px] font-mono font-bold text-stone-200 hover:border-[#b6c980]/50 hover:text-[#b6c980] transition cursor-pointer"
                       >
                         +{preset}
                       </button>
                     ))}
                   </div>
-                  <span className="text-[11px] text-stone-400">Steam ID додається автоматично</span>
+                  <span className="text-xs text-stone-300">Steam ID додається автоматично</span>
                 </div>
               </div>
 
               {/* Промокод */}
               <div className="pt-5 border-t border-white/10">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-white">
-                    <Ticket size={17} className="text-[#b6c980]" />
+                  <span className="inline-flex items-center gap-2 text-sm sm:text-[15px] font-bold uppercase tracking-wider text-white">
+                    <Ticket size={18} className="text-[#b6c980]" />
                     Промокод
                   </span>
-                  <span className="text-[11px] text-stone-400">Бонус на рахунок</span>
+                  <span className="text-xs font-medium text-stone-300">Бонус на рахунок</span>
                 </div>
 
                 <div className="flex gap-2.5">
@@ -415,11 +419,11 @@ export default function ProfilePage() {
                     placeholder="ВВЕДІТЬ КОД"
                     value={promo}
                     onChange={(e) => setPromo(e.target.value)}
-                    className="w-full h-12 rounded-xl bg-black/40 border border-white/10 px-4 text-sm uppercase tracking-wider text-white placeholder-stone-500 focus:border-[#b6c980] focus:outline-none transition font-mono"
+                    className="w-full h-12 rounded-xl bg-black/45 border border-white/10 px-4 text-sm sm:text-base uppercase tracking-wider text-white placeholder-stone-400 focus:border-[#b6c980] focus:outline-none transition font-mono"
                   />
                   <button
                     onClick={handleActivatePromo}
-                    className="btn btn-outline !min-h-12 h-12 rounded-xl !px-5 text-xs uppercase tracking-wider shrink-0 cursor-pointer hover:border-[#b6c980]"
+                    className="btn btn-outline !min-h-12 h-12 rounded-xl !px-5 text-[13px] uppercase tracking-wider shrink-0 cursor-pointer hover:border-[#b6c980]"
                   >
                     Активувати
                   </button>
@@ -432,18 +436,18 @@ export default function ProfilePage() {
           <section className="hero-content-card rounded-3xl bg-black/50 backdrop-blur-md border border-white/10 p-6 sm:p-8 shadow-2xl">
             <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-white/10">
               <div className="flex items-center gap-3.5">
-                <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30">
-                  <ShoppingBag size={20} />
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/30">
+                  <ShoppingBag size={22} />
                 </div>
                 <div>
                   <h2 className="heading text-2xl sm:text-3xl text-white leading-none">Історія покупок</h2>
-                  <p className="mt-1.5 text-xs text-stone-400">
-                    Скопіюйте команду <code className="text-[#b6c980] font-mono">!code</code> та введіть її у чат на сервері для видачі
+                  <p className="mt-1.5 text-[13px] sm:text-sm text-stone-300">
+                    Скопіюйте команду <code className="text-[#c8dc8f] font-mono font-bold">!code</code> та введіть її у чат на сервері для видачі
                   </p>
                 </div>
               </div>
 
-              <span className="rounded-xl bg-black/40 border border-white/10 px-3.5 py-2 text-xs font-mono text-stone-300">
+              <span className="rounded-xl bg-black/45 border border-white/10 px-4 py-2 text-[13px] font-mono text-stone-200">
                 Замовлень: <b className="text-[#b6c980]">{orders.length}</b>
               </span>
             </div>
@@ -457,55 +461,59 @@ export default function ProfilePage() {
                   return (
                     <div
                       key={order.id}
-                      className="rounded-2xl bg-black/40 border border-white/10 p-5 transition hover:border-[#b6c980]/35"
+                      className="rounded-2xl bg-black/45 border border-white/10 p-5 transition hover:border-[#b6c980]/35"
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/10">
+                      <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-white/10">
                         <div className="flex items-center gap-2.5">
-                          <CheckCircle2 className="text-[#b6c980] shrink-0" size={16} />
-                          <span className="font-mono text-sm font-bold text-white">{order.id}</span>
-                          <span className="text-stone-600">·</span>
-                          <span className="inline-flex items-center gap-1.5 text-xs text-stone-400">
-                            <Calendar size={13} /> {order.date}
+                          <CheckCircle2 className="text-[#b6c980] shrink-0" size={17} />
+                          <span className="font-mono text-sm sm:text-[15px] font-bold text-white">{order.id}</span>
+                          <span className="text-stone-500">·</span>
+                          <span className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] text-stone-300">
+                            <Calendar size={14} className="text-[#b6c980]" /> {order.date}
                           </span>
                         </div>
 
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleCopyCode(displayCode)}
-                            className="inline-flex items-center gap-2.5 rounded-xl bg-[#1c2413] hover:bg-[#263119] border border-[#b6c980]/30 px-3 py-1.5 text-xs font-mono text-[#b6c980] transition cursor-pointer"
+                            className="inline-flex items-center gap-2.5 rounded-xl bg-[#1c2413] hover:bg-[#263119] border border-[#b6c980]/35 px-3.5 py-2 text-xs sm:text-[13px] font-mono text-[#c8dc8f] transition cursor-pointer"
                             title="Скопіювати команду видачі"
                           >
-                            <Terminal size={13} />
+                            <Terminal size={14} />
                             <span className="font-bold">{fullCommand}</span>
-                            <span className="rounded-lg bg-black/40 px-2 py-0.5 text-[10px] uppercase font-sans font-bold text-[#dce8b3]">
+                            <span className="rounded-lg bg-black/50 px-2.5 py-0.5 text-[11px] sm:text-xs uppercase font-sans font-bold text-[#dce8b3]">
                               {copiedCode === displayCode ? "Скопійовано" : "Копіювати"}
                             </span>
                           </button>
                         </div>
                       </div>
 
-                      <div className="mt-3 space-y-2">
+                      <div className="mt-3.5 space-y-2">
                         {order.items.map((item, idx) => (
-                          <div key={idx} className="flex items-center justify-between text-sm">
-                            <span className="text-stone-200 truncate pr-3">{item.name}</span>
-                            <span className="font-mono text-stone-400 shrink-0">{item.price} ₴</span>
+                          <div key={idx} className="flex items-center justify-between text-sm sm:text-[15px]">
+                            <span className="text-stone-100 font-medium truncate pr-3">{item.name}</span>
+                            <span className="font-mono font-bold text-stone-200 shrink-0">{item.price} ₴</span>
                           </div>
                         ))}
                       </div>
 
-                      <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-sm">
-                        <span className="text-xs uppercase tracking-wider text-stone-500 font-semibold">Разом:</span>
-                        <span className="font-mono text-base font-bold text-[#b6c980]">{order.total} ₴</span>
+                      <div className="mt-3.5 pt-3 border-t border-white/10 flex items-center justify-between">
+                        <span className="text-xs sm:text-[13px] uppercase tracking-wider text-stone-300 font-bold">
+                          Разом:
+                        </span>
+                        <span className="font-mono text-base sm:text-lg font-extrabold text-[#b6c980]">
+                          {order.total} ₴
+                        </span>
                       </div>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="mt-5 rounded-2xl bg-black/40 border border-white/10 p-12 text-center text-stone-400 text-sm flex flex-col items-center justify-center gap-3">
-                <ShoppingBag size={28} className="text-stone-500" />
+              <div className="mt-5 rounded-2xl bg-black/40 border border-white/10 p-12 text-center text-stone-300 text-base flex flex-col items-center justify-center gap-3">
+                <ShoppingBag size={30} className="text-stone-400" />
                 <p>У вас поки немає замовлень.</p>
-                <Link href="/shop" className="btn !min-h-10 rounded-xl !px-5 text-xs">
+                <Link href="/shop" className="btn !min-h-11 rounded-xl !px-5 text-[13px]">
                   Перейти в магазин
                 </Link>
               </div>

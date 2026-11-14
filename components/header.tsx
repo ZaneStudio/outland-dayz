@@ -269,16 +269,16 @@ export function Header() {
           </Link>
 
           {/* Симетрична навігація з однаковою шириною та висотою кнопок */}
-          <nav className="hidden xl:grid xl:grid-cols-5 items-center gap-2 text-xs font-bold uppercase tracking-wider text-stone-300">
+          <nav className="hidden xl:grid xl:grid-cols-5 items-center gap-2 text-[13px] font-bold uppercase tracking-wider text-stone-200">
             {links.map(([x, h]) => {
               const active = path === h;
               return (
                 <Link
                   onClick={go(h)}
-                  className={`h-10 w-28 inline-flex items-center justify-center rounded-xl transition duration-300 border text-center ${
+                  className={`h-10 w-[116px] inline-flex items-center justify-center rounded-xl transition duration-300 border text-center ${
                     active
                       ? "bg-white/10 border-white/20 text-[#dce5bd] shadow-md"
-                      : "bg-white/[0.02] border-white/5 text-stone-300 hover:bg-white/10 hover:border-white/15 hover:text-white"
+                      : "bg-white/[0.03] border-white/10 text-stone-200 hover:bg-white/10 hover:border-white/20 hover:text-white"
                   }`}
                   href={h}
                   key={h}
@@ -293,7 +293,7 @@ export function Header() {
           <div className="flex w-full xl:w-auto justify-between xl:justify-end shrink-0 items-center gap-2.5">
             <button
               aria-label="Меню"
-              className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-black/30 text-stone-300 transition hover:bg-white/5 hover:text-white xl:hidden"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-black/30 text-stone-200 transition hover:bg-white/5 hover:text-white xl:hidden"
               onClick={() => setOpen(!open)}
             >
               {open ? <X size={18} /> : <Menu size={18} />}
@@ -305,12 +305,12 @@ export function Header() {
                   onMouseEnter={warmProfileCache}
                   onClick={go("/profile")}
                   href="/profile"
-                  className="hidden h-10 max-w-44 items-center gap-2.5 px-3.5 rounded-xl border border-white/10 bg-white/[0.03] text-xs font-semibold text-[#dce5bd] transition hover:border-[#84955a]/60 hover:bg-white/[0.08] hover:text-white md:inline-flex"
+                  className="hidden h-10 max-w-48 items-center gap-2.5 px-3.5 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-semibold text-[#dce5bd] transition hover:border-[#84955a]/60 hover:bg-white/[0.08] hover:text-white md:inline-flex"
                 >
                   {user.avatar ? (
                     <img src={user.avatar} alt="Steam avatar" className="h-6 w-6 shrink-0 rounded-full border border-[#82945b]" />
                   ) : (
-                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#82945b] text-[11px] font-bold text-black">
+                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#82945b] text-xs font-bold text-black">
                       {user.name ? user.name[0] : "U"}
                     </span>
                   )}
@@ -319,7 +319,7 @@ export function Header() {
               ) : (
                 <Link
                   onClick={go("/login")}
-                  className="hidden h-10 min-w-28 px-4 whitespace-nowrap items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-xs font-bold uppercase tracking-wider text-stone-300 transition hover:border-white/20 hover:bg-white/10 hover:text-white md:inline-flex"
+                  className="hidden h-10 min-w-28 px-4 whitespace-nowrap items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold uppercase tracking-wider text-stone-200 transition hover:border-white/20 hover:bg-white/10 hover:text-white md:inline-flex"
                   href="/login"
                 >
                   Увійти
@@ -329,7 +329,7 @@ export function Header() {
               <Link
                 onMouseEnter={user ? warmProfileCache : undefined}
                 onClick={go(user ? "/profile" : "/login")}
-                className="btn rounded-xl hidden !h-10 !min-h-10 min-w-28 !px-4 whitespace-nowrap text-xs sm:inline-flex items-center justify-center"
+                className="btn rounded-xl hidden !h-10 !min-h-10 min-w-28 !px-4 whitespace-nowrap text-[13px] sm:inline-flex items-center justify-center"
                 href={user ? "/profile" : "/login"}
               >
                 {user ? "Профіль" : "Steam Вхід"}
@@ -338,12 +338,12 @@ export function Header() {
               <Link
                 onClick={go("/checkout")}
                 aria-label="Кошик"
-                className="relative grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-[#d9e6b3] transition hover:border-[#84955a] hover:bg-white/10 hover:text-white"
+                className="relative grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-[#d9e6b3] transition hover:border-[#84955a] hover:bg-white/10 hover:text-white"
                 href="/checkout"
               >
                 <ShoppingCart size={18} />
                 {items.length > 0 && (
-                  <b className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-ember text-[9px] text-white">
+                  <b className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-ember text-[11px] font-bold text-white shadow">
                     {items.length}
                   </b>
                 )}

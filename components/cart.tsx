@@ -106,16 +106,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#b6c980]" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#b6c980]">
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-[#b6c980]">
                     Товар додано до кошика
                   </span>
                 </div>
-                <p className="mt-0.5 truncate text-sm font-bold text-white">{toast.product.name}</p>
-                <div className="mt-1 flex items-center gap-2.5 text-xs">
+                <p className="mt-0.5 truncate text-sm sm:text-[15px] font-bold text-white">{toast.product.name}</p>
+                <div className="mt-1 flex items-center gap-2.5 text-[13px]">
                   <span className="font-mono font-extrabold text-[#dce8b3]">{toast.product.price} ₴</span>
-                  <span className="text-white/20">•</span>
-                  <span className="text-stone-400">
-                    У кошику: <b className="text-stone-200 font-mono">{items.length}</b>
+                  <span className="text-white/25">•</span>
+                  <span className="text-stone-300">
+                    У кошику: <b className="text-white font-mono">{items.length}</b>
                   </span>
                 </div>
               </div>
@@ -125,11 +125,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 <Link
                   href="/checkout"
                   onClick={dismissToast}
-                  className="btn !min-h-9 h-9 !px-3.5 rounded-xl text-[11px] uppercase tracking-wider inline-flex items-center gap-1.5"
+                  className="btn !min-h-10 h-10 !px-3.5 rounded-xl text-xs uppercase tracking-wider inline-flex items-center gap-1.5"
                 >
-                  <ShoppingCart size={13} />
+                  <ShoppingCart size={14} />
                   <span>Кошик</span>
-                  <ArrowRight size={12} />
+                  <ArrowRight size={13} />
                 </Link>
                 <button
                   onClick={dismissToast}

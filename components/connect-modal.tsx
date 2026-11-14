@@ -10,12 +10,12 @@ function CopyButton({ value, label }: { value: string; label: string }) {
   const copy = async () => { await navigator.clipboard.writeText(value); setCopied(true); setTimeout(() => setCopied(false), 1400); };
   
   return (
-    <button onClick={copy} className="group flex w-full items-center justify-between rounded-2xl border border-white/10 bg-black/50 px-4 py-3.5 text-left transition hover:border-[#84955a] hover:bg-black/70 shadow-inner">
+    <button onClick={copy} className="group flex w-full items-center justify-between rounded-2xl border border-white/10 bg-black/50 px-4 py-3.5 text-left transition hover:border-[#84955a] hover:bg-black/70 shadow-inner cursor-pointer">
       <span>
-        <span className="block text-[10px] font-bold uppercase tracking-widest text-[#9fb372]">{label}</span>
-        <span className="mt-1 block font-mono text-sm text-stone-100 font-bold">{value}</span>
+        <span className="block text-xs font-bold uppercase tracking-widest text-[#b2c87e]">{label}</span>
+        <span className="mt-1 block font-mono text-base text-stone-100 font-bold">{value}</span>
       </span>
-      {copied ? <Check className="text-[#bfe47c]" size={17} /> : <Clipboard className="text-stone-400 group-hover:text-[#c2da82]" size={17} />}
+      {copied ? <Check className="text-[#bfe47c]" size={18} /> : <Clipboard className="text-stone-300 group-hover:text-[#c2da82]" size={18} />}
     </button>
   );
 }
@@ -69,7 +69,7 @@ export function ConnectModal() {
           <X size={18} />
         </button>
 
-        <div className="inline-flex items-center rounded-full bg-[#152011] px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-[#a8bc76] border border-[#26381e]/60 shadow-sm">
+        <div className="inline-flex items-center rounded-full bg-[#152011] px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-[#b6c980] border border-[#26381e]/60 shadow-sm">
           OutLand DayZ
         </div>
 
@@ -83,25 +83,25 @@ export function ConnectModal() {
           
           <article className="rounded-2xl border border-white/10 bg-black/40 p-5 backdrop-blur-md">
             <div className="flex items-center gap-2.5 text-[#b2c87e]">
-              <Monitor size={18} />
-              <h3 className="font-bold uppercase text-xs tracking-wider">Через DayZ Launcher</h3>
+              <Monitor size={19} />
+              <h3 className="font-bold uppercase text-sm tracking-wider">Через DayZ Launcher</h3>
             </div>
             
-            <ol className="mt-4 grid gap-3 text-xs sm:text-sm text-stone-300">
+            <ol className="mt-4 grid gap-3 text-sm sm:text-[15px] text-stone-200">
               <li className="flex items-start gap-3">
-                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#152011] text-[#b2c87e] font-bold text-xs border border-white/10">1</span>
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#152011] text-[#b2c87e] font-bold text-xs border border-white/10">1</span>
                 <span>Відкрийте офіційний лаунчер DayZ.</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#152011] text-[#b2c87e] font-bold text-xs border border-white/10">2</span>
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#152011] text-[#b2c87e] font-bold text-xs border border-white/10">2</span>
                 <span>Перейдіть у вкладку <strong className="text-white">«Сервери»</strong>.</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#152011] text-[#b2c87e] font-bold text-xs border border-white/10">3</span>
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#152011] text-[#b2c87e] font-bold text-xs border border-white/10">3</span>
                 <span>Натисніть <strong className="text-white">«Пряме підключення»</strong>.</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#152011] text-[#b2c87e] font-bold text-xs border border-white/10">4</span>
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#152011] text-[#b2c87e] font-bold text-xs border border-white/10">4</span>
                 <span>Введіть адресу та порт нижче.</span>
               </li>
             </ol>
@@ -113,26 +113,26 @@ export function ConnectModal() {
           </article>
 
           <div className="rounded-2xl border border-[#879d5b]/40 bg-black/40 p-4 backdrop-blur-md">
-            <p className="flex items-center gap-2 text-xs font-bold text-[#b2c87e] uppercase tracking-wider">
+            <p className="flex items-center gap-2 text-xs sm:text-[13px] font-bold text-[#b2c87e] uppercase tracking-wider">
               <Info size={16} /> Важливо
             </p>
-            <p className="mt-1.5 text-xs text-stone-300 leading-relaxed">
+            <p className="mt-1.5 text-sm text-stone-200 leading-relaxed">
               Перевірте, що встановлені всі необхідні моди. Список модів є в Discord.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/40 p-4 backdrop-blur-md">
             <div>
-              <p className="font-bold text-xs uppercase tracking-wider text-white">Виникли проблеми?</p>
-              <p className="mt-0.5 text-xs text-stone-400">Зверніться до нас у Discord — допоможемо підключитися.</p>
+              <p className="font-bold text-sm uppercase tracking-wider text-white">Виникли проблеми?</p>
+              <p className="mt-1 text-xs sm:text-[13px] text-stone-300">Зверніться до нас у Discord — допоможемо підключитися.</p>
             </div>
             <a 
               href={siteConfig.discord} 
               target="_blank" 
               rel="noreferrer" 
-              className="btn !min-h-10 rounded-xl text-xs uppercase tracking-wider px-4 inline-flex items-center gap-2"
+              className="btn !min-h-11 rounded-xl text-[13px] uppercase tracking-wider px-4 inline-flex items-center gap-2"
             >
-              <MessageCircle size={15} /> Перейти в Discord
+              <MessageCircle size={16} /> Перейти в Discord
             </a>
           </div>
 

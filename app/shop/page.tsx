@@ -147,11 +147,11 @@ export default function Shop() {
         {/* Панель пошуку, фільтрів та балансу */}
         <div className="hero-content-card !overflow-visible relative z-30 rounded-2xl bg-black/50 p-4 sm:p-5 backdrop-blur-md border border-white/10 shadow-2xl flex flex-wrap items-center gap-3.5">
           <div className="relative flex-1 min-w-[240px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-300" size={18} />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              className="w-full h-11 bg-black/40 border border-white/10 rounded-xl pl-11 pr-4 text-sm text-white placeholder-stone-400 outline-none focus:border-[#b6c980] transition"
+              className="w-full h-11 bg-black/45 border border-white/10 rounded-xl pl-11 pr-4 text-sm sm:text-[15px] text-white placeholder-stone-300 outline-none focus:border-[#b6c980] transition"
               placeholder="Пошук предмету за назвою..."
             />
           </div>
@@ -160,23 +160,23 @@ export default function Shop() {
             value={cat}
             onChange={setCat}
             options={categoryOptions}
-            icon={<Layers size={14} />}
-            className="min-w-[185px]"
+            icon={<Layers size={15} />}
+            className="min-w-[195px]"
           />
 
           <CustomSelect
             value={sort}
             onChange={setSort}
             options={sortOptions}
-            icon={<ArrowUpDown size={14} />}
-            className="min-w-[195px]"
+            icon={<ArrowUpDown size={15} />}
+            className="min-w-[205px]"
           />
 
           {user && (
-            <div className="h-11 rounded-xl bg-[#1c2413]/90 border border-[#b6c980]/30 flex items-center gap-2.5 px-4 shadow-lg">
-              <Coins size={17} className="text-[#b6c980] shrink-0" />
-              <span className="text-xs text-stone-300">Баланс:</span>
-              <b className="font-mono text-sm font-extrabold text-[#dce8b3]">
+            <div className="h-11 rounded-xl bg-[#1c2413]/90 border border-[#b6c980]/35 flex items-center gap-2.5 px-4 shadow-lg">
+              <Coins size={18} className="text-[#b6c980] shrink-0" />
+              <span className="text-[13px] font-medium text-stone-200">Баланс:</span>
+              <b className="font-mono text-[15px] font-extrabold text-[#dce8b3]">
                 {balance === null ? "…" : `${balance} ₴`}
               </b>
             </div>
@@ -184,20 +184,20 @@ export default function Shop() {
         </div>
 
         {products === null ? (
-          <div className="hero-content-card rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 mt-6 animate-pulse p-12 text-center text-stone-400 shadow-xl">
+          <div className="hero-content-card rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 mt-6 animate-pulse p-12 text-center text-stone-300 text-base shadow-xl">
             Завантаження товарів...
           </div>
         ) : (
           <>
-            <div className="mt-5 flex items-center justify-between text-xs text-stone-300 px-1">
-              <span className="inline-flex items-center gap-2">
-                <SlidersHorizontal size={13} className="text-[#b6c980]" />
-                Знайдено товарів: <b className="text-white font-mono text-sm">{view.length}</b>
+            <div className="mt-5 flex items-center justify-between text-[13px] sm:text-sm text-stone-200 px-1">
+              <span className="inline-flex items-center gap-2 font-medium">
+                <SlidersHorizontal size={15} className="text-[#b6c980]" />
+                Знайдено товарів: <b className="text-white font-mono text-base">{view.length}</b>
               </span>
               {cat !== "Усі" && (
                 <button
                   onClick={() => setCat("Усі")}
-                  className="text-[#b6c980] hover:text-white underline cursor-pointer"
+                  className="text-[#c8dc8f] hover:text-white font-semibold underline cursor-pointer"
                 >
                   Скинути фільтр ({cat})
                 </button>

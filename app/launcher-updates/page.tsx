@@ -1,8 +1,8 @@
 import { Check, Download, Gamepad2, MonitorDown, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
 
 const launcher = {
-  version: "1.2.0-beta.14",
-  download: "/launcher-updates/OutLand-Launcher-Beta-Setup-1.2.0-beta.14-x64.exe",
+  version: "1.2.0-beta.15",
+  download: "/launcher-updates/OutLand-Launcher-Beta-Setup-1.2.0-beta.15-x64.exe",
 };
 
 const features = [
@@ -53,18 +53,18 @@ export default function LauncherUpdatesPage() {
                 <a className="btn !min-h-12 !px-6" href={launcher.download} download>
                   <Download size={18} />Завантажити для Windows
                 </a>
-                <span className="launcher-version"><Check size={15} />Версія {launcher.version}</span>
+                <span className="launcher-version"><Check size={16} />Версія {launcher.version}</span>
               </div>
-              <p className="mt-4 text-xs text-stone-400">Windows 10 / 11 · x64 · після встановлення подальші оновлення будуть автоматичними.</p>
+              <p className="mt-4 text-[13px] sm:text-sm text-stone-300">Windows 10 / 11 · x64 · після встановлення подальші оновлення будуть автоматичними.</p>
             </div>
 
             <div className="launcher-device rounded-2xl p-5 sm:p-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div className="flex items-center gap-3"><span className="launcher-device-icon"><MonitorDown size={21} /></span><div><p className="text-sm font-bold text-[#eef5dd]">Outland Launcher</p><p className="text-xs text-stone-500">Готовий до запуску</p></div></div>
+                <div className="flex items-center gap-3"><span className="launcher-device-icon"><MonitorDown size={22} /></span><div><p className="text-base font-bold text-[#eef5dd]">Outland Launcher</p><p className="text-[13px] text-stone-300">Готовий до запуску</p></div></div>
                 <span className="launcher-online"><i />ONLINE</span>
               </div>
-              <div className="mt-5 space-y-3 text-sm">
-                <div className="launcher-device-row"><span>Оновлення</span><b><RefreshCw size={14} /> Автоматичні</b></div>
+              <div className="mt-5 space-y-3 text-sm sm:text-[15px]">
+                <div className="launcher-device-row"><span>Оновлення</span><b><RefreshCw size={15} /> Автоматичні</b></div>
                 <div className="launcher-device-row"><span>Сервер</span><b>149.50.101.26:2312</b></div>
                 <div className="launcher-device-row"><span>Статус</span><b className="text-[#cce784]">Готово до гри</b></div>
               </div>
@@ -75,22 +75,22 @@ export default function LauncherUpdatesPage() {
 
         <section className="mx-auto mt-8 grid max-w-5xl gap-4 md:grid-cols-3">
           {features.map(({ icon: Icon, title, description }, index) => (
-            <article className="launcher-feature rounded-2xl border border-white/10 bg-black/40 p-5 backdrop-blur-md" key={title}>
-              <div className="flex items-center justify-between"><span className="launcher-feature-icon"><Icon size={20} /></span><span className="eyebrow">0{index + 1}</span></div>
-              <h2 className="mt-5 text-lg font-bold text-[#f0f3e8]">{title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-stone-400">{description}</p>
+            <article className="launcher-feature rounded-2xl border border-white/10 bg-black/45 p-6 backdrop-blur-md" key={title}>
+              <div className="flex items-center justify-between"><span className="launcher-feature-icon"><Icon size={21} /></span><span className="eyebrow">0{index + 1}</span></div>
+              <h2 className="mt-5 text-xl font-bold text-[#f0f3e8]">{title}</h2>
+              <p className="mt-2.5 text-sm sm:text-[15px] leading-relaxed text-stone-200">{description}</p>
             </article>
           ))}
         </section>
 
-        <section className="launcher-steps mx-auto mt-8 max-w-5xl p-5 sm:p-6">
+        <section className="launcher-steps mx-auto mt-8 max-w-5xl p-6 sm:p-7">
           <p className="eyebrow">Початок гри</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             {[
               "Завантажте інсталятор для Windows.",
               "Встановіть та відкрийте Outland Launcher.",
               "Увійдіть у Steam і натисніть «Грати»."
-            ].map((text, index) => <div className="flex items-start gap-3" key={text}><span className="launcher-step-number">{index + 1}</span><p className="text-sm leading-relaxed text-stone-300">{text}</p></div>)}
+            ].map((text, index) => <div className="flex items-start gap-3.5" key={text}><span className="launcher-step-number">{index + 1}</span><p className="text-sm sm:text-[15px] leading-relaxed text-stone-200">{text}</p></div>)}
           </div>
         </section>
       </div>

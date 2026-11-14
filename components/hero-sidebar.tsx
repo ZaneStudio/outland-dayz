@@ -36,17 +36,17 @@ export function HeroSidebar() {
         {/* Шапка віджета новин */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/35 shadow-md">
-              <Newspaper size={19} />
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/35 shadow-md">
+              <Newspaper size={20} />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#b6c980]" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#b6c980]">
+                <span className="text-xs font-bold uppercase tracking-widest text-[#b6c980]">
                   Архів подій
                 </span>
               </div>
-              <h2 className="text-sm font-extrabold uppercase tracking-wider text-[#f2f5e9] mt-0.5">
+              <h2 className="text-base font-extrabold uppercase tracking-wider text-[#f2f5e9] mt-0.5">
                 Останні новини
               </h2>
             </div>
@@ -74,20 +74,20 @@ export function HeroSidebar() {
                     src={item.image}
                     alt={item.title}
                     decoding="async"
-                    className="h-20 w-24 sm:h-[84px] sm:w-[104px] shrink-0 rounded-xl border border-white/10 object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    className="h-20 w-24 sm:h-[86px] sm:w-[106px] shrink-0 rounded-xl border border-white/10 object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                   />
                 )}
                 <div className="min-w-0 flex-1 flex flex-col justify-center">
-                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#c8dc8f]">
-                    <Calendar size={12} className="text-[#b6c980] shrink-0" />
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#c8dc8f]">
+                    <Calendar size={13} className="text-[#b6c980] shrink-0" />
                     <span>{item.date}</span>
                   </div>
 
-                  <h3 className="mt-1 text-sm sm:text-[15px] font-bold text-[#f4f7ed] leading-snug transition group-hover:text-[#dce8b3] line-clamp-1">
+                  <h3 className="mt-1 text-[15px] sm:text-base font-bold text-[#f4f7ed] leading-snug transition group-hover:text-[#dce8b3] line-clamp-1">
                     {item.title}
                   </h3>
 
-                  <p className="mt-1.5 line-clamp-2 text-xs sm:text-[13px] leading-relaxed text-stone-200">
+                  <p className="mt-1.5 line-clamp-2 text-[13px] sm:text-sm leading-relaxed text-stone-200">
                     {item.text}
                   </p>
                 </div>
@@ -100,10 +100,10 @@ export function HeroSidebar() {
         <div className="mt-5 pt-4 border-t border-white/10">
           <Link
             href="/news"
-            className="btn btn-outline w-full !min-h-11 h-11 rounded-xl text-xs uppercase tracking-wider inline-flex items-center justify-center gap-2"
+            className="btn btn-outline w-full !min-h-11 h-11 rounded-xl text-[13px] uppercase tracking-wider inline-flex items-center justify-center gap-2"
           >
             <span>Усі новини</span>
-            <ArrowRight size={15} />
+            <ArrowRight size={16} />
           </Link>
         </div>
       </div>

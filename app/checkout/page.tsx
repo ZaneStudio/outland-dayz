@@ -167,28 +167,28 @@ export default function Checkout() {
                   className="hero-content-card rounded-2xl bg-black/50 p-5 backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-between gap-4"
                 >
                   <div className="flex items-center gap-4 min-w-0">
-                    <div className="h-14 w-14 shrink-0 rounded-xl bg-black/40 border border-white/10 grid place-items-center overflow-hidden">
+                    <div className="h-16 w-16 shrink-0 rounded-xl bg-black/45 border border-white/10 grid place-items-center overflow-hidden p-1.5">
                       {p.image ? (
-                        <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
+                        <img src={p.image} alt={p.name} className="h-full w-full object-contain" />
                       ) : (
-                        <ShoppingBag className="text-stone-400" size={22} />
+                        <ShoppingBag className="text-stone-300" size={24} />
                       )}
                     </div>
                     <div className="min-w-0">
-                      <h4 className="font-bold text-white truncate text-base">{p.name}</h4>
-                      <p className="text-xs text-stone-400 mt-0.5">Предмет для виживання</p>
+                      <h4 className="font-bold text-white truncate text-base sm:text-lg">{p.name}</h4>
+                      <p className="text-[13px] text-stone-300 mt-0.5">Предмет для виживання</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-5 shrink-0">
-                    <span className="font-mono text-base font-bold text-[#b6c980]">{p.price} ₴</span>
+                    <span className="font-mono text-base sm:text-lg font-extrabold text-[#b6c980]">{p.price} ₴</span>
                     {removeItem && (
                       <button
                         onClick={() => removeItem(p.id)}
-                        className="grid h-9 w-9 place-items-center rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition cursor-pointer"
+                        className="grid h-10 w-10 place-items-center rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition cursor-pointer"
                         title="Видалити"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={17} />
                       </button>
                     )}
                   </div>
@@ -197,20 +197,20 @@ export default function Checkout() {
             </div>
 
             <div className="hero-content-card rounded-2xl bg-black/50 p-6 sm:p-7 backdrop-blur-md border border-white/10 shadow-2xl h-fit">
-              <h3 className="font-bold text-white uppercase tracking-wider text-sm">Підсумок замовлення</h3>
+              <h3 className="font-bold text-white uppercase tracking-wider text-base">Підсумок замовлення</h3>
               <div className="my-4 h-[1px] w-full bg-white/10" />
 
-              <div className="flex items-center justify-between text-sm mb-6">
-                <span className="text-stone-300">Разом до сплати:</span>
-                <span className="font-mono text-xl font-bold text-[#b6c980] flex items-center gap-1.5">
-                  <Coins size={18} /> {total} ₴
+              <div className="flex items-center justify-between text-base mb-6">
+                <span className="text-stone-200 font-medium">Разом до сплати:</span>
+                <span className="font-mono text-2xl font-extrabold text-[#b6c980] flex items-center gap-1.5">
+                  <Coins size={20} /> {total} ₴
                 </span>
               </div>
 
               <button
                 onClick={handleCheckout}
                 disabled={isProcessing}
-                className={`btn w-full rounded-xl flex items-center justify-center gap-2 cursor-pointer ${
+                className={`btn w-full !min-h-12 rounded-xl flex items-center justify-center gap-2 cursor-pointer text-[13px] ${
                   isProcessing ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
@@ -221,15 +221,15 @@ export default function Checkout() {
         ) : (
           <div className="hero-content-card w-full rounded-2xl bg-black/50 p-10 sm:p-14 backdrop-blur-md border border-white/10 shadow-2xl text-center">
             <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-black/60 text-[#b6c980] border border-white/10 mb-5 animate-enter">
-              <ShoppingBag size={28} />
+              <ShoppingBag size={30} />
             </div>
-            <h3 className="font-bold text-xl text-white animate-enter delay-1">Кошик порожній</h3>
-            <p className="mt-2 text-sm text-stone-300 max-w-sm mx-auto leading-relaxed animate-enter delay-2">
+            <h3 className="font-bold text-2xl text-white animate-enter delay-1">Кошик порожній</h3>
+            <p className="mt-2.5 text-sm sm:text-base text-stone-200 max-w-md mx-auto leading-relaxed animate-enter delay-2">
               Оберіть необхідне спорядження в магазині, щоб продовжити виживання.
             </p>
             <div className="mt-8 animate-enter delay-3">
-              <Link href="/shop" className="btn inline-flex items-center gap-2 rounded-xl px-6">
-                <ShoppingCart size={16} /> Перейти в магазин <ArrowRight size={16} />
+              <Link href="/shop" className="btn inline-flex items-center gap-2 rounded-xl !min-h-12 px-7 text-[13px]">
+                <ShoppingCart size={17} /> Перейти в магазин <ArrowRight size={17} />
               </Link>
             </div>
           </div>

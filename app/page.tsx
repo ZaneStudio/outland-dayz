@@ -41,11 +41,11 @@ export default function Home() {
               {siteConfig.name}
             </h1>
 
-            <p className="animate-enter delay-2 mt-6 text-lg font-semibold text-[#dfe7cf] sm:text-2xl">
+            <p className="animate-enter delay-2 mt-6 text-xl font-semibold text-[#dfe7cf] sm:text-2xl">
               Український сервер DayZ
             </p>
 
-            <p className="animate-enter delay-2 mt-3 max-w-lg leading-relaxed text-stone-200">
+            <p className="animate-enter delay-2 mt-3 max-w-lg text-base sm:text-lg leading-relaxed text-stone-200">
               Виживай. Шукай. Борись. Твоя історія починається там,
               де закінчується цивілізація.
             </p>
@@ -55,9 +55,9 @@ export default function Home() {
               <a
                 href="/launcher-updates/OutLand-Launcher-Beta-Setup-1.2.0-beta.14-x64.exe"
                 download
-                className="btn btn-outline rounded-xl"
+                className="btn btn-outline rounded-xl !min-h-14 !px-7 !text-sm"
               >
-                <Download size={16} />
+                <Download size={18} />
                 Скачати лаунчер
               </a>
             </div>
@@ -78,24 +78,24 @@ export default function Home() {
               Наша спільнота
             </p>
 
-            <h2 className="heading mt-3 text-4xl">
+            <h2 className="heading mt-3 text-4xl sm:text-5xl">
               Не виживай наодинці
             </h2>
 
-            <p className="mt-5 max-w-2xl leading-relaxed text-stone-300">
+            <p className="mt-5 max-w-2xl text-base sm:text-lg leading-relaxed text-stone-200">
               Приєднуйся до української DayZ спільноти.
               Збирай загін, ділись історіями та будь в курсі подій.
             </p>
           </div>
 
           <a
-            className="btn rounded-xl self-center"
+            className="btn rounded-xl self-center !min-h-12 !px-6 !text-sm"
             href={siteConfig.discord}
             target="_blank"
             rel="noopener noreferrer"
           >
             Приєднатися до Discord
-            <Users size={16} />
+            <Users size={18} />
           </a>
         </div>
       </section>
@@ -105,25 +105,25 @@ export default function Home() {
       ===================================================== */}
       <section className="shell grid gap-5 py-20 sm:py-24 md:grid-cols-2">
         <div className="rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 p-7 transition duration-300 hover:-translate-y-2 hover:border-[#84955a]">
-          <Shield className="text-[#b6c980]" />
+          <Shield className="text-[#b6c980]" size={26} />
 
-          <h3 className="mt-5 font-bold">
+          <h3 className="mt-5 text-xl font-bold text-[#f2f5e9]">
             Чесна гра
           </h3>
 
-          <p className="mt-3 text-sm text-stone-400">
+          <p className="mt-3 text-base leading-relaxed text-stone-200">
             Активна модерація та захист від нечесної гри.
           </p>
         </div>
 
         <div className="rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 p-7 transition duration-300 hover:-translate-y-2 hover:border-[#84955a]">
-          <Users className="text-[#b6c980]" />
+          <Users className="text-[#b6c980]" size={26} />
 
-          <h3 className="mt-5 font-bold">
+          <h3 className="mt-5 text-xl font-bold text-[#f2f5e9]">
             Жива спільнота
           </h3>
 
-          <p className="mt-3 text-sm text-stone-400">
+          <p className="mt-3 text-base leading-relaxed text-stone-200">
             Події, рейди, торгівля й нові знайомства щодня.
           </p>
         </div>

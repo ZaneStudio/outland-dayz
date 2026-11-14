@@ -82,6 +82,7 @@ export function readCachedProfile(expectedSteamId?: string): CachedProfileData |
     if (savedBalance !== null && !Number.isNaN(Number(savedBalance))) {
       cached.balance = Number(savedBalance);
     }
+    cached.vipLabel = "Відсутній";
 
     memoryProfile = cached;
     memoryUser = cached.user;
@@ -190,7 +191,7 @@ export function refreshProfile(): Promise<CachedProfileData | null> {
             : typeof data?.account?.balance === "number"
               ? data.account.balance
               : 0,
-          vipLabel: data?.vip?.name || existing?.vipLabel || "Неактивний",
+          vipLabel: "Відсутній",
           orders: data.degraded
             ? existing?.orders || []
             : Array.isArray(data?.purchases)
