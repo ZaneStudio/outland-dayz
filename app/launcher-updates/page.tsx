@@ -25,14 +25,19 @@ const features = [
 
 export default function LauncherUpdatesPage() {
   return (
-    <main className="launcher-page relative isolate overflow-hidden py-12 sm:py-16 lg:py-20">
-      <div className="absolute inset-0 -z-30">
-        <img src="/images/hero-bg.jpg" alt="" className="h-full w-full object-cover opacity-35" />
+    <main className="launcher-page relative isolate overflow-x-clip py-12 sm:py-16 lg:py-20">
+      <div className="fixed inset-0 h-screen w-screen overflow-hidden -z-30 pointer-events-none">
+        <img
+          src="/images/hero-bg.jpg"
+          alt=""
+          style={{ filter: "blur(6px) brightness(0.8)" }}
+          className="h-full w-full scale-105 object-cover object-center"
+        />
       </div>
-      <div className="absolute inset-0 -z-20 bg-black/20" />
-      <div className="hero-vignette absolute inset-0 -z-20" />
-      <div className="grid-lines absolute inset-0 -z-10 opacity-60" />
-      <div className="launcher-glow absolute -z-10" />
+      <div className="fixed inset-0 -z-20 bg-black/40 pointer-events-none" />
+      <div className="hero-vignette fixed inset-0 -z-20 pointer-events-none" />
+      <div className="grid-lines fixed inset-0 -z-10 opacity-55 pointer-events-none" />
+      <div className="launcher-glow fixed -z-10 pointer-events-none" />
 
       <div className="shell">
         <section className="launcher-hero hero-content-card mx-auto max-w-5xl overflow-hidden rounded-2xl p-6 sm:p-9 lg:p-12">

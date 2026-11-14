@@ -5,18 +5,19 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
   const { error } = await searchParams;
 
   return (
-    <main className="relative isolate min-h-[calc(100vh-64px)] overflow-hidden border-b border-white/10 flex items-center justify-center py-14 sm:py-20">
+    <main className="relative isolate min-h-[calc(100vh-64px)] overflow-hidden flex items-center justify-center py-14 sm:py-20">
       {/* Фон як на головній та в кошику */}
-      <div className="absolute inset-0 -z-20 pointer-events-none">
+      <div className="fixed inset-0 h-screen w-screen overflow-hidden -z-20 pointer-events-none">
         <img
           src="/images/hero-bg.jpg"
           alt="Outland DayZ Background"
-          className="h-full w-full scale-105 object-cover"
+          style={{ filter: "blur(6px) brightness(0.85)" }}
+          className="h-full w-full scale-105 object-cover object-center"
         />
       </div>
-      <div className="absolute inset-0 -z-10 bg-black/25 pointer-events-none" />
-      <div className="hero-vignette absolute inset-0 -z-10 pointer-events-none" />
-      <div className="grid-lines absolute inset-0 -z-10 opacity-60 pointer-events-none" />
+      <div className="fixed inset-0 -z-10 bg-black/40 pointer-events-none" />
+      <div className="hero-vignette fixed inset-0 -z-10 pointer-events-none" />
+      <div className="grid-lines fixed inset-0 -z-10 opacity-55 pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[560px] h-[320px] bg-[#b6c980]/10 blur-[130px] rounded-full pointer-events-none -z-10" />
 
       <div className="shell relative z-10 w-full flex justify-center">

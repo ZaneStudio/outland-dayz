@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { CartProvider } from "@/components/cart";
 import { AutumnLeaves } from "@/components/autumn-leaves";
 
@@ -22,10 +21,9 @@ export default function RootLayout({
         <CartProvider>
           <Header />
           <AutumnLeaves />
-          <main className="min-h-screen">
+          <main className="min-h-[calc(100vh-64px)]">
             {children}
           </main>
-          <Footer />
         </CartProvider>
       </body>
     </html>

@@ -108,7 +108,7 @@ export default function Checkout() {
 
   if (order) {
     return (
-      <main className="relative isolate min-h-[calc(100vh-64px)] overflow-hidden border-b border-white/10 flex items-center justify-center py-12">
+      <main className="relative isolate min-h-[calc(100vh-64px)] overflow-hidden flex items-center justify-center py-12">
         <div className="fixed inset-0 h-screen w-screen overflow-hidden -z-20 pointer-events-none">
           <img
             src="/images/hero-bg.jpg"
@@ -144,7 +144,7 @@ export default function Checkout() {
   }
 
   return (
-    <main className="relative isolate min-h-[calc(100vh-64px)] overflow-hidden border-b border-white/10 flex items-center justify-center py-12">
+    <main className="relative isolate min-h-[calc(100vh-64px)] overflow-hidden flex items-center justify-center py-12">
       <div className="fixed inset-0 h-screen w-screen overflow-hidden -z-20 pointer-events-none">
         <img
           src="/images/hero-bg.jpg"

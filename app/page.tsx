@@ -83,7 +83,7 @@ export default function Home() {
             <div className="animate-enter delay-3 pt-5 border-t border-white/10 grid gap-3.5 sm:grid-cols-2">
               <ConnectModal />
               <a
-                href="/launcher-updates/OutLand-Launcher-Beta-Setup-1.2.0-beta.14-x64.exe"
+                href="/launcher-updates/OutLand-Launcher-Beta-Setup-1.2.0-beta.15-x64.exe"
                 download
                 className="btn btn-outline rounded-xl !min-h-[52px] h-[52px] !px-6 !text-[13px] w-full"
               >
