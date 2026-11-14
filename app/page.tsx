@@ -103,89 +103,87 @@ export default function Home() {
       {/* =====================================================
           ДРУГИЙ ЕКРАН (ПРИ ПРОКРУТЦІ): ПЕРЕВАГИ ТА СПІЛЬНОТА
       ===================================================== */}
-      <div className="border-t border-white/10 bg-black/45 backdrop-blur-md py-16 sm:py-20">
-        <div className="shell space-y-6">
-          <div className="grid gap-6 md:grid-cols-3">
-            <article className="hero-content-card rounded-3xl bg-black/50 border border-white/10 p-6 sm:p-7 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#b6c980]/40">
-              <div className="flex items-center justify-between">
-                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/35 shadow-md">
-                  <Flame size={22} />
-                </div>
-                <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#b6c980]">
-                  01 · Атмосфера
-                </span>
+      <section className="shell pb-16 sm:pb-20 space-y-6">
+        <div className="grid gap-6 md:grid-cols-3">
+          <article className="hero-content-card rounded-3xl bg-black/50 backdrop-blur-md border border-white/10 p-6 sm:p-7 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#b6c980]/40">
+            <div className="flex items-center justify-between">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/35 shadow-md">
+                <Flame size={22} />
               </div>
-              <h3 className="mt-5 text-xl font-bold text-[#f2f5e9]">Власне будівництво та лут</h3>
-              <p className="mt-2.5 text-sm sm:text-[15px] leading-relaxed text-stone-200">
-                Унікальні механіки зведення баз, продуманий баланс спорядження та авторські модифікації спеціально для нашого сервера.
-              </p>
-            </article>
+              <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#b6c980]">
+                01 · Атмосфера
+              </span>
+            </div>
+            <h3 className="mt-5 text-xl font-bold text-[#f2f5e9]">Власне будівництво та лут</h3>
+            <p className="mt-2.5 text-sm sm:text-[15px] leading-relaxed text-stone-200">
+              Унікальні механіки зведення баз, продуманий баланс спорядження та авторські модифікації спеціально для нашого сервера.
+            </p>
+          </article>
 
-            <article className="hero-content-card rounded-3xl bg-black/50 border border-white/10 p-6 sm:p-7 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#b6c980]/40">
-              <div className="flex items-center justify-between">
-                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/35 shadow-md">
-                  <Shield size={22} />
-                </div>
-                <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#b6c980]">
-                  02 · Безпека
-                </span>
+          <article className="hero-content-card rounded-3xl bg-black/50 backdrop-blur-md border border-white/10 p-6 sm:p-7 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#b6c980]/40">
+            <div className="flex items-center justify-between">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/35 shadow-md">
+                <Shield size={22} />
               </div>
-              <h3 className="mt-5 text-xl font-bold text-[#f2f5e9]">Чесна гра та стабільність</h3>
-              <p className="mt-2.5 text-sm sm:text-[15px] leading-relaxed text-stone-200">
-                Високий FPS, мінімальний пінг, надійний захист від нечесної гри та чуйна адміністрація, яка завжди на зв’язку.
-              </p>
-            </article>
+              <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#b6c980]">
+                02 · Безпека
+              </span>
+            </div>
+            <h3 className="mt-5 text-xl font-bold text-[#f2f5e9]">Чесна гра та стабільність</h3>
+            <p className="mt-2.5 text-sm sm:text-[15px] leading-relaxed text-stone-200">
+              Високий FPS, мінімальний пінг, надійний захист від нечесної гри та чуйна адміністрація, яка завжди на зв’язку.
+            </p>
+          </article>
 
-            <article className="hero-content-card rounded-3xl bg-black/50 border border-white/10 p-6 sm:p-7 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#b6c980]/40">
-              <div className="flex items-center justify-between">
-                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/35 shadow-md">
-                  <Users size={22} />
-                </div>
-                <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#b6c980]">
-                  03 · Ком’юніті
-                </span>
+          <article className="hero-content-card rounded-3xl bg-black/50 backdrop-blur-md border border-white/10 p-6 sm:p-7 shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-[#b6c980]/40">
+            <div className="flex items-center justify-between">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#1c2413] text-[#b6c980] border border-[#b6c980]/35 shadow-md">
+                <Users size={22} />
               </div>
-              <h3 className="mt-5 text-xl font-bold text-[#f2f5e9]">Жива українська спільнота</h3>
-              <p className="mt-2.5 text-sm sm:text-[15px] leading-relaxed text-stone-200">
-                Щоденні рейди, торгівля між кланами, регулярні івенти у Зоні та активне спілкування в нашому Discord.
-              </p>
-            </article>
+              <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#b6c980]">
+                03 · Ком’юніті
+              </span>
+            </div>
+            <h3 className="mt-5 text-xl font-bold text-[#f2f5e9]">Жива українська спільнота</h3>
+            <p className="mt-2.5 text-sm sm:text-[15px] leading-relaxed text-stone-200">
+              Щоденні рейди, торгівля між кланами, регулярні івенти у Зоні та активне спілкування в нашому Discord.
+            </p>
+          </article>
+        </div>
+
+        <div className="hero-content-card rounded-3xl bg-black/50 backdrop-blur-md border border-white/10 p-7 sm:p-9 shadow-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="inline-block h-2 w-2 rounded-full bg-[#b6c980]" />
+              <p className="eyebrow text-xs text-[#b6c980]">Наша спільнота · Outland DayZ</p>
+            </div>
+            <h2 className="heading mt-2.5 text-3xl sm:text-5xl text-[#f2f5e9]">Не виживай наодинці</h2>
+            <p className="mt-3 text-sm sm:text-base leading-relaxed text-stone-200">
+              Приєднуйся до української DayZ спільноти у Discord — знаходь напарників для загону, слідкуй за анонсами
+              вайпів або обирай необхідне спорядження в магазині сервера.
+            </p>
           </div>
 
-          <div className="hero-content-card rounded-3xl bg-black/50 border border-white/10 p-7 sm:p-9 shadow-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="max-w-2xl">
-              <div className="flex items-center gap-2">
-                <span className="inline-block h-2 w-2 rounded-full bg-[#b6c980]" />
-                <p className="eyebrow text-xs text-[#b6c980]">Наша спільнота · Outland DayZ</p>
-              </div>
-              <h2 className="heading mt-2.5 text-3xl sm:text-5xl text-[#f2f5e9]">Не виживай наодинці</h2>
-              <p className="mt-3 text-sm sm:text-base leading-relaxed text-stone-200">
-                Приєднуйся до української DayZ спільноти у Discord — знаходь напарників для загону, слідкуй за анонсами
-                вайпів або обирай необхідне спорядження в магазині сервера.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap sm:flex-nowrap items-center gap-3.5 shrink-0">
-              <Link
-                href="/shop"
-                className="btn btn-outline rounded-xl !min-h-12 h-12 !px-6 !text-[13px] w-full sm:w-auto"
-              >
-                <ShoppingBag size={17} />
-                Магазин спорядження
-              </Link>
-              <a
-                className="btn rounded-xl !min-h-12 h-12 !px-6 !text-[13px] w-full sm:w-auto"
-                href={siteConfig.discord}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Users size={17} />
-                Приєднатися до Discord
-              </a>
-            </div>
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3.5 shrink-0">
+            <Link
+              href="/shop"
+              className="btn btn-outline rounded-xl !min-h-12 h-12 !px-6 !text-[13px] w-full sm:w-auto"
+            >
+              <ShoppingBag size={17} />
+              Магазин спорядження
+            </Link>
+            <a
+              className="btn rounded-xl !min-h-12 h-12 !px-6 !text-[13px] w-full sm:w-auto"
+              href={siteConfig.discord}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Users size={17} />
+              Приєднатися до Discord
+            </a>
           </div>
         </div>
-      </div>
+      </section>
     </main>
   );
 }
