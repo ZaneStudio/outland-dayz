@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Crown, Dices, Newspaper, Package, ShieldCheck, Ticket } from "lucide-react";
+import { Activity, Crown, Dices, Newspaper, Package, ShieldCheck, Ticket } from "lucide-react";
 
 const items = [
   { href: "/admin", label: "Товари", description: "Магазин", Icon: Package },
@@ -10,6 +10,7 @@ const items = [
   { href: "/admin/news", label: "Новини", description: "Публікації", Icon: Newspaper },
   { href: "/admin/roulette", label: "Рулетка", description: "Нагороди", Icon: Dices },
   { href: "/admin/promocodes", label: "Промокоди", description: "Бонуси", Icon: Ticket },
+  { href: "/admin/visitors", label: "Логи гравців", description: "Сервер · досьє", Icon: Activity },
 ];
 
 export function AdminNav() {

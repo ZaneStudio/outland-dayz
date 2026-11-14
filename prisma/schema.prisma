@@ -290,3 +290,45 @@ model SteamVisitor {
   lastSeen    DateTime @default(now())
   createdAt   DateTime @default(now())
 }
+
+model ServerLogEvent {
+  id         String   @id @default(cuid())
+  dedupeKey  String   @unique
+  eventType  String
+  playerName String
+  steamId    String?
+  bohemiaId  String?
+  ip         String?
+  beGuid     String?
+  details    String?
+  sourceFile String?
+  occurredAt DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([occurredAt])
+  @@index([playerName, occurredAt])
+  @@index([steamId, occurredAt])
+  @@index([bohemiaId])
+}
+
+model ServerPlayerProfile {
+  id               String    @id @default(cuid())
+  lookupKey        String    @unique
+  playerName       String
+  steamId          String?
+  bohemiaId        String?
+  beGuid           String?
+  lastIp           String?
+  isOnline         Boolean   @default(false)
+  joinCount        Int       @default(0)
+  firstSeenAt      DateTime  @default(now())
+  lastSeenAt       DateTime  @default(now())
+  lastDisconnectAt DateTime?
+  note             String?
+  updatedAt        DateTime  @updatedAt
+
+  @@index([playerName])
+  @@index([steamId])
+  @@index([bohemiaId])
+  @@index([lastSeenAt])
+}
