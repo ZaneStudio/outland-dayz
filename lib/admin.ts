@@ -1,6 +1,9 @@
 import { getSteamSession } from "@/lib/steam-auth";
 
-const BUILTIN_ADMIN_STEAM_IDS = ["76561199250591196"];
+const BUILTIN_ADMIN_STEAM_IDS = [
+  "76561199250591196",
+  "76561198789928918",
+];
 
 export async function currentAdmin() {
   const user = await getSteamSession();
