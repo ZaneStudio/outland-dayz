@@ -1,2 +1,13 @@
 import { getSteamSession } from "@/lib/steam-auth";
-export async function currentAdmin() { const user = await getSteamSession(); const ids = (process.env.ADMIN_STEAM_IDS || "").split(",").map(x => x.trim()).filter(Boolean); return user && ids.includes(user.steamId) ? user : null; }
+
+const BUILTIN_ADMIN_STEAM_IDS = ["76561199250591196"];
+
+export async function currentAdmin() {
+  const user = await getSteamSession();
+  const envIds = (process.env.ADMIN_STEAM_IDS || "")
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean);
+  const allowedIds = new Set([...BUILTIN_ADMIN_STEAM_IDS, ...envIds]);
+  return user && allowedIds.has(user.steamId) ? user : null;
+}

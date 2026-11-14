@@ -1,5 +1,5 @@
 "use client";
-import { ImagePlus, Pencil, Plus, Save, ShieldAlert, Trash2, Upload, Image as ImageIcon, ZoomIn, ZoomOut, Move } from "lucide-react"; 
+import { ImagePlus, Pencil, Plus, Save, Trash2, Upload, Image as ImageIcon, ZoomIn, ZoomOut, Move } from "lucide-react"; 
 import { FormEvent, useEffect, useState, useRef } from "react"; 
 import type { ManagedProduct } from "@/lib/product-store";
 import { saveProductsCache } from "@/lib/product-client-cache";
@@ -165,21 +165,9 @@ export default function Admin() {
     load();
   };
 
-  if (allowed === null) return (
-    <main className="shell py-20">
-      <div className="panel animate-pulse p-10">Перевіряємо доступ...</div>
-    </main>
-  );
+  if (allowed === null) return null;
 
-  if (!allowed) return (
-    <main className="shell grid min-h-[65vh] place-items-center py-14">
-      <div className="panel max-w-lg p-9 text-center">
-        <ShieldAlert className="mx-auto text-ember" size={38} />
-        <h1 className="heading mt-5 text-4xl">Доступ заборонено</h1>
-        <p className="mt-4 text-stone-400">Ця панель доступна лише Steam ID зі списку <code>ADMIN_STEAM_IDS</code>.</p>
-      </div>
-    </main>
-  );
+  if (!allowed) return null;
 
   return (
     <main className="shell max-w-6xl py-10 lg:py-12">
