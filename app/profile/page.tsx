@@ -135,7 +135,7 @@ export default function ProfilePage() {
     clearProfileCache();
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
     setUser(null);
-    window.location.href = "/";
+    window.dispatchEvent(new CustomEvent("outland:navigate", { detail: { href: "/", fullReload: true } }));
   };
 
   const handleTopUp = () => {

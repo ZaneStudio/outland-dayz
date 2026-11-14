@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Menu, ShoppingCart, X } from "lucide-react";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { readCachedProducts, refreshProducts, warmProductsCache } from "@/lib/product-client-cache";
 import {
@@ -50,45 +50,132 @@ export function Header() {
   const { items } = useCart();
   const router = useRouter();
   const path = usePathname();
+  const pathRef = useRef(path);
+  pathRef.current = path;
+
   const destination = useRef<string | null>(null);
   const startTimer = useRef<number | null>(null);
   const safetyTimer = useRef<number | null>(null);
   const transitionStartedAt = useRef<number>(0);
   const transitionSeq = useRef<number>(0);
 
+  const triggerCurtainNavigation = useCallback(
+    (targetHref: string, targetPathname?: string, fullReload?: boolean) => {
+      const resolvedPathname = targetPathname ?? targetHref.split("?")[0].split("#")[0];
+      if (!fullReload && resolvedPathname === pathRef.current) return;
+
+      setOpen(false);
+
+      if (resolvedPathname === "/profile") {
+        warmProfileCache();
+      } else if (resolvedPathname === "/shop") {
+        warmProductsCache();
+      }
+
+      const seq = ++transitionSeq.current;
+      destination.current = resolvedPathname;
+      transitionStartedAt.current = performance.now();
+      setTransitioning(true);
+
+      if (startTimer.current) window.clearTimeout(startTimer.current);
+      if (safetyTimer.current) window.clearTimeout(safetyTimer.current);
+
+      // Чекаємо, поки шторка плавно і повністю закриє екран, перш ніж рендерити нову сторінку
+      startTimer.current = window.setTimeout(() => {
+        if (transitionSeq.current !== seq) return;
+        startTimer.current = null;
+        if (fullReload) {
+          window.location.href = targetHref;
+          return;
+        }
+        window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+        startTransition(() => router.push(targetHref));
+      }, CURTAIN_ENTER_MS);
+
+      // Страхувальний таймер, щоб шторка ніколи не зависла
+      safetyTimer.current = window.setTimeout(() => {
+        if (transitionSeq.current !== seq) return;
+        setTransitioning(false);
+        destination.current = null;
+      }, 4500);
+    },
+    [router]
+  );
+
   const go = (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (href === path) return;
     e.preventDefault();
-    setOpen(false);
-
-    if (href === "/profile") {
-      warmProfileCache();
-    } else if (href === "/shop") {
-      warmProductsCache();
-    }
-
-    const seq = ++transitionSeq.current;
-    destination.current = href;
-    transitionStartedAt.current = performance.now();
-    setTransitioning(true);
-
-    if (startTimer.current) window.clearTimeout(startTimer.current);
-    if (safetyTimer.current) window.clearTimeout(safetyTimer.current);
-
-    // Чекаємо, поки шторка плавно і повністю закриє екран, перш ніж рендерити нову сторінку
-    startTimer.current = window.setTimeout(() => {
-      if (transitionSeq.current !== seq) return;
-      startTransition(() => router.push(href));
-      startTimer.current = null;
-    }, CURTAIN_ENTER_MS);
-
-    // Страхувальний таймер, щоб шторка ніколи не зависла
-    safetyTimer.current = window.setTimeout(() => {
-      if (transitionSeq.current !== seq) return;
-      setTransitioning(false);
-      destination.current = null;
-    }, 4500);
+    triggerCurtainNavigation(href, href);
   };
+
+  // Глобальний перехоплювач переходів для всіх внутрішніх посилань та кнопок на сайті
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      if (e.defaultPrevented) return;
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+      const target = e.target as HTMLElement | null;
+      const anchor = target?.closest?.("a");
+      if (!anchor) return;
+
+      if (anchor.hasAttribute("download") || anchor.dataset.noCurtain === "true") return;
+      const targetAttr = anchor.getAttribute("target");
+      if (targetAttr && targetAttr !== "_self") return;
+
+      const rawHref = anchor.getAttribute("href");
+      if (
+        !rawHref ||
+        rawHref.startsWith("#") ||
+        rawHref.startsWith("mailto:") ||
+        rawHref.startsWith("tel:") ||
+        rawHref.startsWith("javascript:")
+      ) {
+        return;
+      }
+
+      let url: URL;
+      try {
+        url = new URL(anchor.href, window.location.origin);
+      } catch {
+        return;
+      }
+
+      if (url.origin !== window.location.origin) return;
+
+      // Прямі посилання на завантаження файлів пропускаємо без шторки
+      if (/\.(exe|zip|rar|7z|msi|dmg|pdf)$/i.test(url.pathname)) return;
+
+      // Серверні редіректи авторизації (наприклад, /api/auth/steam) — піднімаємо шторку і переходимо
+      if (url.pathname.startsWith("/api/")) {
+        e.preventDefault();
+        triggerCurtainNavigation(url.href, url.pathname, true);
+        return;
+      }
+
+      if (url.pathname === pathRef.current && url.search === window.location.search) {
+        return;
+      }
+
+      e.preventDefault();
+      const nextHref = `${url.pathname}${url.search}${url.hash}`;
+      triggerCurtainNavigation(nextHref, url.pathname, false);
+    };
+
+    const handleCustomNavigate = (e: Event) => {
+      const custom = e as CustomEvent<{ href?: string; fullReload?: boolean }>;
+      const href = custom.detail?.href;
+      if (!href) return;
+      triggerCurtainNavigation(href, href.split("?")[0].split("#")[0], Boolean(custom.detail?.fullReload));
+    };
+
+    document.addEventListener("click", handleGlobalClick, true);
+    window.addEventListener("outland:navigate", handleCustomNavigate);
+
+    return () => {
+      document.removeEventListener("click", handleGlobalClick, true);
+      window.removeEventListener("outland:navigate", handleCustomNavigate);
+    };
+  }, [triggerCurtainNavigation]);
 
   useEffect(() => {
     const cachedUser = readCachedSessionUser();
