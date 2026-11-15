@@ -7,8 +7,8 @@ export interface LauncherReleaseInfo {
   downloadUrl: string;
 }
 
-const FALLBACK_VERSION = "1.2.0-beta.21";
-const FALLBACK_FILE = "OutLand-Launcher-Beta-Setup-1.2.0-beta.21-x64.exe";
+const FALLBACK_VERSION = "1.2.0-beta.22";
+const FALLBACK_FILE = "OutLand-Launcher-Beta-Setup-1.2.0-beta.22-x64.exe";
 
 /**
  * Resolves the latest available launcher installer from public/launcher-updates/latest.yml,
