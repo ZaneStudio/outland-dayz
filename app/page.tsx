@@ -4,8 +4,10 @@ import { Compass, Download, Flame, Radio, Shield, ShoppingBag, Swords, Users } f
 import { ConnectModal } from "@/components/connect-modal";
 import { HeroSidebar } from "@/components/hero-sidebar";
 import { siteConfig } from "@/lib/config";
+import { getLatestLauncherRelease } from "@/lib/launcher-release";
 
 export default function Home() {
+  const launcherRelease = getLatestLauncherRelease();
   return (
     <main className="relative isolate overflow-x-clip">
       {/* Зафіксований атмосферний фон на весь екран */}
@@ -83,8 +85,8 @@ export default function Home() {
             <div className="animate-enter delay-3 pt-5 border-t border-white/10 grid gap-3.5 sm:grid-cols-2">
               <ConnectModal />
               <a
-                href="/launcher-updates/OutLand-Launcher-Beta-Setup-1.2.0-beta.15-x64.exe"
-                download
+                href={launcherRelease.downloadUrl}
+                download={launcherRelease.fileName}
                 className="btn btn-outline rounded-xl !min-h-[52px] h-[52px] !px-6 !text-[13px] w-full"
               >
                 <Download size={18} />

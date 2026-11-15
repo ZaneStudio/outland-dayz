@@ -1,9 +1,5 @@
 import { Check, Download, Gamepad2, MonitorDown, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
-
-const launcher = {
-  version: "1.2.0-beta.20",
-  download: "/launcher-updates/OutLand-Launcher-Beta-Setup-1.2.0-beta.20-x64.exe",
-};
+import { getLatestLauncherRelease } from "@/lib/launcher-release";
 
 const features = [
   {
@@ -24,6 +20,7 @@ const features = [
 ];
 
 export default function LauncherUpdatesPage() {
+  const launcher = getLatestLauncherRelease();
   return (
     <main className="launcher-page relative isolate overflow-x-clip py-12 sm:py-16 lg:py-20">
       <div className="fixed inset-0 h-screen w-screen overflow-hidden -z-30 pointer-events-none">
@@ -55,7 +52,7 @@ export default function LauncherUpdatesPage() {
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
-                <a className="btn !min-h-12 !px-6" href={launcher.download} download>
+                <a className="btn !min-h-12 !px-6" href={launcher.downloadUrl} download={launcher.fileName}>
                   <Download size={18} />Завантажити для Windows
                 </a>
                 <span className="launcher-version"><Check size={16} />Версія {launcher.version}</span>
